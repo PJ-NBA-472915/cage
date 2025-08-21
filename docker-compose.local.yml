@@ -1,0 +1,69 @@
+services:
+  # Router service that will handle subdomain routing
+  router:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-test-key}
+      - SERVICE_TYPE=router
+    networks:
+      - agent-network
+    volumes:
+      - ./router-setup.sh:/app/pod-setup.sh:ro
+
+  # Agent pod 1 - alice
+  agent-alice:
+    build: .
+    ports:
+      - "8081:8080"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-test-key}
+      - SERVICE_TYPE=agent
+      - AGENT_ID=alice
+      - AGENT_NAME=Alice
+    networks:
+      - agent-network
+    volumes:
+      - ./example-pod-setup.sh:/app/pod-setup.sh:ro
+    depends_on:
+      - router
+
+  # Agent pod 2 - bob
+  agent-bob:
+    build: .
+    ports:
+      - "8082:8080"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-test-key}
+      - SERVICE_TYPE=agent
+      - AGENT_ID=bob
+      - AGENT_NAME=Bob
+    networks:
+      - agent-network
+    volumes:
+      - ./example-pod-setup.sh:/app/pod-setup.sh:ro
+    depends_on:
+      - router
+
+  # Test client to verify network connectivity
+  test-client:
+    build: .
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-test-key}
+      - SERVICE_TYPE=test-client
+    networks:
+      - agent-network
+    volumes:
+      - ./test-client-setup.sh:/app/pod-setup.sh:ro
+    depends_on:
+      - router
+      - agent-alice
+      - agent-bob
+
+networks:
+  agent-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

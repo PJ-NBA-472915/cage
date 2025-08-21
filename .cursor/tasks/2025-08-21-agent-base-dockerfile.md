@@ -52,6 +52,7 @@ Create a minimal, secure Ubuntu-based container image that ships with Python and
 - [x] Document deployment workflow and environment variables
 
 # Changelog
+- 2025-08-21 19:45 — Created local network testing setup with docker-compose, router configuration, and test client scripts for validating inter-container communication before Fly.io deployment
 - 2025-08-21 19:30 — Container successfully built and tested locally. All core functionality working including Gemini CLI, daemon heartbeat, and proper error handling for missing API key.
 - 2025-08-21 16:00 — Task file created with comprehensive requirements and implementation plan
 
@@ -66,6 +67,9 @@ Create a minimal, secure Ubuntu-based container image that ships with Python and
 - Fly.io architecture requires careful consideration of process management and health monitoring
 - Ubuntu 24.04 requires virtual environments for pip installations due to PEP 668 restrictions
 - Virtual environment approach provides clean isolation and avoids system package conflicts
+- **Container testing strategy**: Use background execution with `&` and then check logs/stop containers to avoid hanging terminal sessions
+- **Long-running task handling**: When testing containers that run indefinitely, use `podman run --name container-name &` then `podman logs container-name` and `podman stop container-name` for clean testing workflow
+- **Local-first approach**: Test all functionality locally before Fly.io deployment to catch issues early and validate the complete workflow
 
 # Issues / Risks
 - **Bloat creep**: Mitigation - Keep base minimal, push extras to pod-setup.sh ✅
@@ -76,12 +80,25 @@ Create a minimal, secure Ubuntu-based container image that ships with Python and
 
 # Next Steps
 1. ✅ Complete local testing and validation
-2. 🔄 Deploy to Fly.io for end-to-end validation
-3. 🔄 Test health checks and deployment workflow
-4. 🔄 Final documentation updates and cleanup
+2. 🔄 Test local network connectivity and inter-container communication
+3. 🔄 Validate local agent pod networking and service discovery
+4. 🔄 Test local health checks and monitoring
+5. 🔄 Deploy to Fly.io for end-to-end validation (after local network testing)
+6. 🔄 Final documentation updates and cleanup
 
 # References
 - [Fly.io Per-User Dev Environments Blueprint](https://fly.io/docs/blueprints/per-user-dev-environments/)
 - [Fly.io Machines Documentation](https://fly.io/docs/machines/)
 - [Google Generative AI Python SDK](https://ai.google.dev/docs/python_quickstart)
 - [Gemini CLI Documentation](https://ai.google.dev/docs/gemini_cli)
+
+# Deliverables
+- [x] Dockerfile (Ubuntu 24.04, non-root, Python, Gemini SDK, tini, Node.js ≥18 LTS, Gemini CLI installed globally).
+- [x] requirements.txt (minimal runtime deps for Python daemon).
+- [x] pod-entrypoint.sh (executes optional pod-setup.sh, then daemon; verifies gemini --version on start).
+- [x] agent_daemon.py (async skeleton; heartbeat; Gemini initialisation).
+- [x] fly.toml template (TCP/HTTP health checks).
+- [x] Example pod-setup.sh (repo-specific tooling hook).
+- [x] README notes (env vars & deploy steps, Podman & Fly workflows).
+- [x] docker-compose.local.yml (local network testing setup).
+- [x] Local testing scripts (router-setup.sh, test-client-setup.sh, test-local-network.sh).
