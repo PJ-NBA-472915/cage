@@ -1,0 +1,246 @@
+---
+description: Always drive work from a single .cursor/tasks/[taskname].md file; confirm the task first; keep it live-updated with progress, todos, changelog, and lessons; support a repo-wide In-Progress Tracker and a concise Status Report on demand.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Cursor Task Orchestration Rule
+
+You must orchestrate every task via a `.cursor/tasks/[current-date]-[taskname].md` file. Before any code or content changes, propose the task and get explicit confirmation.
+
+## Process
+
+### Overview
+- Always begin by creating a task file under .cursor/tasks/[current date]-[taskname].md.
+- Fill it with your initial understanding of the task, including assumptions and open questions.
+- Work with the user in iterations to clarify the task and refine requirements.
+- Once the user confirms the task definition, begin executing the work directly in the task file.
+- As you work, record actions taken, progress updates, and lessons learned.
+- Continuously check your progress against the requirements.
+- Deliver the results and ensure that the task file captures the definition, progress, and outcomes.
+
+> Get the current-date from the system with the the 'date "+%Y-%m-%d"' command.
+
+### Goals
+1.	Easy to interpret — The task file is structured clearly for both agent and user.
+2.	Reproducible steps — The process is standardised so any agent can follow it.
+3.	Consistent results — The same workflow produces reliable outcomes every time.
+
+### Flow Diagram
+
+```txt
+flowchart TD
+
+	A[Start] --> B[Create .cursor/tasks/[current date]-[taskname].md file]
+	B --> C[Write initial understanding of task]
+	C --> D[Iterate with user to clarify requirements]
+	D --> E{User confirms task definition?}
+	E -- No --> C
+	E -- Yes --> F[Work on the task file directly]
+	F --> G[Record actions, progress, lessons learned]
+	G --> H[Check progress against requirements]
+	H --> I{Requirements met?}
+	I -- No --> F
+	I -- Yes --> J[Deliver results & close task]
+	J --> K[End]
+```
+
+## 1) Confirmation Gate (do this first, before any work)
+- Pause and present a concise **Task Proposal** for confirmation. Ask:
+  1) *Is this the correct task?*
+  2) *Are these success criteria and acceptance checks correct?*
+  3) *Is this the right breakdown into subtasks?*
+- Do not start implementation until the user replies **Confirm** (minor edits OK; re-propose if scope meaningfully changes).
+
+**Proposal format to present in chat (prior to work):**
+- **Task name:** `<short, specific title>`
+- **Goal:** `<1–2 sentence outcome>`
+- **Deliverables:** `<list of concrete artefacts>`
+- **Success criteria:** `<objective checks/measurements>`
+- **Acceptance checks:** `<bulleted checks user can tick>`
+- **Subtasks:** `<numbered list of independent steps>`
+- **Estimated effort:** `<fibonacci numbers up to 13 or rough hours>`
+- **Risks/assumptions:** `<brief list>`
+
+## 2) Task File Location & Naming
+- Create or update: `.tasks/[taskname].md`.
+- Prefer a slugged name, e.g. `.tasks/2025-08-19-refactor-auth-guards.md`.
+- If a file already exists for the same task, **append updates** rather than creating duplicates.
+
+## 3) File Structure (must keep this structure)
+When the task is confirmed, generate the file with the following exact sections and keep them updated throughout the task. Compute progress from the checklist.
+
+```md
+---
+id: "<slug>"
+title: "<Task Name>"
+owner: "Jaak"
+status: "planned" # planned | in-progress | blocked | review | done | abandoned
+created_at: "<YYYY-MM-DD HH:mm>"
+updated_at: "<YYYY-MM-DD HH:mm>"
+progress_percent: 0
+tags: ["cursor", "task"]
+---
+
+# Summary
+Brief description of the task and the intended outcome.
+
+# Success Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+# Acceptance Checks
+- [ ] Check 1
+- [ ] Check 2
+
+# Subtasks
+Numbered plan of work. Each subtask should be independently verifiable.
+1. Subtask A
+2. Subtask B
+3. Subtask C
+
+# To-Do
+(Use this as the single source of truth for progress. Tick items as they’re completed.)
+- [ ] Step 1
+- [ ] Step 2
+- [ ] Step 3
+
+# Changelog
+Reverse-chronological log of changes made by Cursor (keep terse but specific).
+- <YYYY-MM-DD HH:mm> — What changed and why (files/commands)
+
+# Decisions & Rationale
+Key decisions, alternatives considered, and why the chosen path won.
+
+# Lessons Learned
+Short notes captured continuously during the task.
+
+# Issues / Risks
+Open problems, blockers, and mitigation ideas.
+
+# Next Steps
+Immediate follow-ups required to move forward or to complete the task.
+
+# References
+Links, docs, tickets, commits.
+
+# In-Progress Tracker (repo-wide)
+
+You should be able to query this repo at any time and get a snapshot focused on unfinished work. This tracker:
+	•	Lists only tasks whose status is not done or abandoned.
+	•	Shows each task’s status, progress_percent, the latest Changelog entry (“latest work”), and remaining unchecked To-Do items.
+	•	Provides a very short summary of the most recently completed tasks (last 3 by updated_at), using only their final changelog line.
+
+Collection rules
+	•	Scan all .tasks/*.md files.
+	•	Extract: title, status, progress_percent, updated_at, the most recent Changelog line, and all unchecked To-Do items.
+	•	Sort active tasks by updated_at descending (most recently updated first).
+	•	For “Recently Completed”, take up to 3 tasks with status: done, sorted by updated_at descending.
+
+Report Format
+When asked for status, progress, or tracker, produce the following markdown in chat and also write/update .tasks/_status.md:
+
+# In-Progress Tracker Report
+
+## Active Tasks
+- **<Task Title>** (`status: <status>`, progress: <progress_percent>%)
+  - Latest work: <most recent changelog entry>
+  - Remaining To-Do:
+    - [ ] <unchecked item 1>
+    - [ ] <unchecked item 2>
+    - …
+
+(repeat for all active tasks)
+
+## Recently Completed (short)
+- **<Task Title>** (done on <updated_at>)
+  - Summary: <final changelog entry>
+(repeat up to the last 3)
+
+# Live Updates Policy (throughout execution)
+	•	Always update updated_at, status, progress_percent, and relevant sections immediately after each meaningful action (commit, refactor, fix, test run, tool install, etc.).
+	•	Progress calculation: derive progress_percent from To-Do (checked ÷ total × 100, rounded to whole numbers). Keep Success Criteria and Acceptance Checks in sync.
+	•	Log each meaningful change in Changelog with timestamp and 1-line rationale.
+	•	Add short entries to Lessons Learned as insights emerge.
+	•	If blocked, set status: "blocked" and record the blocker in Issues / Risks with a proposed mitigation.
+
+# Subtask Discipline
+	•	Break the main task into small, independently verifiable subtasks.
+	•	Before starting a subtask, add its steps to To-Do.
+	•	After finishing a subtask, tick its items, update Changelog, and re-compute progress_percent.
+
+# Quantifying Progress
+	•	progress_percent must equal the percentage of To-Do items checked.
+	•	If the plan changes (scope added/removed), update Subtasks and To-Do first, then re-compute progress.
+	•	Do not manually fudge the percentage.
+
+# File Hygiene
+	•	Prefer amending the existing .tasks/[current date]-[taskname].md rather than creating new files mid-stream.
+	•	Keep sections in the exact order shown above.
+	•	Use UK English.
+	•	Be concise; avoid filler.
+
+# Completion
+	•	When all Acceptance Checks pass and To-Do is fully ticked:
+	•	Set status: "done" and progress_percent: 100.
+	•	Add a final Changelog entry noting completion.
+	•	Summarise outcomes in Summary and capture final Lessons Learned.
+
+# Status & Report Triggers (quality of life)
+
+When the user types any of: status, tracker, progress, what’s in progress, or asks for a report:
+	1.	Generate the In-Progress Tracker Report (spec above).
+	2.	Save/update it at .tasks/_status.mdx.
+	3.	Post the same markdown in chat.
+	4.	If no active tasks exist, state “No active tasks. Latest completed:” and show the short list.
+
+⸻
+
+# Blank task template
+
+```md
+---
+id: "yyyy-mm-dd-task-slug"
+title: "Task Title"
+owner: "Jaak"
+status: "planned"
+created_at: "2025-08-19 16:00"
+updated_at: "2025-08-19 16:00"
+progress_percent: 0
+tags: ["cursor","task"]
+---
+
+# Summary
+Short description.
+
+# Success Criteria
+- [ ] …
+
+# Acceptance Checks
+- [ ] …
+
+# Subtasks
+1. …
+
+# To-Do
+- [ ] …
+
+# Changelog
+- 2025-08-19 16:00 — File created.
+
+# Decisions & Rationale
+- …
+
+# Lessons Learned
+- …
+
+# Issues / Risks
+- …
+
+# Next Steps
+- …
+
+# References
+- …
+```
