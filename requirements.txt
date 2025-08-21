@@ -1,0 +1,4 @@
+google-generativeai==0.8.3
+httpx==0.27.2
+uvloop==0.20.0; platform_system != "Windows"
+loguru==0.7.2
