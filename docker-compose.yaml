@@ -3,9 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 8080:8080
+      args:
+        - REPOSITORY=${REPOSITORY}
+        - BRANCH=${BRANCH}
     volumes:
       - .:/workspace
     working_dir: /workspace
-    command: ["sleep", "infinity"]
+    env_file:
+      - .env
