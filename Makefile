@@ -10,6 +10,7 @@ help:
 	@echo ""
 	@echo "Development Setup:"
 	@echo "  setup-dev      - Set up development environment with devbox"
+	@echo "  setup-cursor-rules - Set up .cursor/rules link to memory-bank/rules"
 	@echo "  install-deps   - Install dependencies via devbox"
 	@echo "  check-deps     - Check if all dependencies are installed"
 	@echo "  devbox-shell   - Start devbox shell with development environment"
@@ -51,6 +52,15 @@ setup-dev: check-devbox
 	else \
 		echo "❌ devbox not found. Please install devbox first."; \
 		echo "Visit: https://www.jetpack.io/devbox/docs/installing_devbox/"; \
+		exit 1; \
+	fi
+
+setup-cursor-rules:
+	@echo "Setting up .cursor/rules link to memory-bank/rules..."
+	@if [ -f "memory-bank/scripts/setup-cursor-rules.sh" ]; then \
+		./memory-bank/scripts/setup-cursor-rules.sh; \
+	else \
+		echo "❌ Setup script not found at memory-bank/scripts/setup-cursor-rules.sh"; \
 		exit 1; \
 	fi
 
