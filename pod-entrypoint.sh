@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Show Gemini CLI status if installed
-if command -v gemini >/dev/null 2>&1; then
-  echo "[entrypoint] Gemini CLI version: $(gemini --version || true)"
-else
-  echo "[entrypoint][WARN] Gemini CLI not found on PATH"
-fi
+echo "[entrypoint] Starting agent container..."
 
 # Optional repo/pod specific setup
 if [[ -f "/app/pod-setup.sh" ]]; then
@@ -18,5 +13,6 @@ else
   echo "[entrypoint] No pod-setup.sh found. Skipping runtime setup."
 fi
 
-# Start the daemon
+# Start the agent daemon
+echo "[entrypoint] Starting agent daemon..."
 exec python3 /app/agent_daemon.py

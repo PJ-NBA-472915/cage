@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "[pod-setup] Installing repo-specific tools..."
+echo "[pod-setup] Installing repo-specific tools for agent..."
 
 # Python development tools
-pip3 install --no-cache-dir black ruff mypy
+pip3 install --no-cache-dir black ruff mypy pytest
 
-# Node.js example (uncomment if needed):
-# curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs
-# npm i -g pnpm typescript
+# Git configuration for agent
+git config --global user.name "Agent-Net Bot"
+git config --global user.email "agent@agentnet.local"
 
 # Additional system packages if needed
 # sudo apt-get update && sudo apt-get install -y jq htop
 
-echo "[pod-setup] Done."
+echo "[pod-setup] Agent setup complete."

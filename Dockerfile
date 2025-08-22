@@ -9,9 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    POETRY_VIRTUALENVS_CREATE=false \
-    # Default model can be overridden at runtime
-    GEMINI_MODEL=gemini-2.5-pro
+    POETRY_VIRTUALENVS_CREATE=false
 
 # Base OS + Python + tooling (lean, no recommendeds)
 RUN apt-get update -y && \
@@ -19,15 +17,6 @@ RUN apt-get update -y && \
       python3 python3-pip python3-venv python3-full python3-dev \
       ca-certificates curl git tini build-essential \
       xz-utils \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Node.js (>=18) for Gemini CLI, then install CLI globally
-# Using NodeSource official setup for current LTS
-RUN export NODE_MAJOR=20 \
-    && curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && npm install -g @google/gemini-cli \
-    && npm cache clean --force \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and writable dirs
