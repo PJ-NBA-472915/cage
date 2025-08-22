@@ -6,7 +6,8 @@
   ],
   "shell": {
     "init_hook": [
-      "export $(grep -v '^#' .env | xargs)"
+      "export $(grep -v '^#' .env | xargs)",
+      "source .rc"
     ]
   },
   "env": {
