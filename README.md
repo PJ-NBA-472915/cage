@@ -103,6 +103,84 @@ docker build -t agent-base:dev .
 
 ### Testing
 
+The project uses pytest for comprehensive testing with the following test categories:
+
+#### Test Structure
+```
+tests/
+├── unit/           # Unit tests for individual functions/classes
+├── integration/    # Integration tests for component interactions
+└── functional/     # End-to-end functional tests
+```
+
+#### Running Tests
+
+**Quick Start:**
+```bash
+# Run all tests
+./run_tests.sh
+
+# Or run directly with pytest
+pytest
+```
+
+**Specific Test Categories:**
+```bash
+# Unit tests only (fastest)
+pytest -m unit
+
+# Integration tests
+pytest -m integration
+
+# Functional tests
+pytest -m functional
+
+# Exclude slow tests
+pytest -m "not slow"
+```
+
+**With Coverage:**
+```bash
+# Run with coverage reporting
+pytest --cov=. --cov-report=html
+
+# View coverage report
+open htmlcov/index.html
+```
+
+**Test Selection:**
+```bash
+# Run specific test file
+pytest tests/unit/test_daemon.py
+
+# Run specific test function
+pytest tests/unit/test_daemon.py::test_init_gemini_with_valid_key
+
+# Run tests in parallel
+pytest -n auto
+```
+
+#### Test Configuration
+
+- **`pytest.ini`**: Main pytest configuration with markers and options
+- **`conftest.py`**: Shared fixtures and configuration for all tests
+- **Custom markers**: `@pytest.mark.unit`, `@pytest.mark.integration`, `@pytest.mark.async`
+
+#### Testing Standards
+
+All tests follow the established pytest testing standards defined in `.cursor/rules/pytest-testing-standards.md`. Key principles:
+
+- **Unit tests**: Fast, isolated tests for individual functions
+- **Integration tests**: Component interaction tests
+- **Functional tests**: End-to-end workflow tests
+- **Async support**: Proper handling of async/await patterns
+- **Mocking**: Comprehensive mocking of external dependencies
+- **Coverage**: Minimum 80% code coverage requirement
+
+#### Legacy Testing
+
+For backward compatibility, existing shell-based test scripts continue to work:
+
 ```bash
 # Test basic functionality
 podman run --rm agent-base:dev
