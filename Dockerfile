@@ -24,11 +24,14 @@ RUN groupadd -g ${APP_GID} ${APP_USER} && \
     useradd -m -u ${APP_UID} -g ${APP_GID} -s /bin/bash ${APP_USER} && \
     mkdir -p /app && chown -R ${APP_USER}:${APP_USER} /app
 
+# Install Cursor CLI for the app user
+USER ${APP_USER}
+RUN curl https://cursor.com/install -fsS | bash
+
 WORKDIR /app
 
 # Create virtual environment and install Python deps
-RUN python3 -m venv /app/venv && \
-    chown -R ${APP_USER}:${APP_USER} /app/venv
+RUN python3 -m venv /app/venv
 
 # Copy requirements and install in virtual environment
 COPY --chown=${APP_USER}:${APP_USER} requirements.txt /app/requirements.txt
@@ -42,7 +45,7 @@ RUN chmod +x /usr/local/bin/pod-entrypoint.sh
 USER ${APP_USER}
 
 # Update PATH to include virtual environment
-ENV PATH="/app/venv/bin:$PATH"
+ENV PATH="/app/venv/bin:/home/app/.local/bin:$PATH"
 
 EXPOSE 8080
 

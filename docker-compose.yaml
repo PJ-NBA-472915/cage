@@ -1,13 +1,103 @@
+version: "3.9"
+
 services:
-  pod:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"      # web
+      - "8080:8080"  # dashboard (insecure, local only)
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - proxy
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-agentnet}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  manager:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - REPOSITORY=${REPOSITORY}
-        - BRANCH=${BRANCH}
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://$${POSTGRES_USER:-postgres}:$${POSTGRES_PASSWORD:-postgres}@postgres:$${POSTGRES_PORT:-5432}/$${POSTGRES_DB:-agentnet}}
+    volumes:
+      - .:/workspace
+    working_dir: /workspace/memory-bank
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["python3 -m http.server 8081"]
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.manager.rule: "Host(`manager.localhost`)"
+      traefik.http.routers.manager.entrypoints: "web"
+      traefik.http.services.manager.loadbalancer.server.port: "8081"
+    networks:
+      - proxy
+      - internal
+
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      CURSOR_API_KEY: ${CURSOR_API_KEY:-}
     volumes:
       - .:/workspace
     working_dir: /workspace
-    env_file:
-      - .env
+    # Placeholder command to keep container running; replace to run agent_daemon
+    command: ["sleep", "infinity"]
+    depends_on:
+      - redis
+    networks:
+      - internal
+    deploy:
+      replicas: 1
+
+networks:
+  proxy:
+    driver: bridge
+  internal:
+    driver: bridge
+
+volumes:
+  redis_data:
+  pg_data:
