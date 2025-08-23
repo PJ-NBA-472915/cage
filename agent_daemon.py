@@ -146,7 +146,7 @@ class AgentDaemon:
         try:
             # Use Cursor CLI with -a for API key and -p for non-interactive mode
             cmd = [
-                "cursor", "-a", CURSOR_API_KEY, "-p",
+                "cursor-agent", "-a", CURSOR_API_KEY, "-p",
                 request
             ]
             
