@@ -56,12 +56,14 @@ services:
     depends_on:
       - redis
       - postgres
+    env_file:
+      - .env/.env.manager
     environment:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       DATABASE_URL: ${DATABASE_URL:-postgresql://$${POSTGRES_USER:-postgres}:$${POSTGRES_PASSWORD:-postgres}@postgres:$${POSTGRES_PORT:-5432}/$${POSTGRES_DB:-agentnet}}
     volumes:
-      - .:/workspace
-    working_dir: /workspace/memory-bank
+      - .:/app
+    working_dir: /app/memory-bank
     entrypoint: ["/bin/sh", "-c"]
     command: ["python3 -m http.server 8081"]
     networks:
@@ -72,14 +74,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - REPOSITORY=${REPOSITORY}
+    env_file:
+      - .env/.env.agent
     environment:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       CURSOR_API_KEY: ${CURSOR_API_KEY:-}
+      ORIGIN_BRANCH: ${ORIGIN_BRANCH:-main}
+      CURRENT_BRANCH: ${CURRENT_BRANCH:-agent-work}
     volumes:
-      - .:/workspace
-    working_dir: /workspace
-    # Placeholder command to keep container running; replace to run agent_daemon
-    command: ["sleep", "infinity"]
+      - .:/origin
+    working_dir: /app
+    # Run the agent daemon with just the CLI request
+    command: ["python3", "/app/agent_daemon.py", "write a poem about trees in poem.txt"]
     depends_on:
       - redis
     networks:
