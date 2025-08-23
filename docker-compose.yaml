@@ -1,20 +1,20 @@
-version: "3.9"
-
 services:
   traefik:
     image: traefik:v3.1
     command:
       - --api.insecure=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
     ports:
       - "80:80"      # web
       - "8080:8080"  # dashboard (insecure, local only)
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
     networks:
       - proxy
+      - internal
 
   redis:
     image: redis:7-alpine
@@ -64,11 +64,6 @@ services:
     working_dir: /workspace/memory-bank
     entrypoint: ["/bin/sh", "-c"]
     command: ["python3 -m http.server 8081"]
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.manager.rule: "Host(`manager.localhost`)"
-      traefik.http.routers.manager.entrypoints: "web"
-      traefik.http.services.manager.loadbalancer.server.port: "8081"
     networks:
       - proxy
       - internal
@@ -89,8 +84,7 @@ services:
       - redis
     networks:
       - internal
-    deploy:
-      replicas: 1
+    # Scale with: `podman compose up -d --scale agent=2`
 
 networks:
   proxy:
