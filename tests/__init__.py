@@ -1,8 +1,9 @@
 """
-Test package for the cage platform.
+Test package for memory-bank project.
 
-This package contains all tests organized by type:
-- unit: Unit tests for individual functions and classes
-- integration: Integration tests for component interactions
-- functional: End-to-end functional tests
+This package contains all tests organized according to pytest testing standards:
+- unit/: Unit tests for individual functions/classes
+- integration/: Integration tests for component interactions  
+- functional/: End-to-end functional tests
+- data/: Test data files
 """

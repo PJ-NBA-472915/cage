@@ -37,6 +37,14 @@ help:
 	@echo "  podman-exec    - Execute command in container"
 	@echo "  podman-inspect - Inspect container details"
 	@echo ""
+	@echo "Manager Operations:"
+	@echo "  manage         - Run the memory bank manager"
+	@echo "  verify         - Verify all spec slices against SPEC_RAW.md"
+	@echo "  slice          - Slice SPEC_RAW.md into heading-based sections"
+	@echo "  slice-file     - Slice a custom markdown file (usage: make slice-file FILE=path/to/file.md)"
+	@echo "  tasks-validate - Validate JSON tasks against schema"
+	@echo "  tasks-status   - Generate tasks/_status.json from JSON tasks"
+	@echo ""
 	@echo "Utilities:"
 	@echo "  clean          - Clean up generated files and caches"
 	@echo "  status         - Show project status and active tasks"
@@ -82,6 +90,8 @@ check-deps:
 		devbox run -- python -c "import pytest_mock; print('✅ pytest-mock installed')" && \
 		devbox run -- python -c "import pytest_xdist; print('✅ pytest-xdist installed')" && \
 		devbox run -- python -c "import aiohttp; print('✅ aiohttp installed')" && \
+		devbox run -- python -c "import yaml; print('✅ PyYAML installed')" && \
+		devbox run -- python -c "import jsonschema; print('✅ jsonschema installed')" && \
 		echo "✅ All dependencies installed"; \
 	else \
 		echo "❌ devbox not found. Please install devbox first."; \
@@ -118,7 +128,7 @@ test-functional: check-deps
 
 test-coverage: check-deps
 	@echo "Running tests with coverage..."
-	devbox run -- pytest --cov=. --cov-report=term-missing --cov-report=html --cov-report=xml -v
+	devbox run -- pytest --cov=manager --cov-report=term-missing --cov-report=html --cov-report=xml -v
 
 test-fast: check-deps
 	@echo "Running fast tests (excluding slow markers)..."
@@ -248,3 +258,33 @@ devbox-shell: check-devbox
 quickstart: dev
 	@echo "🚀 Quick start complete!"
 	@echo "Run 'make help' to see all available commands"
+
+# Manager Commands
+manage: check-deps
+	@echo "Running Memory Bank Manager..."
+	devbox run -- python app.py
+
+verify: check-deps
+	@echo "Verifying all spec slices against SPEC_RAW.md..."
+	devbox run -- python -c "from manager.spec_manager import SpecManager; SpecManager().verify_all_slices()"
+
+slice: check-deps
+	@echo "Slicing SPEC_RAW.md into heading-based sections..."
+	devbox run -- python app.py --slice
+
+slice-file: check-deps
+	@if [ -z "$(FILE)" ]; then \
+		echo "Error: FILE parameter is required"; \
+		echo "Usage: make slice-file FILE=path/to/file.md"; \
+		exit 1; \
+	fi
+	@echo "Slicing $(FILE) into heading-based sections..."
+	devbox run -- python app.py --slice --source-file $(FILE)
+
+tasks-validate: check-deps
+	@echo "Validating JSON tasks..."
+	devbox run -- python scripts/validate_tasks.py
+
+tasks-status: check-deps
+	@echo "Generating tasks/_status.json..."
+	devbox run -- python scripts/generate_status.py
