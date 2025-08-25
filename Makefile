@@ -45,6 +45,10 @@ help:
 	@echo "  tasks-validate - Validate JSON tasks against schema"
 	@echo "  tasks-status   - Generate tasks/_status.json from JSON tasks"
 	@echo ""
+	@echo "Agent Work Operations:"
+	@echo "  agent-work     - Run agent container with repository and instruction (usage: make agent-work REPO=url INSTRUCTION=\"instruction\")"
+	@echo "  agent-work-interactive - Interactive agent container with repository"
+	@echo ""
 	@echo "Utilities:"
 	@echo "  clean          - Clean up generated files and caches"
 	@echo "  status         - Show project status and active tasks"
@@ -288,3 +292,56 @@ tasks-validate: check-deps
 tasks-status: check-deps
 	@echo "Generating tasks/_status.json..."
 	devbox run -- python scripts/generate_status.py
+
+# Agent Work Commands
+agent-work: check-podman
+	@if [ -z "$(REPO)" ]; then \
+		echo "Error: REPO parameter is required"; \
+		echo "Usage: make agent-work REPO=https://github.com/user/repo.git INSTRUCTION=\"Your instruction here\""; \
+		echo ""; \
+		echo "This command will:"; \
+		echo "  1. Build the agent container if needed"; \
+		echo "  2. Run a container with the specified repository"; \
+		echo "  3. Clone the repo and set up workspace"; \
+		echo "  4. Execute the specified instruction using Cursor CLI"; \
+		exit 1; \
+	fi
+	@if [ -z "$(INSTRUCTION)" ]; then \
+		echo "Error: INSTRUCTION parameter is required"; \
+		echo "Usage: make agent-work REPO=https://github.com/user/repo.git INSTRUCTION=\"Your instruction here\""; \
+		echo ""; \
+		echo "Examples:"; \
+		echo "  make agent-work REPO=https://github.com/user/repo.git INSTRUCTION=\"Please write a poem about apples.\""; \
+		echo "  make agent-work REPO=https://github.com/user/repo.git INSTRUCTION=\"Analyze the codebase and provide a summary\""; \
+		exit 1; \
+	fi
+	@echo "Starting agent work with repository: $(REPO)"
+	@echo "Instruction: $(INSTRUCTION)"
+	@echo "Building agent container..."
+	podman build -t cage-agent:latest .
+	@echo "Running agent container with repository and instruction..."
+	podman run --rm -it \
+		-e CURSOR_API_KEY=$${CURSOR_API_KEY:-} \
+		-e ORIGIN_BRANCH=$${ORIGIN_BRANCH:-main} \
+		-e CURRENT_BRANCH=$${CURRENT_BRANCH:-agent-work} \
+		-v $(REPO):/origin \
+		cage-agent:latest \
+		python3 /app/agent_daemon_consolidated.py --cli-request "$(INSTRUCTION)"
+
+agent-work-interactive: check-podman
+	@if [ -z "$(REPO)" ]; then \
+		echo "Error: REPO parameter is required"; \
+		echo "Usage: make agent-work-interactive REPO=https://github.com/user/repo.git"; \
+		exit 1; \
+	fi
+	@echo "Starting interactive agent work with repository: $(REPO)"
+	@echo "Building agent container..."
+	podman build -t cage-agent:latest .
+	@echo "Running agent container in interactive mode..."
+	podman run --rm -it \
+		-e CURSOR_API_KEY=$${CURSOR_API_KEY:-} \
+		-e ORIGIN_BRANCH=$${ORIGIN_BRANCH:-main} \
+		-e CURRENT_BRANCH=$${CURRENT_BRANCH:-agent-work} \
+		-v $(REPO):/origin \
+		cage-agent:latest \
+		/bin/bash

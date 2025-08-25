@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Show Gemini CLI status if installed
-if command -v gemini >/dev/null 2>&1; then
-  echo "[entrypoint] Gemini CLI version: $(gemini --version || true)"
+# Show Cursor CLI status if installed
+if command -v cursor-agent >/dev/null 2>&1; then
+  echo "[entrypoint] Cursor CLI version: $(cursor-agent --version || true)"
 else
-  echo "[entrypoint][WARN] Gemini CLI not found on PATH"
+  echo "[entrypoint][WARN] Cursor CLI not found on PATH"
 fi
 
 # Optional repo/pod specific setup
@@ -18,5 +18,5 @@ else
   echo "[entrypoint] No pod-setup.sh found. Skipping runtime setup."
 fi
 
-# Start the daemon
-exec python3 /app/agent_daemon.py
+# Start the consolidated daemon
+exec python3 /app/agent_daemon_consolidated.py

@@ -62,7 +62,7 @@ The container supports runtime customization via `pod-setup.sh`:
 ```
 /app/
 ├── venv/                 # Python virtual environment
-├── agent_daemon.py       # Main agent daemon
+├── agent_daemon_consolidated.py       # Main consolidated agent daemon
 ├── requirements.txt      # Python dependencies
 └── pod-setup.sh         # Optional runtime setup (mounted)
 ```
@@ -111,7 +111,7 @@ echo 'Syntax check passed!'
 # Test daemon startup (will fail without Redis, which is expected)
 podman run --rm agent-test /bin/bash -c "
 cd /app && source venv/bin/activate
-timeout 5 python3 agent_daemon.py || echo 'Expected timeout - no Redis connection'
+timeout 5 python3 agent_daemon_consolidated.py || echo 'Expected timeout - no Redis connection'
 "
 ```
 
@@ -181,7 +181,7 @@ Once you're comfortable with local usage:
 
 1. **Add Redis**: Set up a local Redis instance for full agent functionality
 2. **Customize Pod Setup**: Create project-specific pod-setup.sh scripts
-3. **Extend Agent**: Modify agent_daemon.py for your specific needs
+3. **Extend Agent**: Modify agent_daemon_consolidated.py for your specific needs
 4. **Production**: Consider Fly.io deployment for production use
 
 ## Support

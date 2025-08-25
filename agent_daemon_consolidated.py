@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Agent-Net Agent Daemon
+Consolidated Agent Daemon
 
-A simple containerized agent that can:
-- Accept repository path and CLI request arguments
-- Execute Cursor CLI commands for code modifications
-- Communicate with Redis for task coordination
-- Run as a non-root user with proper signal handling
+A unified daemon that combines:
+- Periodic heartbeat for health monitoring
+- Repository cloning and workspace setup
+- Cursor CLI command execution
+- Redis communication for task coordination
+- Proper signal handling and cleanup
+
+This replaces both daemon.py and agent_daemon.py with a single, well-structured system.
 """
 
 import argparse
@@ -27,28 +30,37 @@ CURSOR_API_KEY = os.getenv("CURSOR_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 ORIGIN_BRANCH = os.getenv("ORIGIN_BRANCH", "main")
 CURRENT_BRANCH = os.getenv("CURRENT_BRANCH", "agent-work")
+HEARTBEAT_INTERVAL = int(os.getenv("HEARTBEAT_INTERVAL", "10"))
 
 # Configure logging
 logger.remove()
 logger.add(sys.stderr, level="INFO", format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}")
 
+# Try to use uvloop for better performance
+try:
+    import uvloop  # type: ignore
+    uvloop.install()
+except Exception:
+    pass
 
-class AgentDaemon:
-    """Agent daemon for processing CLI requests and executing Cursor commands"""
+
+class ConsolidatedAgentDaemon:
+    """Consolidated agent daemon with heartbeat, repo management, and Cursor CLI execution"""
     
-    def __init__(self, cli_request: str):
+    def __init__(self, cli_request: str = None):
         self.cli_request = cli_request
         self.origin_path = Path("/origin")
         self.workspace_path = Path("/app/workspace")
         self.redis_client = None
         self.running = False
+        self.heartbeat_task = None
         
-        # Validate Cursor API key
-        if not CURSOR_API_KEY:
-            raise ValueError("CURSOR_API_KEY environment variable is required")
+        # Validate Cursor API key if CLI request is provided
+        if self.cli_request and not CURSOR_API_KEY:
+            raise ValueError("CURSOR_API_KEY environment variable is required for CLI operations")
     
     async def start(self):
-        """Start the agent daemon"""
+        """Start the consolidated agent daemon"""
         try:
             # Initialize Redis connection
             await self._init_redis()
@@ -58,24 +70,32 @@ class AgentDaemon:
             signal.signal(signal.SIGTERM, self._signal_handler)
             
             self.running = True
-            logger.info(f"Starting agent {AGENT_ID}")
-            logger.info(f"CLI request: {self.cli_request}")
+            logger.info(f"Starting consolidated agent daemon {AGENT_ID}")
             
-            # Set up workspace by cloning from origin
-            await self._setup_workspace()
+            # Start heartbeat task
+            self.heartbeat_task = asyncio.create_task(self._heartbeat())
             
-            # Process the CLI request
-            await self._process_cli_request()
+            # If CLI request provided, set up workspace and process it
+            if self.cli_request:
+                logger.info(f"CLI request: {self.cli_request}")
+                await self._setup_workspace()
+                await self._process_cli_request()
             
-            # Keep running for potential future requests
+            # Keep running for heartbeat and potential future requests
             while self.running:
                 await asyncio.sleep(1)
                 
         except Exception as e:
-            logger.error(f"Error in agent daemon: {e}")
+            logger.error(f"Error in consolidated agent daemon: {e}")
             raise
         finally:
             await self._cleanup()
+    
+    async def _heartbeat(self):
+        """Emit periodic heartbeat for health monitoring"""
+        while self.running:
+            logger.info(f"agent-daemon heartbeat from {AGENT_ID}")
+            await asyncio.sleep(HEARTBEAT_INTERVAL)
     
     async def _setup_workspace(self):
         """Set up workspace by cloning from origin and creating a new branch"""
@@ -267,20 +287,27 @@ class AgentDaemon:
     
     async def _cleanup(self):
         """Clean up resources"""
+        if self.heartbeat_task:
+            self.heartbeat_task.cancel()
+            try:
+                await self.heartbeat_task
+            except asyncio.CancelledError:
+                pass
+        
         if self.redis_client:
             await self.redis_client.close()
-        logger.info("Agent daemon shutdown complete")
+        logger.info("Consolidated agent daemon shutdown complete")
 
 
 async def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description="Agent-Net Agent Daemon")
-    parser.add_argument("cli_request", help="CLI request to execute")
+    parser = argparse.ArgumentParser(description="Consolidated Agent-Net Agent Daemon")
+    parser.add_argument("--cli-request", help="CLI request to execute (optional)")
     
     args = parser.parse_args()
     
     try:
-        daemon = AgentDaemon(args.cli_request)
+        daemon = ConsolidatedAgentDaemon(args.cli_request)
         await daemon.start()
     except KeyboardInterrupt:
         logger.info("Shutdown requested by user")

@@ -39,7 +39,7 @@ RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Entrypoint & daemon
 COPY --chown=${APP_USER}:${APP_USER} pod-entrypoint.sh /usr/local/bin/pod-entrypoint.sh
-COPY --chown=${APP_USER}:${APP_USER} agent_daemon.py /app/agent_daemon.py
+COPY --chown=${APP_USER}:${APP_USER} agent_daemon_consolidated.py /app/agent_daemon_consolidated.py
 RUN chmod +x /usr/local/bin/pod-entrypoint.sh
 
 USER ${APP_USER}

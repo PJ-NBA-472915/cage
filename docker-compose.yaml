@@ -87,7 +87,7 @@ services:
       - .:/origin
     working_dir: /app
     # Run the agent daemon with just the CLI request
-    command: ["python3", "/app/agent_daemon.py", "write a poem about trees in poem.txt"]
+    command: ["python3", "/app/agent_daemon_consolidated.py", "--cli-request", "write a poem about trees in poem.txt"]
     depends_on:
       - redis
     networks:

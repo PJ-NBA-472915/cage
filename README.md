@@ -83,7 +83,7 @@ echo "Setup complete!"
 ├── Dockerfile              # Main container definition
 ├── requirements.txt        # Python dependencies
 ├── pod-entrypoint.sh      # Runtime entrypoint script
-├── agent_daemon.py        # Python daemon service
+├── agent_daemon_consolidated.py        # Python consolidated daemon service
 ├── fly.toml               # Fly.io deployment config
 ├── example-pod-setup.sh   # Example customization script
 └── README.md              # This file
@@ -218,7 +218,7 @@ Configure scaling in your `fly.toml`:
   SCALE_COUNT = "3"
 
 [processes]
-  app = "python3 /app/agent_daemon.py"
+  app = "python3 /app/agent_daemon_consolidated.py"
 ```
 
 ## Security Considerations
