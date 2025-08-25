@@ -18,5 +18,6 @@ else
   echo "[entrypoint] No pod-setup.sh found. Skipping runtime setup."
 fi
 
-# Start the consolidated daemon
-exec python3 /app/agent_daemon_consolidated.py
+# Start supervisor to manage background processes
+echo "[entrypoint] Starting supervisor to manage background processes..."
+exec /app/venv/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

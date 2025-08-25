@@ -10,8 +10,16 @@ pytest-asyncio==0.21.1
 pytest-cov==4.1.0
 pytest-mock==3.12.0
 pytest-xdist==3.3.1
-aiohttp==3.9.1
+aiohttp>=3.10.0
 
 # Manager module dependencies
 PyYAML==6.0.1
 jsonschema==4.22.0
+
+# CrewAI agent framework
+crewai==0.165.1
+langchain==0.3.27
+langchain-openai==0.3.31
+
+# Process management
+supervisor==4.2.5

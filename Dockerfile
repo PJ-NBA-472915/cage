@@ -37,6 +37,16 @@ RUN python3 -m venv /app/venv
 COPY --chown=${APP_USER}:${APP_USER} requirements.txt /app/requirements.txt
 RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt
 
+# Create logs directory for supervisor
+RUN mkdir -p /app/logs && chown -R ${APP_USER}:${APP_USER} /app/logs
+
+# Copy supervisor configuration
+COPY --chown=${APP_USER}:${APP_USER} supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy supervisor control script
+COPY --chown=${APP_USER}:${APP_USER} scripts/supervisor-control.sh /usr/local/bin/supervisor-control
+RUN chmod +x /usr/local/bin/supervisor-control
+
 # Entrypoint & daemon
 COPY --chown=${APP_USER}:${APP_USER} pod-entrypoint.sh /usr/local/bin/pod-entrypoint.sh
 COPY --chown=${APP_USER}:${APP_USER} agent_daemon_consolidated.py /app/agent_daemon_consolidated.py
