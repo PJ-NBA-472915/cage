@@ -232,7 +232,7 @@ class ConsolidatedAgentDaemon:
             
             logger.info(f"Executing Cursor CLI command: {' '.join(cmd)}")
             
-            # Run the command
+            # Run the command with a timeout
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
@@ -240,15 +240,32 @@ class ConsolidatedAgentDaemon:
                 cwd=self.workspace_path
             )
             
-            stdout, stderr = await process.communicate()
+            try:
+                stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=300)  # 5 minute timeout
+            except asyncio.TimeoutError:
+                logger.error("Cursor CLI command timed out after 5 minutes")
+                process.terminate()
+                try:
+                    await asyncio.wait_for(process.wait(), timeout=5)
+                except asyncio.TimeoutError:
+                    process.kill()
+                    await process.wait()
+                return {
+                    "success": False,
+                    "error": "Command timed out after 5 minutes"
+                }
             
             if process.returncode == 0:
+                logger.info("Cursor CLI command completed successfully")
                 return {
                     "success": True,
                     "output": stdout.decode().strip(),
                     "stderr": stderr.decode().strip()
                 }
             else:
+                logger.error(f"Cursor CLI command failed with return code {process.returncode}")
+                logger.error(f"stdout: {stdout.decode().strip()}")
+                logger.error(f"stderr: {stderr.decode().strip()}")
                 return {
                     "success": False,
                     "error": stderr.decode().strip(),

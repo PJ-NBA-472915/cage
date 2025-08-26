@@ -4,11 +4,7 @@
     "poetry@1.7.1",
     "uv@0.6.12"
   ],
-  "shell": {
-    "init_hook": [
-      "export $(grep -v '^#' .env | xargs)"
-    ]
-  },
+  "shell": {},
   "env": {
     "PYTHONPATH":              "${PYTHONPATH}:${PWD}",
     "PYTHONUNBUFFERED":        "1",
