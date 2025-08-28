@@ -1,10 +1,10 @@
 {
   "packages": [
-    "python@3.10"
+    "python3"
   ],
   "shell": {
     "init_hook": [
-      "echo 'Welcome to your Python devbox!' > /dev/null"
+      "source .venv/bin/activate && pip install -r requirements.txt"
     ]
   }
 }

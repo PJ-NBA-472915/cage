@@ -268,12 +268,6 @@ def close(path: str, *, message: str, agent_id: str | None = None, task_id: str 
         subprocess.run(push_cmd, check=True)
     except subprocess.CalledProcessError as e:
         # Update registry with failure reason
-        failure_metadata = {
-            "status": "failed",
-            "failure_reason": "push_failed",
-            "error_message": f"Failed to push to remote: {e.stderr}"
-        }
-        _update_runtime_registry(agent_id, str(repo_path), failure_metadata)
         raise RuntimeError(f"Failed to push to remote: {e.stderr}")
 
     # Update registry with initial close status
@@ -303,21 +297,9 @@ def close(path: str, *, message: str, agent_id: str | None = None, task_id: str 
             # Fetch the latest from the remote
             subprocess.run(["git", "-C", str(repo_path), "fetch", remote], check=True)
 
-            # Check if target branch exists remotely
-            try:
-                subprocess.run(
-                    ["git", "-C", str(repo_path), "ls-remote", "--heads", remote, target_branch],
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-            except subprocess.CalledProcessError:
-                raise RuntimeError(f"Target branch '{target_branch}' does not exist on remote '{remote}'")
-
             # Check if target branch is protected (simple check: if it's main/master and not explicitly allowed)
             # This is a placeholder for a more robust protection mechanism.
-            # For now, we'll allow main but protect master
-            if target_branch == "master": # master is protected
+            if target_branch in ["main", "master"] and target_branch != "main": # Assuming "main" is the default and protected
                 raise RuntimeError(f"Target branch '{target_branch}' is protected. Merge aborted.")
 
             # Check out the default branch locally
@@ -359,53 +341,26 @@ def close(path: str, *, message: str, agent_id: str | None = None, task_id: str 
                     ).stdout.strip()
                 except subprocess.CalledProcessError as e:
                     # Merge conflicts occurred
-                    # Get conflicting files before aborting the merge
-                    try:
-                        conflict_result = subprocess.run(
-                            ["git", "-C", str(repo_path), "diff", "--name-only", "--diff-filter=U"],
-                            capture_output=True,
-                            text=True,
-                            check=True
-                        )
-                        conflict_files = conflict_result.stdout.strip().splitlines()
-                    except subprocess.CalledProcessError:
-                        # If we can't get conflict files, use a default
-                        conflict_files = ["unknown_conflict"]
-                    
-                    # Now abort the merge
                     subprocess.run(["git", "-C", str(repo_path), "merge", "--abort"], check=True)
-                    
-                    # Checkout back to the agent branch
-                    subprocess.run(["git", "-C", str(repo_path), "checkout", agent_branch_name], check=True)
-                    
                     merge_status = "conflict"
                     failure_reason = "merge_conflict"
+                    
+                    # Get conflicting files
+                    conflict_result = subprocess.run(
+                        ["git", "-C", str(repo_path), "diff", "--name-only", "--diff-filter=U"],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    conflict_files = conflict_result.stdout.strip().splitlines()
                     raise RuntimeError(f"Merge conflict: {e.stderr}")
 
             # Push the merged branch
-            try:
-                subprocess.run(["git", "-C", str(repo_path), "push", remote, target_branch], check=True)
-            except subprocess.CalledProcessError as e:
-                # Check if push was denied due to branch protection
-                if "protected" in e.stderr.lower() or "denied" in e.stderr.lower():
-                    merge_status = "blocked"
-                    failure_reason = "protected_branch"
-                    raise RuntimeError(f"Push to protected branch '{target_branch}' was denied: {e.stderr}")
-                else:
-                    merge_status = "failed"
-                    failure_reason = "push_failed"
-                    raise RuntimeError(f"Failed to push merged branch: {e.stderr}")
+            subprocess.run(["git", "-C", str(repo_path), "push", remote, target_branch], check=True)
 
         except RuntimeError as e:
-            if "protected" in str(e).lower():
-                merge_status = "blocked"
-                failure_reason = "protected_branch"
-            elif "conflict" in str(e).lower():
-                merge_status = "conflict"
-                failure_reason = "merge_conflict"
-            else:
-                merge_status = "failed"
-                failure_reason = str(e)
+            merge_status = "blocked" if "protected" in str(e) else "failed"
+            failure_reason = str(e)
             print(f"Merge failed: {e}", file=sys.stderr)
             raise e
         except subprocess.CalledProcessError as e:
@@ -417,12 +372,11 @@ def close(path: str, *, message: str, agent_id: str | None = None, task_id: str 
             # Update registry with merge results
             merge_metadata = {
                 "status": merge_status,
-                "merged": merge_status == "merged",
                 "merged_into": target_branch if merge_status == "merged" else None,
                 "merge_commit_sha": merge_commit_sha if merge_status == "merged" else None,
-                "merged_at": _now_iso() if merge_status == "merged" else None,
                 "conflict_files": conflict_files if merge_status == "conflict" else None,
                 "failure_reason": failure_reason,
+                "merged_at_iso": _now_iso() if merge_status == "merged" else None,
             }
             _update_runtime_registry(agent_id, str(repo_path), merge_metadata)
             
