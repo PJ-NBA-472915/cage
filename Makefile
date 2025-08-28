@@ -6,6 +6,9 @@ manage:
 tail-logs:
 	devbox run -- tail -f logs/manage.log
 
+test:
+	devbox run pytest
+
 ## Initialise a repo
 # Usage:
 #   make init path=<path> [args="..."]

@@ -238,21 +238,15 @@ class TestRepoCloseMerge:
         temp_main_clone = repo_path.parent / "temp_main_clone_conflict"
         subprocess.run(["git", "clone", str(remote_path), str(temp_main_clone)], check=True)
         subprocess.run(["git", "checkout", "main"], cwd=temp_main_clone, check=True)
-        (temp_main_clone / "conflict_file.txt").write_text("Content on main")
+        (temp_main_clone / "agent_file.txt").write_text("Content on main")
         subprocess.run(["git", "add", "."], cwd=temp_main_clone, check=True)
         subprocess.run(["git", "commit", "-m", "Conflict commit on main"], cwd=temp_main_clone, check=True)
         subprocess.run(["git", "push", "origin", "main"], cwd=temp_main_clone, check=True)
         shutil.rmtree(temp_main_clone)
 
         # Create a conflicting change on agent branch
-        (repo_path / "conflict_file.txt").write_text("Content on agent branch")
-        subprocess.run(["git", "add", "."], cwd=repo_path, check=True)
-        subprocess.run(["git", "commit", "-m", "Conflicting agent work"], cwd=repo_path, check=True)
+        (repo_path / "agent_file.txt").write_text("Content on agent branch")
         
-        # Make an additional change to ensure there's something to commit
-        (repo_path / "additional_change.txt").write_text("Additional change to ensure commit")
-        # Don't commit this change - leave it uncommitted so close() has something to work with
-
         with pytest.raises(RuntimeError, match="Merge conflict"):
             repo.close(
                 path=str(repo_path),
@@ -284,7 +278,7 @@ class TestRepoCloseMerge:
         assert conflict_call_args[2]["status"] == "conflict"
         assert conflict_call_args[2]["merged_into"] is None
         assert conflict_call_args[2]["merge_commit_sha"] is None
-        assert conflict_call_args[2]["conflict_files"] == ["conflict_file.txt"]
+        assert conflict_call_args[2]["conflict_files"] == ["agent_file.txt"]
         assert "failure_reason" in conflict_call_args[2]
         assert conflict_call_args[2]["merged"] is False
 
