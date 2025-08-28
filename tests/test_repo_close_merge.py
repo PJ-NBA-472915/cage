@@ -118,6 +118,7 @@ class TestRepoCloseMerge:
 
         # Make a change to commit
         (repo_path / "new_file_ff.txt").write_text("Fast-forward content")
+        subprocess.run(["git", "add", "."], cwd=repo_path, check=True)
 
         repo.close(
             path=str(repo_path),
@@ -177,6 +178,7 @@ class TestRepoCloseMerge:
 
         # Make a change to commit on agent branch
         (repo_path / "new_file_merge.txt").write_text("Merge commit content")
+        subprocess.run(["git", "add", "."], cwd=repo_path, check=True)
 
         repo.close(
             path=str(repo_path),
@@ -246,6 +248,7 @@ class TestRepoCloseMerge:
 
         # Create a conflicting change on agent branch
         (repo_path / "agent_file.txt").write_text("Content on agent branch")
+        subprocess.run(["git", "add", "."], cwd=repo_path, check=True)
         
         with pytest.raises(RuntimeError, match="Merge conflict"):
             repo.close(

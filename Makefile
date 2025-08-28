@@ -9,6 +9,9 @@ tail-logs:
 test:
 	devbox run pytest
 
+setup-gemini:
+	ln -s ./memory-bank/gemini/GEMINI.md ./GEMINI.md
+
 ## Initialise a repo
 # Usage:
 #   make init path=<path> [args="..."]

@@ -5,6 +5,7 @@ import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from contextlib import contextmanager
 import fcntl # For flock, if available and needed
 
 # --- Configuration ---
@@ -25,6 +26,16 @@ DEFAULT_CONFIG = {
     "advisory_only": False,
     "use_flock_when_available": True,
 }
+
+@contextmanager
+def global_lock():
+    lock_file = COORDINATION_DIR / ".globallock"
+    with open(lock_file, 'w') as lf:
+        try:
+            fcntl.flock(lf, fcntl.LOCK_EX)
+            yield
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
 
 def load_config():
     if not CONFIG_FILE.exists():
@@ -93,6 +104,22 @@ class LockManager:
         self.config = load_config()
         self._ensure_dirs()
 
+    def _cleanup_temp_files(self):
+        """Clean up orphaned .tmp files from previous runs."""
+        now = time.time()
+        for f in COORDINATION_DIR.glob("*.tmp.*"): 
+            if now - f.stat().st_mtime > 5:
+                try:
+                    f.unlink()
+                except FileNotFoundError:
+                    pass
+        for f in AGENT_LOCKS_DIR.glob("*.tmp.*"):
+            if now - f.stat().st_mtime > 5:
+                try:
+                    f.unlink()
+                except FileNotFoundError:
+                    pass
+
     def _ensure_dirs(self):
         COORDINATION_DIR.mkdir(exist_ok=True)
         AGENT_LOCKS_DIR.mkdir(exist_ok=True)
@@ -120,142 +147,139 @@ class LockManager:
         os.utime(heartbeat_file, None)
 
     def _check_path_overlap(self, new_paths, existing_claim_paths):
-        for new_p in new_paths:
-            new_path_obj = Path(new_p)
-            for existing_p in existing_claim_paths:
-                existing_path_obj = Path(existing_p)
+        for new_p_str in new_paths:
+            new_p = Path(new_p_str)
+            for existing_p_str in existing_claim_paths:
+                existing_p = Path(existing_p_str)
 
-                # Check if new_path is a directory and existing_path is inside it
-                if new_path_obj.is_dir() and is_path_ancestor(new_path_obj, existing_path_obj):
-                    return True
-                # Check if existing_path is a directory and new_path is inside it
-                if existing_path_obj.is_dir() and is_path_ancestor(existing_path_obj, new_path_obj):
-                    return True
-                # Check for exact match
-                if new_path_obj == existing_path_obj:
+                # Check for direct or parent/child path overlap
+                if new_p == existing_p or new_p in existing_p.parents or existing_p in new_p.parents:
                     return True
         return False
 
     def claim(self, agent_id, paths, topics, intent, issue_pr, reason, scope):
-        if not agent_id:
-            agent_id = generate_agent_id()
+        with global_lock():
+            if not agent_id:
+                agent_id = generate_agent_id()
 
-        if not paths and not topics:
-            print("Error: Must specify at least one path or topic to claim.", file=sys.stderr)
-            return False
+            if not paths and not topics:
+                print("Error: Must specify at least one path or topic to claim.", file=sys.stderr)
+                return 1
 
-        normalized_paths = [normalize_path(p) for p in paths]
-        if len(normalized_paths) > self.config["max_paths_per_claim"]:
-            print(f"Error: Too many paths. Max allowed: {self.config['max_paths_per_claim']}", file=sys.stderr)
-            return False
+            normalized_paths = [normalize_path(p) for p in paths]
+            if len(normalized_paths) > self.config["max_paths_per_claim"]:
+                print(f"Error: Too many paths. Max allowed: {self.config['max_paths_per_claim']}", file=sys.stderr)
+                return 1
 
-        if topics and not self.config["allow_topic_claims"]:
-            print("Error: Topic claims are not allowed by configuration.", file=sys.stderr)
-            return False
+            if topics and not self.config["allow_topic_claims"]:
+                print("Error: Topic claims are not allowed by configuration.", file=sys.stderr)
+                return 1
 
-        active_claims = self._get_active_claims()
-        for claim_id, claim_data in active_claims.items():
-            # Check for path conflicts
-            if normalized_paths and claim_data.get("paths"):
-                if self._check_path_overlap(normalized_paths, claim_data["paths"]):
-                    print(f"Conflict: Paths {normalized_paths} overlap with existing claim {claim_id} by agent {claim_data['agent_id']}.", file=sys.stderr)
-                    return False
-            # Check for topic conflicts
-            if topics and claim_data.get("topics"):
-                if any(t in claim_data["topics"] for t in topics):
-                    print(f"Conflict: Topics {topics} overlap with existing claim {claim_id} by agent {claim_data['agent_id']}.", file=sys.stderr)
-                    return False
+            active_claims = self._get_active_claims()
+            for claim_id, claim_data in active_claims.items():
+                # Check for path conflicts
+                if normalized_paths and claim_data.get("paths"):
+                    if self._check_path_overlap(normalized_paths, claim_data["paths"]):
+                        print(f"Conflict: Paths {normalized_paths} overlap with existing claim {claim_id} by agent {claim_data['agent_id']}.", file=sys.stderr)
+                        return 1
+                # Check for topic conflicts
+                if topics and claim_data.get("topics"):
+                    if any(t in claim_data["topics"] for t in topics):
+                        print(f"Conflict: Topics {topics} overlap with existing claim {claim_id} by agent {claim_data['agent_id']}.", file=sys.stderr)
+                        return 1
 
-        claim_id = f"claim_{uuid.uuid4().hex}"
-        created_at = get_current_utc_timestamp()
-        expires_at = (datetime.now(timezone.utc) + timedelta(minutes=self.config["lock_ttl_minutes"])).isoformat()
+            claim_id = f"claim_{uuid.uuid4().hex}"
+            created_at = get_current_utc_timestamp()
+            expires_at = (datetime.now(timezone.utc) + timedelta(minutes=self.config["lock_ttl_minutes"])).isoformat()
 
-        claim_data = {
-            "claim_id": claim_id,
-            "agent_id": agent_id,
-            "created_at": created_at,
-            "expires_at": expires_at,
-            "paths": normalized_paths,
-            "topics": topics,
-            "intent": intent,
-            "issue_pr": issue_pr,
-            "reason": reason,
-            "scope": scope,
-            "host": os.uname().nodename,
-            "pid": os.getpid(),
-        }
+            claim_data = {
+                "claim_id": claim_id,
+                "agent_id": agent_id,
+                "created_at": created_at,
+                "expires_at": expires_at,
+                "paths": normalized_paths,
+                "topics": topics,
+                "intent": intent,
+                "issue_pr": issue_pr,
+                "reason": reason,
+                "scope": scope,
+                "host": os.uname().nodename,
+                "pid": os.getpid(),
+            }
 
-        # Atomically write the claim file
-        atomic_write_json(self._get_claim_file_path(claim_id), claim_data)
+            # Atomically write the claim file
+            atomic_write_json(self._get_claim_file_path(claim_id), claim_data)
 
-        # Update active registry
-        active_claims[claim_id] = claim_data
-        self._update_active_claims(active_claims)
+            # Update active registry
+            active_claims[claim_id] = claim_data
+            self._update_active_claims(active_claims)
 
-        self._create_heartbeat(agent_id)
+            self._create_heartbeat(agent_id)
 
-        print(f"Claim {claim_id} successfully created by agent {agent_id}.")
-        return True
+            print(f"Claim {claim_id} successfully created by agent {agent_id}.")
+            return 0
 
     def release(self, agent_id, claim_id):
-        active_claims = self._get_active_claims()
-        if claim_id not in active_claims:
-            print(f"Error: Claim {claim_id} not found in active registry.", file=sys.stderr)
-            return False
+        with global_lock():
+            active_claims = self._get_active_claims()
+            if claim_id not in active_claims:
+                print(f"Error: Claim {claim_id} not found in active registry.", file=sys.stderr)
+                return 1
 
-        claim_data = active_claims[claim_id]
-        if claim_data["agent_id"] != agent_id:
-            print(f"Error: Agent {agent_id} does not own claim {claim_id}.", file=sys.stderr)
-            return False
+            claim_data = active_claims[claim_id]
+            if claim_data["agent_id"] != agent_id:
+                print(f"Error: Agent {agent_id} does not own claim {claim_id}.", file=sys.stderr)
+                return 1
 
-        # Remove from active registry
-        del active_claims[claim_id]
-        self._update_active_claims(active_claims)
+            # Remove from active registry
+            del active_claims[claim_id]
+            self._update_active_claims(active_claims)
 
-        # Move claim file to released_locks
-        claim_file = self._get_claim_file_path(claim_id)
-        if claim_file.exists():
-            os.rename(claim_file, RELEASED_LOCKS_DIR / claim_file.name)
+            # Move claim file to released_locks
+            claim_file = self._get_claim_file_path(claim_id)
+            if claim_file.exists():
+                os.rename(claim_file, RELEASED_LOCKS_DIR / claim_file.name)
 
-        # Log completion
-        completed_entry = {
-            "action": "released",
-            "timestamp": get_current_utc_timestamp(),
-            "agent_id": agent_id,
-            "claim_id": claim_id,
-            "claim_data": claim_data,
-        }
-        self._append_to_completed_log(completed_entry)
+            # Log completion
+            completed_entry = {
+                "action": "released",
+                "timestamp": get_current_utc_timestamp(),
+                "agent_id": agent_id,
+                "claim_id": claim_id,
+                "claim_data": claim_data,
+            }
+            self._append_to_completed_log(completed_entry)
 
-        print(f"Claim {claim_id} successfully released by agent {agent_id}.")
-        return True
+            print(f"Claim {claim_id} successfully released by agent {agent_id}.")
+            return 0
 
     def renew(self, agent_id, claim_id):
-        active_claims = self._get_active_claims()
-        if claim_id not in active_claims:
-            print(f"Error: Claim {claim_id} not found in active registry.", file=sys.stderr)
-            return False
+        with global_lock():
+            active_claims = self._get_active_claims()
+            if claim_id not in active_claims:
+                print(f"Error: Claim {claim_id} not found in active registry.", file=sys.stderr)
+                return 1
 
-        claim_data = active_claims[claim_id]
-        if claim_data["agent_id"] != agent_id:
-            print(f"Error: Agent {agent_id} does not own claim {claim_id}.", file=sys.stderr)
-            return False
+            claim_data = active_claims[claim_id]
+            if claim_data["agent_id"] != agent_id:
+                print(f"Error: Agent {agent_id} does not own claim {claim_id}.", file=sys.stderr)
+                return 1
 
-        new_expires_at = (datetime.now(timezone.utc) + timedelta(minutes=self.config["lock_ttl_minutes"])).isoformat()
-        claim_data["expires_at"] = new_expires_at
-        claim_data["renewed_at"] = get_current_utc_timestamp() # Add renewed_at for audit
+            new_expires_at = (datetime.now(timezone.utc) + timedelta(minutes=self.config["lock_ttl_minutes"])).isoformat()
+            claim_data["expires_at"] = new_expires_at
+            claim_data["renewed_at"] = get_current_utc_timestamp() # Add renewed_at for audit
 
-        # Update claim file
-        atomic_write_json(self._get_claim_file_path(claim_id), claim_data)
+            # Update claim file
+            atomic_write_json(self._get_claim_file_path(claim_id), claim_data)
 
-        # Update active registry
-        active_claims[claim_id] = claim_data
-        self._update_active_claims(active_claims)
+            # Update active registry
+            active_claims[claim_id] = claim_data
+            self._update_active_claims(active_claims)
 
-        self._create_heartbeat(agent_id)
+            self._create_heartbeat(agent_id)
 
-        print(f"Claim {claim_id} successfully renewed by agent {agent_id}. New expiry: {new_expires_at}")
-        return True
+            print(f"Claim {claim_id} successfully renewed by agent {agent_id}. New expiry: {new_expires_at}")
+            return 0
 
     def status(self, output_json=False):
         active_claims = self._get_active_claims()
@@ -394,6 +418,9 @@ def main():
     # Validate parser
     validate_parser = subparsers.add_parser("validate", help="Run preflight checks on the locking system.")
 
+    # Cleanup parser
+    cleanup_parser = subparsers.add_parser("cleanup", help="Clean up temporary files.")
+
     args = parser.parse_args()
 
     # Set COORDINATION_DIR based on argument if provided
@@ -413,17 +440,19 @@ def main():
     if args.command == "claim":
         paths = args.paths.split(',') if args.paths else []
         topics = args.topics.split(',') if args.topics else []
-        manager.claim(args.agent, paths, topics, args.intent, args.issue_pr, args.reason, args.scope)
+        sys.exit(manager.claim(args.agent, paths, topics, args.intent, args.issue_pr, args.reason, args.scope))
     elif args.command == "release":
-        manager.release(args.agent, args.claim_id)
+        sys.exit(manager.release(args.agent, args.claim_id))
     elif args.command == "renew":
-        manager.renew(args.agent, args.claim_id)
+        sys.exit(manager.renew(args.agent, args.claim_id))
     elif args.command == "status":
         manager.status(args.json)
     elif args.command == "reap-stale":
         manager.reap_stale(args.reaper_id, args.json)
     elif args.command == "validate":
         manager.validate()
+    elif args.command == "cleanup":
+        manager._cleanup_temp_files()
 
 if __name__ == "__main__":
     import sys
