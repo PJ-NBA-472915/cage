@@ -103,6 +103,26 @@ def repo_close(
 
 
 
+@repo_app.command("list")
+def repo_list(
+    status: list[str] = typer.Option(None, "--status", help="Filter repositories by status. Can be specified multiple times."),
+):
+    """List open repositories, optionally filtered by status."""
+    try:
+        if status:
+            repositories = repo.get_open_repositories(status_filter=status)
+        else:
+            repositories = repo.get_open_repositories()
+        
+        if repositories:
+            print(json.dumps(repositories, indent=2))
+        else:
+            print("No repositories found matching the criteria.")
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
 @app.command()
 def manager(
     headless: bool = typer.Option(False, "--headless", help="Run in headless mode."),

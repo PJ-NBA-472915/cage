@@ -199,14 +199,29 @@ def _read_runtime_registry() -> list:
         except json.JSONDecodeError:
             return []
 
-def get_open_repositories() -> list:
-    """Returns a list of open repositories from the runtime registry."""
+def get_open_repositories(status_filter: list[str] | None = None) -> list:
+    """
+    Returns a list of open repositories from the runtime registry,
+    optionally filtered by status.
+    By default, it shows 'initialized', 'in progress', and 'conflicted' repositories.
+    """
     entries = _read_runtime_registry()
-    return [
-        entry
-        for entry in entries
-        if entry.get("status") not in ["closed", "merged", "conflict", "blocked"]
-    ]
+    
+    if status_filter is None:
+        # Default filter: show initialized, in progress, and conflicted
+        default_statuses = ["initialized", "in progress", "conflicted"]
+        return [
+            entry
+            for entry in entries
+            if entry.get("status") in default_statuses
+        ]
+    else:
+        # Filter by provided statuses
+        return [
+            entry
+            for entry in entries
+            if entry.get("status") in status_filter
+        ]
 
 
 def _now_iso() -> str:
