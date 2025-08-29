@@ -16,7 +16,8 @@ This repository implements a robust, repo-local locking mechanism designed to en
 
 - `./coordination/`: Contains all coordination files, including active claims, completed work logs, individual lock files, and configuration.
 - `./tools/locking/`: Houses the Python-based CLI utilities (`lock-claim`, `lock-release`, `lock-status`, etc.) that agents use to interact with the locking mechanism.
-- `./docs/multi-agent-locking.md`: Detailed documentation on the locking mechanism, agent integration, Git hooks, and configuration.
+- `./memory-bank/`: A submodule containing project context, rules, and task orchestration. Refer to `memory-bank/README.md` for details.
+- `./docs/repo-module.md`: Comprehensive documentation on the repository lifecycle, including `repo init` and `repo close` with merge functionality.
 
 ## Getting Started:
 
