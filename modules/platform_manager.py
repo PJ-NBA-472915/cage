@@ -145,7 +145,10 @@ def main():
             ]
         ).ask()
 
-        if menu_choice == "Initialise a new repository":
+        if menu_choice is None:
+            console.print("Exiting due to user interruption.")
+            break
+        elif menu_choice == "Initialise a new repository":
             _interactive_init()
         elif menu_choice == "Close a repository":
             _interactive_close()
