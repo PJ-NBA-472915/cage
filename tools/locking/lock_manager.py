@@ -106,19 +106,16 @@ class LockManager:
 
     def _cleanup_temp_files(self):
         """Clean up orphaned .tmp files from previous runs."""
-        now = time.time()
-        for f in COORDINATION_DIR.glob("*.tmp.*"): 
-            if now - f.stat().st_mtime > 5:
-                try:
-                    f.unlink()
-                except FileNotFoundError:
-                    pass
+        for f in COORDINATION_DIR.glob("*.tmp.*"):
+            try:
+                f.unlink()
+            except FileNotFoundError:
+                pass
         for f in AGENT_LOCKS_DIR.glob("*.tmp.*"):
-            if now - f.stat().st_mtime > 5:
-                try:
-                    f.unlink()
-                except FileNotFoundError:
-                    pass
+            try:
+                f.unlink()
+            except FileNotFoundError:
+                pass
 
     def _ensure_dirs(self):
         COORDINATION_DIR.mkdir(exist_ok=True)
