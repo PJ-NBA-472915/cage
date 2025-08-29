@@ -7,7 +7,11 @@ tail-logs:
 	devbox run -- tail -f logs/manage.log
 
 test:
-	devbox run pytest
+	devbox run pytest -q tests/test_runner.py
+
+actor-smoke:
+	ACTOR_DEBUG=1 devbox run python -m tools.mcp.actor_server.server --once '{"path": ".", "instruction": "echo hello"}'
+
 
 setup-gemini:
 	ln -s ./memory-bank/gemini/GEMINI.md ./GEMINI.md
