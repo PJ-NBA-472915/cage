@@ -1,0 +1,60 @@
+{
+  "id": "2025-08-27-implement-close-lifecycle",
+  "title": "Implement Close Lifecycle Event (commit + push)",
+  "owner": "Gemini",
+  "status": "completed",
+  "created_at": "2025-08-27 11:40",
+  "updated_at": "2025-08-27 12:00",
+  "progress_percent": 100,
+  "tags": ["python", "git", "manage.py", "lifecycle", "repo"],
+  "summary": "Add a 'close' lifecycle event that finalises a clone's work: stage changes, create a standardised commit, and push the current agent branch to the remote. Update runtime_registry.json with final artefacts (commit SHA, branch, remote URL, timestamps).",
+  "success_criteria": [
+    { "text": "manage.py subcommand 'repo close' implemented.", "checked": true },
+    { "text": "Stages tracked/untracked files respecting .gitignore; supports '--allow-empty'.", "checked": true },
+    { "text": "Commit message template supports agent metadata (agent id, task id) and sign-off.", "checked": true },
+    { "text": "Pushes to configurable remote (default 'origin') and current agent branch.", "checked": true },
+    { "text": "coordination/runtime_registry.json updated atomically with close metadata.", "checked": true },
+    { "text": "docs/repo-module.md updated with examples, edge cases, and recovery steps.", "checked": true },
+    { "text": "tests/test_repo_close.py covers no-change, untracked files, allow-empty, and push failure recovery.", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "'repo close' returns 0 when there are no changes (no-op) unless '--require-changes' is set.", "checked": true },
+    { "text": "On push failure, command returns non-zero and registry records failure_reason.", "checked": true },
+    { "text": "Registry entry includes commit SHA, branch name, remote URL, close_at timestamp.", "checked": true }
+  ],
+  "subtasks": [
+    "Add manage.py 'repo close' subcommand with args: --path, --message, --agent, --task, --remote, --allow-empty, --require-changes, --signoff, --no-verify",
+    "Implement close() in modules/repo.py: detect repo root, ensure on agent branch, stage, commit, push",
+    "Atomic registry update with commit metadata and status",
+    "Update docs/repo-module.md (Close section)",
+    "Create tests/test_repo_close.py with local git fixtures and simulated push",
+    "Add Makefile target 'make repo-close PATH=... MESSAGE=...'"
+  ],
+  "todo": [],
+  "changelog": [
+    { "timestamp": "2025-08-27 11:45", "text": "Added 'repo close' subcommand to manage.py." },
+    { "timestamp": "2025-08-27 11:50", "text": "Implemented 'close' function in modules/repo.py." },
+    { "timestamp": "2025-08-27 11:55", "text": "Created and passed tests in tests/test_repo_close.py." },
+    { "timestamp": "2025-08-27 11:58", "text": "Updated docs/repo-module.md." },
+    { "timestamp": "2025-08-27 12:00", "text": "Added 'make repo-close' target to Makefile." }
+  ],
+  "decisions": [
+    "Default remote is 'origin'; branch is current HEAD.",
+    "Commit message format: '[agent:{agent}] close: {message}\n\nCo-authored-by: {agent}<agent@local>' and '--signoff' optional."
+  ],
+  "lessons_learned": [
+      "Mocking `subprocess.run` requires careful attention to the return values and side effects, especially when the function is called multiple times with different arguments."
+  ],
+  "issues_risks": [
+    "Pushing to protected branches should be prevented; ensure we are on non-protected agent branch.",
+    "Allow-empty commits are useful for traceability; make explicit via flag."
+  ],
+  "next_steps": [
+    "2025-08-27-implement-platform-manager-cli",
+    "Proceed to 'merge' lifecycle task after this is accepted."
+  ],
+  "references": [],
+  "prompts": [],
+  "migration": { "migrated": false, "source_path": null, "method": null, "migrated_at": null },
+  "metadata": {}
+}

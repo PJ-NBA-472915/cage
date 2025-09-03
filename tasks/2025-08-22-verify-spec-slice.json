@@ -1,0 +1,198 @@
+{
+  "id": "2025-08-22-verify-spec-slice",
+  "title": "Implement verify-spec-slice function in manager to verify slice content against SPEC_RAW",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-22 16:00",
+  "updated_at": "2025-08-22 16:00",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task",
+    "spec-manager",
+    "verification",
+    "hash-validation"
+  ],
+  "summary": "Implement verification functions in the SpecManager class that can verify specification slices against the SPEC_RAW.md file. This includes both individual slice verification (`verify_spec_slice`) and batch verification of all slices (`verify_all_slices`). The functions extract content from specified character ranges, remove metadata, and validate hashes.",
+  "success_criteria": [
+    {
+      "text": "`verify_spec_slice` function exists in SpecManager class",
+      "checked": true
+    },
+    {
+      "text": "`verify_all_slices` function exists in SpecManager class for batch verification",
+      "checked": true
+    },
+    {
+      "text": "Functions can read slice files and extract character range information",
+      "checked": true
+    },
+    {
+      "text": "Functions can extract content from SPEC_RAW.md within specified character range",
+      "checked": true
+    },
+    {
+      "text": "Functions can remove metadata section (between --- lines) from slice content",
+      "checked": true
+    },
+    {
+      "text": "Functions can compute hash of cleaned slice content",
+      "checked": true
+    },
+    {
+      "text": "Functions can compare hashes and return verification status",
+      "checked": true
+    },
+    {
+      "text": "Functions handle edge cases (invalid ranges, missing files, etc.)",
+      "checked": true
+    },
+    {
+      "text": "Batch verification provides comprehensive summary and detailed results",
+      "checked": true
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Function returns verification status for valid slices",
+      "checked": true
+    },
+    {
+      "text": "Function correctly identifies mismatched content",
+      "checked": true
+    },
+    {
+      "text": "Function handles metadata removal properly",
+      "checked": true
+    },
+    {
+      "text": "Function provides meaningful error messages for failures",
+      "checked": true
+    },
+    {
+      "text": "Function integrates with existing SpecManager structure",
+      "checked": true
+    },
+    {
+      "text": "Tests pass for various slice scenarios",
+      "checked": true
+    }
+  ],
+  "subtasks": [
+    "✅ Implement `verify_spec_slice` method in SpecManager class",
+    "✅ Implement `verify_all_slices` method in SpecManager class for batch verification",
+    "✅ Add helper methods for content extraction and hash computation",
+    "✅ Implement metadata removal logic (strip YAML frontmatter)",
+    "✅ Add error handling and validation",
+    "✅ Create comprehensive tests for the verification functions",
+    "✅ Update existing tests to include new functionality",
+    "✅ Move verification functionality from standalone script into SpecManager class"
+  ],
+  "todo": [
+    {
+      "text": "Create `verify_spec_slice` method signature and docstring",
+      "checked": true
+    },
+    {
+      "text": "Create `verify_all_slices` method signature and docstring",
+      "checked": true
+    },
+    {
+      "text": "Implement character range extraction from slice files",
+      "checked": true
+    },
+    {
+      "text": "Implement SPEC_RAW.md content extraction within range",
+      "checked": true
+    },
+    {
+      "text": "Implement metadata removal (strip YAML frontmatter between ---)",
+      "checked": true
+    },
+    {
+      "text": "Implement hash computation for cleaned content",
+      "checked": true
+    },
+    {
+      "text": "Implement hash comparison and verification logic",
+      "checked": true
+    },
+    {
+      "text": "Add error handling for invalid ranges and missing files",
+      "checked": true
+    },
+    {
+      "text": "Create unit tests for the verification functions",
+      "checked": true
+    },
+    {
+      "text": "Test with actual slice files (e.g., 007-source-control-ci.md)",
+      "checked": true
+    },
+    {
+      "text": "Verify integration with existing SpecManager functionality",
+      "checked": true
+    },
+    {
+      "text": "Move verification functionality from standalone script into SpecManager class",
+      "checked": true
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-22 16:00",
+      "text": "Task file created."
+    },
+    {
+      "timestamp": "2025-08-22 16:30",
+      "text": "Task completed. All functionality implemented and tested."
+    },
+    {
+      "timestamp": "2025-08-22 17:00",
+      "text": "Moved verification functionality from standalone script into SpecManager class."
+    },
+    {
+      "timestamp": "2025-08-22 17:30",
+      "text": "Migration completed and tested. All verification functionality now working through integrated methods."
+    }
+  ],
+  "decisions": [
+    "Use SHA-256 hashing for content verification (consistent with existing CONTENT_HASH.txt)",
+    "Strip YAML frontmatter between --- lines to compare only content",
+    "Return structured verification results including status, expected hash, actual hash",
+    "Handle character ranges inclusively (start and end characters included)",
+    "Provide detailed error messages for debugging verification failures"
+  ],
+  "lessons_learned": [
+    "The verification function successfully detects content mismatches between slice files and SPEC_RAW.md",
+    "Character range calculations need to account for inclusive boundaries (end + 1)",
+    "Metadata removal preserves the original content structure including newlines",
+    "Comprehensive testing revealed edge cases that needed fixing"
+  ],
+  "issues_risks": [
+    "Character ranges may not align perfectly with line boundaries",
+    "YAML frontmatter parsing needs to handle edge cases",
+    "Hash computation should be consistent with existing system",
+    "Performance considerations for large SPEC_RAW files"
+  ],
+  "next_steps": [
+    "The verify_spec_slice function is now fully functional and tested",
+    "Can be used to verify all specification slices against the master SPEC_RAW.md",
+    "✅ Added `make verify` command to verify all spec slices in batch",
+    "May want to investigate why the slices show content mismatches"
+  ],
+  "references": [
+    "Existing SpecManager class structure",
+    "SPEC_RAW.md file format and content",
+    "Slice file format (e.g., 007-source-control-ci.md)",
+    "CONTENT_HASH.txt format and hashing approach",
+    "Character range format: `chars: [start, end]`"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-22-verify-spec-slice.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {}
+}

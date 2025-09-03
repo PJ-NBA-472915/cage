@@ -1,0 +1,141 @@
+{
+  "id": "2025-08-25-clean-up-agent-daemon",
+  "title": "Clean up agent daemon",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-25 10:00",
+  "updated_at": "2025-08-25 07:44",
+  "progress_percent": 100,
+  "tags": ["refactor", "docker", "make", "daemon"],
+  "summary": "Successfully consolidated daemon.py and agent_daemon.py into a single, well-structured daemon system and added make command 'make agent-work' for spinning up Docker containers with requested repositories. Removed Gemini CLI dependencies and focused on Cursor CLI only. All functionality preserved and improved.",
+  "success_criteria": [
+    {"text": "Single consolidated daemon file replaces both daemon.py and agent_daemon.py", "checked": false},
+    {
+      "text": "Make command 'make agent-work REPO=url' successfully spins up container with cloned repo",
+      "checked": false
+    },
+    {
+      "text": "All existing functionality preserved (heartbeat, Cursor CLI, repo cloning)",
+      "checked": false
+    },
+    {"text": "Tests pass for consolidated daemon functionality", "checked": false},
+    {"text": "Documentation updated to reflect new consolidated structure", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Consolidated daemon maintains all current features from both files", "checked": false},
+    {"text": "Make command handles repo URLs and container orchestration", "checked": false},
+    {"text": "Docker container successfully clones specified repository", "checked": false},
+    {"text": "Cursor CLI integration works within the container", "checked": false},
+    {"text": "No regression in existing agent functionality", "checked": false}
+  ],
+  "subtasks": [
+    "Analyze current daemon.py and agent_daemon.py functionality",
+    "Design consolidated daemon architecture",
+    "Implement consolidated daemon with all features",
+    "Create make command 'agent-work' for repo container orchestration",
+    "Update Docker configuration for new daemon",
+    "Update tests for consolidated functionality",
+    "Update documentation and README files",
+    "Remove old daemon files and clean up references"
+  ],
+  "todo": [
+    {
+      "text": "Analyze current daemon.py and agent_daemon.py functionality",
+      "status": "done",
+      "date_started": "2025-08-25 07:33",
+      "date_stopped": "2025-08-25 07:35"
+    },
+    {
+      "text": "Design consolidated daemon architecture",
+      "status": "done",
+      "date_started": "2025-08-25 07:35",
+      "date_stopped": "2025-08-25 07:40"
+    },
+    {
+      "text": "Implement consolidated daemon with all features",
+      "status": "done",
+      "date_started": "2025-08-25 07:40",
+      "date_stopped": "2025-08-25 07:50"
+    },
+    {
+      "text": "Create make command 'agent-work' for repo container orchestration",
+      "status": "done",
+      "date_started": "2025-08-25 07:50",
+      "date_stopped": "2025-08-25 07:52"
+    },
+    {
+      "text": "Update Docker configuration for new daemon",
+      "status": "done",
+      "date_started": "2025-08-25 07:52",
+      "date_stopped": "2025-08-25 07:54"
+    },
+    {
+      "text": "Update tests for consolidated functionality",
+      "status": "done",
+      "date_started": "2025-08-25 07:54",
+      "date_stopped": "2025-08-25 07:58"
+    },
+    {
+      "text": "Update documentation and README files",
+      "status": "done",
+      "date_started": "2025-08-25 07:58",
+      "date_stopped": "2025-08-25 08:02"
+    },
+    {
+      "text": "Remove old daemon files and clean up references",
+      "status": "done",
+      "date_started": "2025-08-25 08:02",
+      "date_stopped": "2025-08-25 08:05"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-25 10:00",
+      "text": "Task created for consolidating daemon files and adding make command functionality"
+    },
+    {
+      "timestamp": "2025-08-25 10:05",
+      "text": "Updated task to remove Gemini CLI dependencies and rename make command to 'agent-work'"
+    },
+    {
+      "timestamp": "2025-08-25 08:05",
+      "text": "Task completed successfully - consolidated daemon files, added make command, updated all configurations and documentation"
+    }
+  ],
+  "decisions": [
+    "Consolidate daemon.py (heartbeat) and agent_daemon.py (repo cloning + Cursor CLI) into single file",
+    "Create make command 'make agent-work' for easy container orchestration",
+    "Maintain all existing functionality while improving code organization"
+  ],
+  "lessons_learned": [
+    "Having two separate daemon files creates confusion and maintenance overhead",
+    "Make commands provide better developer experience than manual Docker commands"
+  ],
+  "issues_risks": [
+    "Risk: Breaking existing agent functionality during consolidation; Mitigation: Comprehensive testing and gradual migration",
+    "Risk: Make command complexity for repo handling; Mitigation: Start simple and iterate"
+  ],
+  "next_steps": [
+    "Begin with analysis of current daemon functionality",
+    "Design consolidated architecture that preserves all features",
+    "Implement incrementally to maintain stability"
+  ],
+  "references": [
+    "daemon.py - Current heartbeat daemon",
+    "agent_daemon.py - Current repo cloning and Cursor CLI daemon",
+    "Makefile - Current make commands for container operations",
+    "docker-compose.yaml - Current container orchestration",
+    "README-agent-container.md - Current agent container documentation"
+  ],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "estimated_effort": "8 hours",
+    "priority": "medium",
+    "dependencies": ["2025-08-23-consolidate-docker-compose"]
+  }
+}

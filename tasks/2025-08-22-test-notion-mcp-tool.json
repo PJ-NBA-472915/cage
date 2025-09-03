@@ -1,0 +1,127 @@
+{
+  "id": "2025-08-22-test-notion-mcp-tool",
+  "title": "Test Notion MCP Tool",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-22 16:00",
+  "updated_at": "2025-08-22 16:00",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task",
+    "notion",
+    "mcp"
+  ],
+  "summary": "Test the Notion MCP tool to verify it's working correctly and explore its capabilities for interacting with Notion workspaces.",
+  "success_criteria": [
+    {
+      "text": "Successfully connect to Notion via MCP tool",
+      "checked": false
+    },
+    {
+      "text": "Perform basic operations (search, fetch, create)",
+      "checked": false
+    },
+    {
+      "text": "Verify tool functionality and error handling",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "MCP tool responds to basic commands",
+      "checked": false
+    },
+    {
+      "text": "Can authenticate with Notion workspace",
+      "checked": false
+    },
+    {
+      "text": "Can perform at least one successful operation",
+      "checked": false
+    },
+    {
+      "text": "Error handling works for invalid requests",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Test basic MCP tool connectivity",
+    "Test Notion authentication and workspace access",
+    "Test basic Notion operations (search, fetch)",
+    "Test content creation if possible",
+    "Document findings and any issues"
+  ],
+  "todo": [
+    {
+      "text": "Test MCP tool basic connectivity",
+      "checked": true
+    },
+    {
+      "text": "Test Notion authentication",
+      "checked": true
+    },
+    {
+      "text": "Test workspace search functionality",
+      "checked": true
+    },
+    {
+      "text": "Test page fetching",
+      "checked": true
+    },
+    {
+      "text": "Test content creation (if authenticated)",
+      "checked": true
+    },
+    {
+      "text": "Document results and any limitations",
+      "checked": true
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-22 16:00",
+      "text": "File created."
+    },
+    {
+      "timestamp": "2025-08-22 16:05",
+      "text": "Tested MCP tool connectivity and Notion operations. All operations require valid API token."
+    },
+    {
+      "timestamp": "2025-08-22 16:08",
+      "text": "Retested with additional operations (page creation). Consistent 401 unauthorized errors across all endpoints."
+    },
+    {
+      "timestamp": "2025-08-22 16:10",
+      "text": "User added Notion API token to MCP configuration. Tool temporarily unavailable during reconfiguration."
+    }
+  ],
+  "decisions": [
+    "Testing MCP tool functionality to understand capabilities and limitations"
+  ],
+  "lessons_learned": [
+    "Notion MCP tool requires valid API token for all operations",
+    "Tool responds correctly to authentication errors",
+    "All Notion operations (search, fetch, create) are blocked without proper credentials"
+  ],
+  "issues_risks": [
+    "May require Notion API credentials",
+    "MCP tool may have authentication requirements",
+    "Some operations may be limited by permissions"
+  ],
+  "next_steps": [
+    "Begin testing basic MCP tool functionality",
+    "Test Notion-specific operations"
+  ],
+  "references": [
+    "Notion MCP tool documentation",
+    "Project MCP configuration"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-22-test-notion-mcp-tool.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {}
+}

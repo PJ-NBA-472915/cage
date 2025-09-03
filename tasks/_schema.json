@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/task.schema.json",
+  "title": "Task File",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "owner",
+    "status",
+    "created_at",
+    "updated_at",
+    "progress_percent",
+    "tags",
+    "summary",
+    "success_criteria",
+    "acceptance_checks",
+    "subtasks",
+    "todo",
+    "changelog",
+    "decisions",
+    "lessons_learned",
+    "issues_risks",
+    "next_steps",
+    "references",
+    "prompts"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}-[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["planned", "in-progress", "blocked", "review", "done", "abandoned"] },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" },
+    "progress_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "summary": { "type": "string" },
+    "success_criteria": {
+      "type": "array",
+      "items": { "type": "object", "required": ["text", "checked"], "properties": { "text": { "type": "string" }, "checked": { "type": "boolean" } }, "additionalProperties": false }
+    },
+    "acceptance_checks": {
+      "type": "array",
+      "items": { "type": "object", "required": ["text", "checked"], "properties": { "text": { "type": "string" }, "checked": { "type": "boolean" } }, "additionalProperties": false }
+    },
+    "subtasks": { "type": "array", "items": { "type": "string" } },
+    "todo": {
+      "type": "array",
+      "items": { "type": "object", "required": ["text", "checked"], "properties": { "text": { "type": "string" }, "checked": { "type": "boolean" } }, "additionalProperties": false }
+    },
+    "changelog": {
+      "type": "array",
+      "items": { "type": "object", "required": ["timestamp", "text"], "properties": { "timestamp": { "type": "string" }, "text": { "type": "string" } }, "additionalProperties": false }
+    },
+    "decisions": { "type": "array", "items": { "type": "string" } },
+    "lessons_learned": { "type": "array", "items": { "type": "string" } },
+    "issues_risks": { "type": "array", "items": { "type": "string" } },
+    "next_steps": { "type": "array", "items": { "type": "string" } },
+    "references": { "type": "array", "items": { "type": "string" } },
+    "prompts": { "type": "array", "items": { "type": "string" } },
+    "migration": {
+      "type": "object",
+      "required": ["migrated"],
+      "properties": {
+        "migrated": { "type": "boolean" },
+        "source_path": { "type": ["string", "null"] },
+        "method": { "type": ["string", "null"], "enum": ["script", "manual", null] },
+        "migrated_at": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "metadata": { "type": "object", "additionalProperties": true }
+  }
+}

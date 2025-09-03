@@ -1,0 +1,71 @@
+{
+  "id": "2025-08-23-switch-task-files-to-json",
+  "title": "Switch task orchestration from Markdown to JSON",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-23 18:11",
+  "updated_at": "2025-08-23 18:36",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task",
+    "migration"
+  ],
+  "summary": "Replace Markdown-based task files with a strict, machine-parseable JSON format while preserving the existing workflow and tracker behaviour. Include a one-off migration for the current Markdown tasks to JSON.",
+  "success_criteria": [
+    { "text": "New tasks are created as `.json` and validate against schema", "checked": true },
+    { "text": "`progress_percent` equals the percentage of checked To-Do items", "checked": true },
+    { "text": "Tracker scans `tasks/*.json` and writes `_status.json`", "checked": true },
+    { "text": "JSON fields cover all prior Markdown sections without loss", "checked": true },
+    { "text": "Existing Markdown tasks are migrated to JSON equivalents", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "Example valid task JSON provided", "checked": true },
+    { "text": "JSON Schema present and validates the example", "checked": true },
+    { "text": "Directories and filenames clarified (`tasks/YYYY-MM-DD-slug.json`)", "checked": true },
+    { "text": "Tracker output JSON structure documented with an example", "checked": true },
+    { "text": "All `tasks/*.md` (excluding `_status.md`) have corresponding `.json`", "checked": true }
+  ],
+  "subtasks": [
+    "Define JSON field mapping for all prior sections and statuses",
+    "Write JSON Schema and blank template",
+    "Update rule text to reference JSON tasks and `_status.json`",
+    "Migrate existing Markdown tasks to JSON",
+    "Document tracker report JSON structure and behaviour"
+  ],
+  "todo": [
+    { "text": "Draft JSON schema capturing required fields and enums", "checked": true },
+    { "text": "Add `tasks/_schema.json` and `tasks/_blank_task.json`", "checked": true },
+    { "text": "Update `rules/task-file-usage.mdc` to JSON-based process", "checked": true },
+    { "text": "Implement migration script to convert `tasks/*.md` → `.json`", "checked": true },
+    { "text": "Run migration and verify outputs", "checked": true },
+    { "text": "Produce an initial `tasks/_status.json` example", "checked": true },
+    { "text": "Announce deprecation of Markdown tasks in rule", "checked": true }
+  ],
+  "changelog": [
+    { "timestamp": "2025-08-23 18:11", "text": "Planning task created for JSON migration and rule update." },
+    { "timestamp": "2025-08-23 18:32", "text": "Added JSON schema and blank template; updated rule to JSON-based with migration note; created migration script and migrated existing tasks to JSON." },
+    { "timestamp": "2025-08-23 18:36", "text": "Installed jsonschema; added validation and status scripts; validated tasks; generated tasks/_status.json; marked task done." }
+  ],
+  "decisions": [
+    "Prefer JSON for reliable machine parsing and automation.",
+    "Keep filenames date-prefixed and slugged for continuity and sorting."
+  ],
+  "lessons_learned": [
+    "TBC"
+  ],
+  "issues_risks": [
+    "Any external tooling expecting Markdown may need adjustment; provide clear migration notes."
+  ],
+  "next_steps": [],
+  "references": [
+    "Existing rule at `rules/task-file-usage.mdc`"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-23-switch-task-files-to-json.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {}
+}

@@ -1,0 +1,349 @@
+{
+  "id": "2025-08-22-agent-base-dockerfile",
+  "title": "Agent Base Dockerfile (Containerized Agent Environment)",
+  "owner": "Jaak",
+  "status": "archived",
+  "created_at": "2025-08-22 16:00",
+  "updated_at": "2025-08-23 17:35",
+  "progress_percent": 85,
+  "tags": [
+    "cursor",
+    "task",
+    "docker",
+    "agent",
+    "container"
+  ],
+  "summary": "Create a minimal, secure Ubuntu-based container image for AI agents that can clone repositories, manage git branches, execute Cursor CLI commands for code changes, and work with volume-mounted repositories. The container accepts a CLI request and automatically sets up a workspace by cloning from /origin (mounted volume) to /workspace, checking out specified branches, and executing the Cursor CLI with the given request. Successfully integrated with podman-compose for orchestration.",
+  "success_criteria": [
+    {
+      "text": "Image builds locally and runs non-root under tini (PID 1)",
+      "checked": false
+    },
+    {
+      "text": "Container includes Python runtime and common CLI tools (git, curl, build tools)",
+      "checked": false
+    },
+    {
+      "text": "Agent daemon starts and logs heartbeat every 10s",
+      "checked": false
+    },
+    {
+      "text": "Container can execute CLI commands and parse basic requests",
+      "checked": false
+    },
+    {
+      "text": "Container runs locally and can be interacted with via CLI",
+      "checked": false
+    },
+    {
+      "text": "Container size remains lean (base ≤ ~400–500MB uncompressed)",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Dockerfile builds successfully with Podman/Docker",
+      "checked": false
+    },
+    {
+      "text": "Container runs as non-root user with tini as PID 1",
+      "checked": false
+    },
+    {
+      "text": "Python and common CLI tools are available on PATH",
+      "checked": false
+    },
+    {
+      "text": "Daemon starts and produces heartbeat logs",
+      "checked": false
+    },
+    {
+      "text": "Container can execute basic CLI commands",
+      "checked": false
+    },
+    {
+      "text": "Container can be interacted with locally via CLI",
+      "checked": false
+    },
+    {
+      "text": "Base image size is within target range",
+      "checked": false
+    },
+    {
+      "text": "Container can run with repo path and CLI request arguments",
+      "checked": false
+    },
+    {
+      "text": "Cursor CLI is installed and accessible",
+      "checked": false
+    },
+    {
+      "text": "Agent can process requests and make changes to files via Cursor CLI",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Base image & user setup (Ubuntu 24.04, Python, tini, non-root user)",
+    "CLI tools & dependencies (git, curl, build-essential, common utilities)",
+    "Cursor CLI installation and configuration",
+    "Runtime bootstrap (pod-entrypoint.sh, argument parsing for repo path and CLI request)",
+    "Daemon implementation (agent_daemon.py with Cursor CLI integration)",
+    "Local container testing and interaction",
+    "Validation & testing (local build and functionality)"
+  ],
+  "todo": [
+    {
+      "text": "Create Dockerfile with Ubuntu 24.04 base",
+      "checked": true
+    },
+    {
+      "text": "Install Python, pip, tini, curl, git, build-essential",
+      "checked": true
+    },
+    {
+      "text": "Create non-root user and ensure /app is writable",
+      "checked": true
+    },
+    {
+      "text": "Add requirements.txt with minimal Python dependencies",
+      "checked": true
+    },
+    {
+      "text": "Write pod-entrypoint.sh for runtime setup handling",
+      "checked": true
+    },
+    {
+      "text": "Create example pod-setup.sh for repo-specific tooling",
+      "checked": true
+    },
+    {
+      "text": "Implement agent_daemon.py with basic request parsing and heartbeat",
+      "checked": true
+    },
+    {
+      "text": "Test local container functionality",
+      "checked": true
+    },
+    {
+      "text": "Test daemon heartbeat and logging",
+      "checked": true
+    },
+    {
+      "text": "Test basic CLI command execution",
+      "checked": true
+    },
+    {
+      "text": "Test container interaction and debugging",
+      "checked": true
+    },
+    {
+      "text": "Document local usage workflow and environment variables",
+      "checked": true
+    },
+    {
+      "text": "Install Cursor CLI in container",
+      "checked": true
+    },
+    {
+      "text": "Update agent_daemon.py to accept repo path and CLI request arguments",
+      "checked": true
+    },
+    {
+      "text": "Integrate Cursor CLI commands for file modifications",
+      "checked": true
+    },
+    {
+      "text": "Test container with repo path and CLI request arguments",
+      "checked": true
+    },
+    {
+      "text": "Test Cursor CLI integration and file modification capabilities",
+      "checked": true
+    },
+    {
+      "text": "Implement volume mounting approach: /origin -> /workspace cloning",
+      "checked": true
+    },
+    {
+      "text": "Add branch management with ORIGIN_BRANCH and CURRENT_BRANCH environment variables",
+      "checked": true
+    },
+    {
+      "text": "Update docker-compose.yaml for podman-compose orchestration",
+      "checked": true
+    },
+    {
+      "text": "Test git clone, checkout, pull, and branch creation workflow",
+      "checked": false
+    },
+    {
+      "text": "Verify end-to-end workflow with actual Cursor CLI execution",
+      "checked": false
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-23 17:35",
+      "text": "Implemented volume mounting approach: repositories mounted as /origin, cloned to /workspace with proper branch management"
+    },
+    {
+      "timestamp": "2025-08-23 17:30",
+      "text": "Added environment variables for ORIGIN_BRANCH and CURRENT_BRANCH configuration, updated docker-compose.yaml"
+    },
+    {
+      "timestamp": "2025-08-23 17:25",
+      "text": "Simplified argument parsing: container now takes only CLI request, handles repo mounting automatically"
+    },
+    {
+      "timestamp": "2025-08-23 17:20",
+      "text": "Fixed permission issues: workspace now created in /app/workspace instead of /workspace"
+    },
+    {
+      "timestamp": "2025-08-23 17:15",
+      "text": "Successfully integrated with podman-compose, resolved redis module dependencies"
+    },
+    {
+      "timestamp": "2025-08-23 17:10",
+      "text": "Fixed Cursor CLI installation and binary path issues (cursor vs cursor-agent)"
+    },
+    {
+      "timestamp": "2025-08-23 17:05",
+      "text": "Resolved Docker build caching issues, ensured clean rebuilds when needed"
+    },
+    {
+      "timestamp": "2025-08-22 19:00",
+      "text": "New requirements added: Cursor CLI integration and argument-based repo path + CLI request processing"
+    },
+    {
+      "timestamp": "2025-08-22 18:30",
+      "text": "Task completed: All local container functionality tested and documented"
+    },
+    {
+      "timestamp": "2025-08-22 18:30",
+      "text": "Comprehensive test suite created and executed successfully"
+    },
+    {
+      "timestamp": "2025-08-22 18:30",
+      "text": "Local usage documentation and README completed"
+    },
+    {
+      "timestamp": "2025-08-22 18:30",
+      "text": "Task scope adjusted to focus only on local container functionality, removed Fly.io deployment requirements"
+    },
+    {
+      "timestamp": "2025-08-22 18:30",
+      "text": "Docker image successfully built locally with simplified agent implementation"
+    },
+    {
+      "timestamp": "2025-08-22 16:00",
+      "text": "Task file created with correct understanding from product specification"
+    }
+  ],
+  "decisions": [
+    "**Simple agent approach**: Focus on basic CLI execution and request parsing, not complex AI SDK integration",
+    "**Base image approach**: Keep base minimal and push extras to pod-setup.sh to avoid bloat creep",
+    "**Health checks**: Start with TCP checks for simplicity, can add HTTP /health endpoint later if needed",
+    "**Ubuntu 24.04 Python handling**: Use virtual environment approach to handle externally managed Python environment restrictions"
+  ],
+  "lessons_learned": [
+    "Previous attempt misunderstood requirements - this is NOT about Gemini SDK integration",
+    "Agent should be a simple container that can execute CLI commands and parse requests",
+    "Focus on network communication, CLI execution, and agent lifecycle management",
+    "Volume mounting approach is much cleaner than passing repository paths as arguments",
+    "Branch management is crucial: always checkout origin branch, pull latest, then create working branch",
+    "Cursor CLI installs as 'cursor-agent' binary, not 'cursor' - critical for command execution",
+    "Docker build caching can mask changes - sometimes need to explicitly remove images and rebuild",
+    "Permission management is critical: workspace must be created in user-writable directory (/app/workspace)",
+    "Environment variables should have sensible defaults (main branch, agent-work branch)",
+    "podman-compose integration requires careful attention to service dependencies and networking",
+    "Redis connection failures should be non-fatal for agent functionality",
+    "Git operations need proper error handling and fallback strategies"
+  ],
+  "issues_risks": [
+    "**Bloat creep**: Mitigation - Keep base minimal, push extras to pod-setup.sh",
+    "**Signal handling**: Mitigation - Use tini as PID 1, avoid bash as long-runner",
+    "**Health checks failing**: Mitigation - Start with TCP check, add HTTP /health later if needed",
+    "**Ubuntu 24.04 Python restrictions**: Mitigation - Use virtual environment for pip installations",
+    "**Cursor CLI silent failures**: Risk - CLI may fail without clear error messages; Mitigation - Add detailed logging and error handling",
+    "**Git authentication**: Risk - Clone/pull operations may fail if repo requires authentication; Mitigation - Consider SSH key mounting or token-based auth",
+    "**Branch conflicts**: Risk - Working branch may already exist or have conflicts; Mitigation - Use force checkout or unique branch names",
+    "**Volume mount permissions**: Risk - Host filesystem permissions may prevent operations; Mitigation - Ensure proper ownership and permissions on mounted volumes"
+  ],
+  "next_steps": [
+    "Debug and fix remaining Cursor CLI execution issues (empty error messages)",
+    "Verify end-to-end workflow: clone -> checkout -> pull -> create branch -> execute cursor-agent",
+    "Add comprehensive error handling for git operations",
+    "Implement proper logging for debugging CLI failures",
+    "Test with different repository structures and branch configurations",
+    "Add support for SSH key mounting for private repositories",
+    "Consider implementing commit and push functionality for completed work",
+    "Add metrics/monitoring for agent performance and success rates"
+  ],
+  "references": [
+    "Product specification document (memory-bank/context/product/specification/specification-document.md)",
+    "Previous task attempt (tasks/2025-08-21-agent-base-dockerfile.md)",
+    "Current Dockerfile implementation (./Dockerfile)",
+    "Agent daemon implementation (./agent_daemon.py)",
+    "Container orchestration (./docker-compose.yaml)",
+    "Volume mounting approach documentation in task changelog",
+    "Cursor CLI documentation: https://cursor.com/install",
+    "Environment variables: ORIGIN_BRANCH, CURRENT_BRANCH, CURSOR_API_KEY, REDIS_URL"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-22-agent-base-dockerfile.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {
+    "current_architecture": {
+      "approach": "volume_mounting_with_cloning",
+      "container_orchestration": "podman-compose",
+      "workspace_pattern": "/origin (mounted) -> /app/workspace (cloned)",
+      "branch_workflow": "checkout origin_branch -> pull -> create current_branch",
+      "cli_integration": "cursor-agent binary with API key authentication"
+    },
+    "technical_implementation": {
+      "base_image": "ubuntu:questing",
+      "user_management": "non-root app user (UID:10001, GID:10001)",
+      "python_env": "virtual environment in /app/venv",
+      "cursor_cli_binary": "cursor-agent (not cursor)",
+      "workspace_location": "/app/workspace",
+      "volume_mount": ". -> /origin"
+    },
+    "environment_variables": {
+      "required": [
+        "CURSOR_API_KEY"
+      ],
+      "optional_with_defaults": {
+        "REDIS_URL": "redis://redis:6379",
+        "ORIGIN_BRANCH": "main",
+        "CURRENT_BRANCH": "agent-work"
+      }
+    },
+    "key_files": {
+      "Dockerfile": "Container build instructions with Cursor CLI installation",
+      "agent_daemon.py": "Main daemon with workspace setup and CLI execution",
+      "docker-compose.yaml": "Service orchestration with Redis and networking",
+      "requirements.txt": "Python dependencies including redis, httpx, loguru",
+      "pod-entrypoint.sh": "Container entrypoint script"
+    },
+    "current_issues": {
+      "cursor_cli_errors": "CLI returns empty error messages, needs debugging",
+      "git_auth": "No authentication mechanism for private repos",
+      "error_handling": "Git operations need better error recovery"
+    },
+    "working_commands": {
+      "build": "podman-compose up -d --build agent",
+      "logs": "podman-compose logs agent",
+      "status": "podman-compose ps",
+      "manual_test": "podman run --rm -it -e CURSOR_API_KEY=$API_KEY -v .:origin localhost/cage_agent:latest python3 /app/agent_daemon.py 'request'"
+    },
+    "troubleshooting": {
+      "build_cache": "Sometimes need 'podman rmi localhost/cage_agent:latest' to force rebuild",
+      "permission_errors": "Ensure workspace created in /app/ directory, not root /",
+      "binary_not_found": "Cursor CLI installs as 'cursor-agent', not 'cursor'",
+      "redis_errors": "Non-fatal, agent continues without Redis connection"
+    }
+  }
+}

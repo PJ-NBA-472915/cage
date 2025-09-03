@@ -1,0 +1,125 @@
+{
+  "id": "2025-08-22-align-context-entrypoint",
+  "title": "Align context entrypoint for agent effectiveness",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-22 19:56",
+  "updated_at": "2025-08-22 20:06",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task"
+  ],
+  "summary": "Ensure `memory-bank/context/entrypoint.md` mirrors the real directory and provides a concise, actionable navigation guide so agents can quickly locate, retrieve, and use the right context to do high‑quality work.",
+  "success_criteria": [
+    {
+      "text": "Entrypoint structure matches repository directories and key files",
+      "checked": false
+    },
+    {
+      "text": "Quicklinks to core docs resolve without 404s",
+      "checked": false
+    },
+    {
+      "text": "Clear \"Start here\" flow aligned with External Context Management Rule",
+      "checked": false
+    },
+    {
+      "text": "Maintainer checklist included and practical",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Links to `product/specification/specification-document.md` and `spec/200_INDEX/*` resolve",
+      "checked": true
+    },
+    {
+      "text": "References to `rules/external-context-management.md` are present",
+      "checked": true
+    },
+    {
+      "text": "Navigation commands are accurate and minimal",
+      "checked": true
+    },
+    {
+      "text": "Agents can complete \"find spec → plan → implement → test\" using the guide",
+      "checked": true
+    }
+  ],
+  "subtasks": [
+    "Audit entrypoint against actual directory and rules",
+    "Add Quicklinks and \"Start here\" flow aligned with rule",
+    "Validate and fix links and the structure diagram",
+    "Add maintainer checklist and agent workflow tuning",
+    "Final clarity and concision pass"
+  ],
+  "todo": [
+    {
+      "text": "Audit entrypoint vs directory and rules",
+      "checked": true
+    },
+    {
+      "text": "Add Quicklinks + Start here flow",
+      "checked": true
+    },
+    {
+      "text": "Validate/fix all links and structure diagram",
+      "checked": true
+    },
+    {
+      "text": "Add Maintainers checklist section",
+      "checked": true
+    },
+    {
+      "text": "Final copy/clarity pass",
+      "checked": true
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-22 19:56",
+      "text": "File created (planned task)."
+    },
+    {
+      "timestamp": "2025-08-22 19:56",
+      "text": "Audited entrypoint against directory and rules."
+    },
+    {
+      "timestamp": "2025-08-22 19:59",
+      "text": "Added Quicklinks, Start Here, rg-based commands, maintainer checklist."
+    },
+    {
+      "timestamp": "2025-08-22 20:03",
+      "text": "Final clarity pass; committed changes."
+    }
+  ],
+  "decisions": [
+    "Use a single, high-signal entrypoint with Quicklinks and explicit \"Start here\" to reduce time-to-context for agents and ensure compliance with the external context rule."
+  ],
+  "lessons_learned": [
+    "(TBD)"
+  ],
+  "issues_risks": [
+    "Entry drift if maintainers forget to update when adding new context."
+  ],
+  "next_steps": [
+    "Implement entrypoint updates and validate links."
+  ],
+  "references": [
+    "`context/entrypoint.md`",
+    "`context/product/specification/specification-document.md`",
+    "`context/spec/200_INDEX/MANIFEST.yaml`",
+    "`context/spec/200_INDEX/HEADINGS.json`",
+    "`context/spec/200_INDEX/KEYWORDS.json`",
+    "`context/spec/200_INDEX/XREF.json`",
+    "`rules/external-context-management.md`"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-22-align-context-entrypoint.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {}
+}

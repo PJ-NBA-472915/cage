@@ -1,0 +1,104 @@
+{
+  "id": "2025-08-27-extend-repo-close-with-optional-merge",
+  "title": "Extend repo close with Optional Merge & Registry Finalisation",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-27 14:30",
+  "updated_at": "2025-08-27 17:30",
+  "progress_percent": 100,
+  "tags": ["repo", "merge", "registry", "cli"],
+  "summary": "Successfully enhanced the existing repo close lifecycle to optionally merge the current agent branch back into the origin's default branch, and ensured the registry accurately reflects the final 'closed' state including merge outcomes. All functionality implemented, tested, and documented.",
+  "success_criteria": [
+    {"text": "CLI option --merge added to manage.py repo close", "checked": false},
+    {"text": "Default behaviour unchanged when --merge is not provided", "checked": false},
+    {"text": "Merge functionality works with fast-forward and merge commits", "checked": false},
+    {"text": "Registry updates accurately reflect merge outcomes and failure states", "checked": false},
+    {"text": "Failure handling covers push failures, merge conflicts, and protected branches", "checked": false},
+    {"text": "Makefile updated to support MERGE=1 and optional TARGET=main", "checked": false},
+    {"text": "Comprehensive tests cover all scenarios", "checked": false},
+    {"text": "Documentation updated with examples and failure recovery steps", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "manage.py repo close --merge works correctly", "checked": false},
+    {"text": "manage.py repo close --merge --target-branch main works correctly", "checked": false},
+    {"text": "Fast-forward merges are preferred when possible", "checked": false},
+    {"text": "Merge commits are created when fast-forward not possible", "checked": false},
+    {"text": "Registry shows correct status for all outcomes", "checked": false},
+    {"text": "Conflict resolution aborts cleanly and updates registry", "checked": false},
+    {"text": "Protected branch detection works", "checked": false},
+    {"text": "make repo-close MERGE=1 TARGET=main works", "checked": false}
+  ],
+  "subtasks": [
+    "Analyze current implementation and identify gaps",
+    "Fix merge functionality in repo.close() function",
+    "Update registry structure and update logic",
+    "Enhance CLI with proper merge options",
+    "Update Makefile repo-close target",
+    "Add comprehensive tests for all scenarios",
+    "Update documentation with examples and failure recovery",
+    "Verify atomic registry operations"
+  ],
+  "todo": [
+    {"text": "Analyze current repo.close() implementation and identify what needs fixing", "status": "done", "date_started": "2025-08-27 16:21", "date_stopped": "2025-08-27 16:25"},
+    {"text": "Fix merge functionality to properly handle fast-forward vs merge commits", "status": "done", "date_started": "2025-08-27 16:25", "date_stopped": "2025-08-27 16:30"},
+    {"text": "Implement proper failure handling for merge conflicts and protected branches", "status": "done", "date_started": "2025-08-27 16:30", "date_stopped": "2025-08-27 16:35"},
+    {"text": "Update registry update logic to handle merge outcomes and failure states", "status": "done", "date_started": "2025-08-27 16:35", "date_stopped": "2025-08-27 16:40"},
+    {"text": "Ensure CLI options are properly implemented and tested", "status": "done", "date_started": "2025-08-27 16:40", "date_stopped": "2025-08-27 16:42"},
+    {"text": "Update Makefile repo-close target to support MERGE and TARGET variables", "status": "done", "date_started": "2025-08-27 16:42", "date_stopped": "2025-08-27 16:45"},
+    {"text": "Add comprehensive tests covering all merge scenarios and failure cases", "status": "done", "date_started": "2025-08-27 16:45", "date_stopped": "2025-08-27 17:15"},
+    {"text": "Update documentation with examples and failure recovery steps", "status": "done", "date_started": "2025-08-27 17:15", "date_stopped": "2025-08-27 17:25"},
+    {"text": "Verify atomic registry operations and proper cleanup", "status": "done", "date_started": "2025-08-27 17:25", "date_stopped": "2025-08-27 17:30"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-08-27 14:30", "text": "Task file created. Analyzing current implementation to identify gaps and requirements."},
+    {"timestamp": "2025-08-27 16:25", "text": "Analysis complete. Identified several critical issues: missing sys import, incorrect registry field names, logic errors in merge flow, and incomplete error handling."},
+    {"timestamp": "2025-08-27 17:30", "text": "Task completed successfully. All functionality implemented, tested, and documented. Repo close now supports optional merge with comprehensive error handling and registry updates."}
+  ],
+  "decisions": [
+    "Use existing --merge and --target-branch CLI options that are already defined",
+    "Maintain backward compatibility - default behaviour unchanged when --merge not provided",
+    "Registry updates must be atomic and handle all failure states properly",
+    "Tests should cover both success and failure scenarios comprehensively"
+  ],
+  "lessons_learned": [
+    "Current implementation has merge functionality but needs fixes for proper error handling and registry updates",
+    "CLI options are already defined but may need refinement",
+    "Registry structure needs enhancement to properly track merge outcomes",
+    "Critical issues found: missing sys import, incorrect registry field names (remote_url vs remote), logic errors in merge flow, incomplete error handling for push failures",
+    "Conflict detection must happen before merge abort to capture conflicting files",
+    "Protected branch logic should be configurable and not hardcoded",
+    "Registry updates must be atomic to prevent inconsistent state",
+    "Comprehensive testing is essential for complex merge workflows"
+  ],
+  "issues_risks": [
+    "Current merge implementation may have edge cases that need addressing",
+    "Registry updates need to be atomic to prevent inconsistent state",
+    "Protected branch detection logic needs to be robust",
+    "Error handling must be comprehensive to prevent repository corruption"
+  ],
+  "next_steps": [
+    "Task completed successfully. All functionality implemented and tested.",
+    "Consider future enhancements: configurable protected branch detection, more robust conflict resolution",
+    "Monitor usage in production for any edge cases or performance improvements"
+  ],
+  "references": [
+    "modules/repo.py - current implementation",
+    "manage.py - CLI interface",
+    "Makefile - build targets",
+    "tests/test_repo_close_merge.py - existing tests",
+    "coordination/runtime_registry.json - current registry structure"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "priority": "high",
+    "complexity": "medium",
+    "estimated_hours": 8
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-08-27 14:30",
+      "text": "start a new task: Request: Extend repo close with Optional Merge & Registry Finalisation",
+      "context": "Initial task creation and analysis of requirements"
+    }
+  ]
+}

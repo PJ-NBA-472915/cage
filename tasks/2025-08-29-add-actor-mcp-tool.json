@@ -1,0 +1,180 @@
+{
+  "id": "2025-08-29-add-actor-mcp-tool",
+  "title": "Add MCP Server 'actor' (Python) to Execute Actions in Cloned Repos",
+  "owner": "Gemini",
+  "status": "in_progress",
+  "created_at": "2025-08-29 10:00",
+  "updated_at": "2025-08-29 14:00",
+  "progress_percent": 70,
+  "tags": ["mcp", "tool", "actor", "python3.11", "pytest", "repo", "automation", "make"],
+  "summary": "Implement a Python 3.11 MCP server exposing a tool named 'actor.run' that accepts { path, instruction }, executes the instruction as a shell command within the given path, and returns stdout. Keep the server in the central repository and integrate invocation into the existing clone workflow / agent orchestration. Provide Makefile commands to test functionality.",
+  "success_criteria": [
+    { "text": "Design and implementation documented in this task.", "checked": true },
+    { "text": "An MCP server (Python) exposes a tool named 'actor.run' with JSON schema params: path (string), instruction (string).", "checked": true },
+    { "text": "The server executes commands in the provided path via POSIX shell and returns stdout; non-zero exits are surfaced as errors.", "checked": true },
+    { "text": "pytest suite covers happy path, failure, timeout, and path validation.", "checked": true },
+    { "text": "Makefile targets exist to run pytest and a smoke-test invocation.", "checked": true },
+    { "text": "Existing flow can call the MCP tool by passing the clone directory and instruction.", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "`make test` runs pytest suite successfully.", "checked": true },
+    { "text": "`make actor-smoke` launches the MCP server and runs a smoke test with { path: ., instruction: 'echo hello' } returning 'hello\n'.", "checked": false }
+  ],
+  "scope": {
+    "target_python": "3.11",
+    "os": ["Linux"],
+    "location": "central manager repo (e.g., tools/mcp/actor_server/)",
+    "exposure": "MCP stdio server using official Python SDK",
+    "tool_name": "actor.run",
+    "tool_params_schema": {
+      "type": "object",
+      "required": ["path", "instruction"],
+      "properties": {
+        "path": { "type": "string", "description": "Absolute or repo-relative directory in which to run the command" },
+        "instruction": { "type": "string", "description": "Shell command to run with POSIX semantics (/bin/sh -lc)" }
+      },
+      "additionalProperties": false
+    },
+    "execution_contract": {
+      "cwd": "chdir to `path` before execution",
+      "shell": "/bin/sh -lc",
+      "timeout_seconds": 60,
+      "stdout": "returned as MCP text content",
+      "stderr": "included in error diagnostics on failure",
+      "exit_codes": { "success": 0, "failure": "non-zero from subprocess" }
+    }
+  },
+  "design": {
+    "folders_files": [
+      "tools/mcp/actor_server/__init__.py",
+      "tools/mcp/actor_server/server.py",
+      "tools/mcp/actor_server/runner.py",
+      "tools/mcp/actor_server/README.md",
+      "tests/test_actor_server.py",
+      "tests/test_runner.py",
+      "Makefile"
+    ],
+    "make_targets": {
+      "test": "Run pytest suite quietly.",
+      "actor-smoke": "Run a local MCP smoke test: start server with asyncio + run one call to actor.run on current directory with `echo hello`."
+    }
+  },
+  "implementation_guide": {
+    "phase_1_core_logic": {
+      "title": "Phase 1: Implement the Core Command Runner",
+      "steps": [
+        { "instruction": "Create the directory `tools/mcp/actor_server` and an empty `__init__.py` file inside it." },
+        { "instruction": "Create the file `tools/mcp/actor_server/runner.py`." },
+        { "instruction": "In `runner.py`, define a function `run_shell(path: str, instruction: str, timeout: int = 60) -> str`." },
+        { "instruction": "Use the `subprocess` module to execute the `instruction` string. Ensure you use `cwd=path` to run the command in the correct directory." },
+        { "instruction": "Capture `stdout` and `stderr`. If the command returns a non-zero exit code, raise a custom exception (e.g., `ToolError`) that includes the `stderr`." },
+        { "instruction": "Implement the `timeout` parameter in your subprocess call." },
+        { "instruction": "On success, return the captured `stdout` as a string." }
+      ]
+    },
+    "phase_2_unit_testing": {
+      "title": "Phase 2: Write Unit Tests for the Runner",
+      "steps": [
+        { "instruction": "Create the test file `tests/test_runner.py`." },
+        { "instruction": "Import `pytest` and the `run_shell` function." },
+        { "instruction": "Write a test case for the happy path, e.g., `test_echo`, using `tmp_path` to create a temporary directory." },
+        { "instruction": "Write a test case for failures, e.g., `test_fail`, that runs a command like `false`. Use `pytest.raises(ToolError)` to assert that your custom exception is raised." },
+        { "instruction": "Write a test case for timeouts, e.g., `test_timeout`, that runs a command like `sleep 2` with a timeout of 1 second. Assert that the correct exception is raised." },
+        { "instruction": "Write a test case to ensure the command is executed in the correct directory (`cwd`)." }
+      ]
+    },
+    "phase_3_mcp_server": {
+      "title": "Phase 3: Implement the MCP Server",
+      "steps": [
+        { "instruction": "Create the file `tools/mcp/actor_server/server.py`." },
+        { "instruction": "Import the `Server` class from the MCP SDK and your `run_shell` function from `runner.py`." },
+        { "instruction": "Define a tool function, e.g., `actor_run`, that takes `path` and `instruction` as arguments and calls `run_shell`." },
+        { "instruction": "Instantiate the `Server`." },
+        { "instruction": "Register the `actor_run` function as a tool named `actor.run` on the server, providing the JSON schema defined in the `scope` section of this task." },
+        { "instruction": "Add a main execution block (`if __name__ == '__main__':`) to start the server." }
+      ]
+    },
+    "phase_4_automation_and_docs": {
+      "title": "Phase 4: Create Makefile Targets and Documentation",
+      "steps": [
+        { "instruction": "Open the root `Makefile`." },
+        { "instruction": "Add a new target `test:`, with the command `pytest -q tests/test_runner.py`." },
+        { "instruction": "Add a new target `actor-smoke:`, with the command `ACTOR_DEBUG=1 python -m tools.mcp.actor_server.server --once '{\"path\": \".\", \"instruction\": \"echo hello\"}'`." },
+        { "instruction": "Create the file `tools/mcp/actor_server/README.md`." },
+        { "instruction": "Document the purpose of the actor server, how to run it, and the parameters for the `actor.run` tool." }
+      ]
+    },
+    "phase_5_integration": {
+      "title": "Phase 5: Integrate with Cloning Workflow",
+      "steps": [
+        { "instruction": "Identify the module or script responsible for cloning repositories." },
+        { "instruction": "After a repository is successfully cloned, add a call to the `actor.run` tool. This can be done by executing the `make actor-smoke` command or by interfacing with the MCP server directly." },
+        { "instruction": "This step is dependent on the existing orchestration logic and may require further analysis of the codebase." }
+      ]
+    }
+  },
+  "subtasks": [
+    "Implement `runner.py` with safe shell command execution, including timeout, `cwd`, and error handling.",
+    "Write a `pytest` suite for `runner.py` covering success, failure, and timeout cases.",
+    "Implement `server.py` using the MCP SDK to expose the runner logic as the `actor.run` tool.",
+    "Add `test` and `actor-smoke` targets to the root `Makefile` for automated testing and validation.",
+    "Create a `README.md` for the `actor_server` documenting its usage.",
+    "Integrate the `actor.run` tool into the post-clone workflow."
+  ],
+  "todo": [
+    { "text": "Implement `runner.py`.", "checked": true },
+    { "text": "Implement `tests/test_runner.py`.", "checked": true },
+    { "text": "Implement `server.py`.", "checked": true },
+    { "text": "Update `Makefile`.", "checked": true },
+    { "text": "Write `README.md`.", "checked": true },
+    { "text": "Install `modelcontextprotocol` dependency.", "checked": false },
+    { "text": "Integrate into cloning process.", "checked": false }
+  ],
+  "implementation_notes": {
+    "makefile_snippet": "test:\n\tpytest -q\n\nactor-smoke:\n\tACTOR_DEBUG=1 python -m tools.mcp.actor_server.server --once '{\"path\": \".\", \"instruction\": \"echo hello\"}'",
+    "server_py": "from modelcontextprotocol.server import Server ...",
+    "runner_py": "import subprocess\n\nclass ToolError(Exception):\n    pass\n\ndef run_shell(path, instruction, timeout=60): ...",
+    "pytest_examples": [
+      "def test_echo(tmp_path): assert run_shell(tmp_path, 'echo hi').strip() == 'hi'",
+      "def test_fail(tmp_path): with pytest.raises(ToolError): run_shell(tmp_path, 'false')",
+      "def test_timeout(tmp_path): with pytest.raises(ToolError): run_shell(tmp_path, 'sleep 2', timeout=1)"
+    ]
+  },
+  "ci_cd": {
+    "pytest_command": "pytest -q",
+    "make_targets": ["test", "actor-smoke"]
+  },
+  "changelog": [
+    { "timestamp": "2025-08-29 10:00", "text": "Task file created and initial plan outlined." },
+    { "timestamp": "2025-08-29 12:35", "text": "Re-scoped to central MCP server with tool `actor.run`." },
+    { "timestamp": "2025-08-29 13:05", "text": "Added Makefile commands." },
+    { "timestamp": "2025-08-29 14:00", "text": "Added detailed implementation guide and expanded subtasks." }
+  ],
+  "decisions": [
+    "Keep tool central; pass target clone path per invocation.",
+    "Expose MCP stdio server using the official Python SDK for compatibility.",
+    "Add Makefile for standardised test and smoke-test workflows."
+  ],
+  "issues_risks": [
+    "Arbitrary command execution: restrict to trusted contexts and/or enforce allowed root.",
+    "Timeout tuning for long-running build steps.",
+    "Cross-platform support deferred."
+  ],
+  "next_steps": [
+    "Follow the implementation guide to build and test the feature.",
+    "Wire `make test` into CI.",
+    "Run `make actor-smoke` locally as validation."
+  ],
+  "references": [
+    "MCP specification (2025-06-18).",
+    "MCP Python SDK docs."
+  ],
+  "prompts": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": { "owner_contact": "dev@params.local" }
+}

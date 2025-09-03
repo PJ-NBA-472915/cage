@@ -1,0 +1,49 @@
+{
+  "id": "yyyy-mm-dd-task-slug",
+  "title": "Task Title",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-08-23 18:11",
+  "updated_at": "2025-08-23 18:11",
+  "progress_percent": 0,
+  "tags": ["cursor", "task"],
+  "summary": "Short description.",
+  "success_criteria": [
+    { "text": "…", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "…", "checked": false }
+  ],
+  "subtasks": [
+    "…"
+  ],
+  "todo": [
+    { "text": "…", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-08-23 18:11", "text": "File created." }
+  ],
+  "decisions": [
+    "…"
+  ],
+  "lessons_learned": [
+    "…"
+  ],
+  "issues_risks": [
+    "…"
+  ],
+  "next_steps": [
+    "…"
+  ],
+  "references": [
+    "…"
+  ],
+  "prompts": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {}
+}

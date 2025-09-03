@@ -1,0 +1,58 @@
+{
+  "id": "2025-08-27-implement-merge-lifecycle",
+  "title": "Implement Merge Lifecycle Event (merge + cleanup)",
+  "owner": "Gemini",
+  "status": "completed",
+  "created_at": "2025-08-27T12:55:00Z",
+  "updated_at": "2025-08-27T13:00:00Z",
+  "progress_percent": 100,
+  "tags": ["python", "git", "manage.py", "lifecycle", "repo"],
+  "summary": "Add a 'merge' lifecycle event that merges a completed agent branch back into a target branch (e.g., 'main'), tags the merge commit, and cleans up the temporary repository. This operation is designed to be idempotent and safe, with pre-flight checks to prevent common errors.",
+  "success_criteria": [
+    { "text": "manage.py subcommand 'repo merge' implemented.", "checked": true },
+    { "text": "Pre-flight checks validate that the agent branch can be cleanly merged.", "checked": true },
+    { "text": "Merges the agent branch into the specified target branch with a '--no-ff' strategy.", "checked": true },
+    { "text": "Creates an annotated tag on the merge commit with agent and task metadata.", "checked": true },
+    { "text": "Pushes the target branch and the new tag to the remote.", "checked": true },
+    { "text": "Deletes the temporary repository directory after a successful merge and push.", "checked": true },
+    { "text": "coordination/runtime_registry.json is updated atomically with merge metadata (merge commit SHA, tag, timestamps).", "checked": true },
+    { "text": "docs/repo-module.md is updated with 'merge' command usage and failure recovery steps.", "checked": true },
+    { "text": "tests/test_repo_merge.py covers clean merges, merge conflicts, and push failures.", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "'repo merge' returns a non-zero exit code if there are merge conflicts.", "checked": true },
+    { "text": "The temporary repository is not deleted if the merge or push fails.", "checked": true },
+    { "text": "The runtime registry is updated with a 'merged' status upon success.", "checked": true }
+  ],
+  "subtasks": [
+    "Add manage.py 'repo merge' subcommand with args: --path, --target-branch, --agent-id, --task-id, --remote, --no-cleanup",
+    "Implement merge() in modules/repo.py: pre-flight checks, merge, tag, push, cleanup",
+    "Atomic registry update with merge metadata and status",
+    "Update docs/repo-module.md (Merge section)",
+    "Create tests/test_repo_merge.py with local git fixtures and simulated push failures",
+    "Add Makefile target 'make repo-merge PATH=...'"
+  ],
+  "todo": [],
+  "changelog": [
+      { "timestamp": "2025-08-27 12:56", "text": "Added 'repo merge' subcommand to manage.py." },
+      { "timestamp": "2025-08-27 12:57", "text": "Implemented 'merge' function in modules/repo.py." },
+      { "timestamp": "2025-08-27 12:58", "text": "Created and passed tests in tests/test_repo_merge.py." },
+      { "timestamp": "2025-08-27 12:59", "text": "Updated docs/repo-module.md." },
+      { "timestamp": "2025-08-27 13:00", "text": "Added 'make repo-merge' target to Makefile." }
+  ],
+  "decisions": [
+    "The merge strategy will be '--no-ff' to preserve the history of the agent's work.",
+    "The temporary repository will be deleted by default, but can be preserved with a '--no-cleanup' flag for debugging."
+  ],
+  "issues_risks": [
+    "Merge conflicts are a primary risk and must be handled gracefully by aborting the merge and leaving the repository in a clean state.",
+    "Pushing to a protected target branch may fail; the command should provide clear error messages in this case."
+  ],
+  "next_steps": [
+    "2025-08-27-document-cli-options"
+  ],
+  "references": [],
+  "prompts": [],
+  "migration": { "migrated": false, "source_path": null, "method": null, "migrated_at": null },
+  "metadata": {}
+}

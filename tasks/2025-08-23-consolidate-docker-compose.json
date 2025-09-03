@@ -1,0 +1,70 @@
+{
+  "id": "2025-08-23-consolidate-docker-compose",
+  "title": "Consolidate docker-compose into single stack",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-23 18:32",
+  "updated_at": "2025-08-24 08:38",
+  "progress_percent": 100,
+  "tags": ["cursor", "task"],
+  "summary": "Create a single `docker-compose.yaml` that brings up `traefik`, `manager`, scalable `agent` pods, `redis`, and `postgres` for local development.",
+  "success_criteria": [
+    { "text": "`docker compose config` validates without errors", "checked": true },
+    { "text": "`docker compose up -d` starts all services", "checked": true },
+    { "text": "Agents can reach `redis` and `postgres` by service names", "checked": true },
+    { "text": "Traefik runs and is reachable on port 80", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "`redis` exposes 6379 and is healthy", "checked": true },
+    { "text": "`postgres` exposes 5432, persists to a volume, and is healthy", "checked": true },
+    { "text": "`agent` service scales via `--scale agent=N`", "checked": true },
+    { "text": "Traefik labels exist for at least `manager`", "checked": true }
+  ],
+  "subtasks": [
+    "Discover existing compose files and related scripts",
+    "Draft unified `docker-compose.yaml` with required services",
+    "Validate config and fix errors",
+    "Document how to run and scale"
+  ],
+  "todo": [
+    { "text": "Scan compose files and environment variables", "checked": true },
+    { "text": "Author unified `docker-compose.yaml`", "checked": true },
+    { "text": "Validate with `docker compose config`", "checked": true },
+    { "text": "Add Podman-compatible Traefik file provider config", "checked": true },
+    { "text": "Add brief run/scale notes", "checked": true }
+  ],
+  "changelog": [
+    { "timestamp": "2025-08-24 08:38", "text": "Task completed: added documentation, validated all configurations, and marked all criteria as met" },
+    { "timestamp": "2025-08-23 18:46", "text": "Added Traefik file provider and Podman-compatible compose; validated with podman compose" },
+    { "timestamp": "2025-08-23 18:44", "text": "Wrote unified docker-compose.yaml and validated syntax" },
+    { "timestamp": "2025-08-23 18:32", "text": "Task created and scoped based by user confirmation" }
+  ],
+  "decisions": [
+    "Use a single root `docker-compose.yaml` to replace split local files",
+    "Define two networks: `proxy` (Traefik) and `internal` for services",
+    "Use official `redis:7-alpine` and `postgres:16-alpine` images with healthchecks",
+    "Switch Traefik to file provider for Podman (no Docker socket)"
+  ],
+  "lessons_learned": [
+    "Current repo lacks a long-running HTTP manager; Traefik routing will be a placeholder until a manager HTTP service exists."
+  ],
+  "issues_risks": [
+    "The `manager` script (`memory-bank/app.py`) is CLI-oriented; it does not provide HTTP endpoints yet. We'll still include the service and labels to prepare for later wiring."
+  ],
+  "next_steps": [],
+  "references": [
+    "`docker-compose.yaml`",
+    "`docker-compose.local.yml`",
+    "`traefik/traefik.yml`, `traefik/dynamic/manager.yml`",
+    "`Dockerfile`",
+    "`agent_daemon.py`",
+    "`memory-bank/docs/features/docker-compose.md`"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "tasks/2025-08-23-consolidate-docker-compose.md",
+    "method": "manual",
+    "migrated_at": "2025-08-24"
+  },
+  "metadata": {}
+}

@@ -1,0 +1,55 @@
+{
+  "id": "2025-08-23-add-task-manager-module",
+  "title": "Add TaskManager module for task validation and status",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-23 18:41",
+  "updated_at": "2025-08-23 18:54",
+  "progress_percent": 100,
+  "tags": ["cursor", "task", "manager", "json"],
+  "summary": "Create manager/task_manager.py to centralise loading, validating, and summarising JSON tasks; refactor scripts to call this module; add Makefile targets.",
+  "success_criteria": [
+    {"text": "Module provides validate and status generation APIs", "checked": true},
+    {"text": "Validation uses tasks/_schema.json and reports clearly", "checked": true},
+    {"text": "Status JSON written to tasks/_status.json", "checked": true},
+    {"text": "Makefile targets run in devbox/venv", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "from manager.task_manager import TaskManager works", "checked": true},
+    {"text": "scripts call the module (no dup logic)", "checked": true},
+    {"text": "make tasks-validate and tasks-status succeed", "checked": true}
+  ],
+  "subtasks": [
+    "Implement TaskManager with schema/task IO, validation, status",
+    "Refactor scripts to use TaskManager",
+    "Add Makefile targets",
+    "Run and verify in venv",
+    "Add documentation for TaskManager under docs/features/task-manager.md"
+  ],
+  "todo": [
+    {"text": "Add manager/task_manager.py with TaskManager class", "checked": true},
+    {"text": "Refactor scripts/validate_tasks.py to import TaskManager", "checked": true},
+    {"text": "Refactor scripts/generate_status.py to import TaskManager", "checked": true},
+    {"text": "Add make targets tasks-validate and tasks-status", "checked": true},
+    {"text": "Run validation and status; fix any issues", "checked": true},
+    {"text": "Create docs/features/task-manager.md with TaskManager usage", "checked": true}
+  ],
+  "changelog": [
+    {"timestamp": "2025-08-23 18:41", "text": "Planning task created."},
+    {"timestamp": "2025-08-23 18:43", "text": "Implemented TaskManager; refactored scripts; added Make targets; ran validation/status; task complete."},
+    {"timestamp": "2025-08-23 18:54", "text": "Added docs/features/task-manager.md documenting TaskManager usage."}
+  ],
+  "decisions": [
+    "Consolidate business logic inside manager/task_manager.py"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Path handling and JSON schema validation edge-cases"
+  ],
+  "next_steps": [],
+  "references": [
+    "tasks/_schema.json", "scripts/validate_tasks.py", "scripts/generate_status.py", "docs/features/task-manager.md"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}

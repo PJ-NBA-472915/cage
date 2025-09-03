@@ -1,0 +1,93 @@
+{
+  "id": "2025-08-25-install-supervisor-container",
+  "title": "Install and Configure Supervisor in Container for Background Process Management",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-25 18:15",
+  "updated_at": "2025-08-25 12:05",
+  "progress_percent": 100,
+  "tags": ["supervisor", "container", "background-processes", "crewai", "checker-agent"],
+  "summary": "Install supervisor in the container to manage background processes, particularly the CrewAI checker agent that needs to run on a 10-minute schedule, along with other potential background services.",
+  "success_criteria": [
+    {"text": "Supervisor installed and configured in the container", "checked": true},
+    {"text": "Supervisor configuration file created for managing background processes", "checked": true},
+    {"text": "CrewAI checker agent configured to run on 10-minute schedule via supervisor", "checked": true},
+    {"text": "Supervisor can start, stop, and monitor background processes", "checked": true},
+    {"text": "Supervisor web interface accessible for process monitoring", "checked": true},
+    {"text": "Container startup script updated to launch supervisor", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Supervisor package added to requirements.txt or Dockerfile", "checked": true},
+    {"text": "Supervisor configuration file created with proper process definitions", "checked": true},
+    {"text": "Checker agent script created that can run independently", "checked": true},
+    {"text": "Supervisor can manage the checker agent process", "checked": true},
+    {"text": "Process monitoring and restart functionality working", "checked": true},
+    {"text": "Container builds and runs with supervisor", "checked": true}
+  ],
+  "subtasks": [
+    "Research supervisor configuration best practices for Python containers",
+    "Add supervisor package to container dependencies",
+    "Create supervisor configuration file for background processes",
+    "Create standalone checker agent script for supervisor management",
+    "Configure supervisor to run checker agent on 10-minute schedule",
+    "Update container startup process to launch supervisor",
+    "Test supervisor process management in container",
+    "Configure supervisor web interface for monitoring",
+    "Document supervisor configuration and usage"
+  ],
+  "todo": [
+    {"text": "Research supervisor configuration best practices for Python containers", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 11:14"},
+    {"text": "Add supervisor package to container dependencies", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 11:14"},
+    {"text": "Create supervisor configuration file for background processes", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 11:14"},
+    {"text": "Create standalone checker agent script for supervisor management", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 11:14"},
+    {"text": "Configure supervisor to run checker agent on 10-minute schedule", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 11:14"},
+    {"text": "Update container startup process to launch supervisor", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 11:14"},
+    {"text": "Test supervisor process management in container", "status": "done", "date_started": "2025-08-25 12:21", "date_stopped": "2025-08-25 12:21"},
+    {"text": "Configure supervisor web interface for monitoring", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 11:14"},
+    {"text": "Document supervisor configuration and usage", "status": "done", "date_started": "2025-08-25 11:14", "date_stopped": "2025-08-25 12:05"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-08-25 18:15", "text": "Task file created for installing and configuring supervisor in container"},
+    {"timestamp": "2025-08-25 12:05", "text": "Enhanced CrewAI agents documentation with comprehensive usage examples, get started guide, and troubleshooting section"},
+    {"timestamp": "2025-08-25 12:21", "text": "Completed supervisor process management testing - all tests passed. Task now 100% complete."},
+    {"timestamp": "2025-08-25 11:14", "text": "Added supervisor package to requirements.txt"},
+    {"timestamp": "2025-08-25 11:14", "text": "Created supervisord.conf configuration file with checker agent and agent daemon processes"},
+    {"timestamp": "2025-08-25 11:14", "text": "Created standalone checker agent script for supervisor management with 10-minute schedule"},
+    {"timestamp": "2025-08-25 11:14", "text": "Updated Dockerfile to install supervisor, create logs directory, and copy configuration"},
+    {"timestamp": "2025-08-25 11:14", "text": "Updated pod-entrypoint.sh to start supervisor instead of direct agent daemon"},
+    {"timestamp": "2025-08-25 11:14", "text": "Created supervisor-control.sh script for easy process management within container"},
+    {"timestamp": "2025-08-25 11:14", "text": "Created comprehensive documentation for supervisor usage in container"}
+  ],
+  "decisions": [
+    "Use supervisor for managing background processes in container",
+    "Configure checker agent to run on 10-minute schedule via supervisor",
+    "Enable supervisor web interface for process monitoring",
+    "Create standalone checker agent script that can run independently"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Supervisor configuration complexity in containerized environment",
+    "Process scheduling and timing accuracy in container",
+    "Integration with existing container startup process",
+    "Resource management for background processes"
+  ],
+  "next_steps": [
+    "Supervisor installation and configuration is complete",
+    "Ready for container deployment and production use",
+    "Consider adding more background processes as needed",
+    "Monitor logs and performance in production environment"
+  ],
+  "references": [
+    "Supervisor documentation and configuration examples",
+    "Existing container configuration in cage repo",
+    "CrewAI checker agent implementation",
+    "Container startup and process management patterns"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "supervisor_version": "4.2.5",
+    "target_schedule": "10 minutes",
+    "container_environment": "Python-based container",
+    "background_processes": ["checker-agent", "other-services"]
+  }
+}

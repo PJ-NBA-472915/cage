@@ -1,0 +1,90 @@
+{
+  "id": "2025-08-22-add-cursor-rule-frontmatter",
+  "title": "Add Cursor rule metadata frontmatter",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-22 19:18",
+  "updated_at": "2025-08-22 19:19",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task"
+  ],
+  "summary": "Add required YAML frontmatter to missing `.cursor/rules/*` files so Cursor enforces them.",
+  "success_criteria": [
+    {
+      "text": "Each targeted rule file starts with valid YAML frontmatter",
+      "checked": true
+    },
+    {
+      "text": "Rules are auto-applied in Cursor (alwaysApply: true)",
+      "checked": true
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Frontmatter present in 3 files: conventional commits, external context, pytest standards",
+      "checked": true
+    },
+    {
+      "text": "No content below the header is altered beyond insertion",
+      "checked": true
+    }
+  ],
+  "subtasks": [
+    "Identify rule files missing frontmatter",
+    "Insert YAML frontmatter with description, globs and alwaysApply",
+    "Verify formatting and no unintended diffs",
+    "Mark task complete"
+  ],
+  "todo": [
+    {
+      "text": "Inspect `.cursor/rules` and list files missing frontmatter",
+      "checked": true
+    },
+    {
+      "text": "Add YAML frontmatter to each missing file",
+      "checked": true
+    },
+    {
+      "text": "Verify formatting and enforcement fields",
+      "checked": true
+    },
+    {
+      "text": "Update task status, changelog, and progress",
+      "checked": true
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-22 19:19",
+      "text": "Added YAML frontmatter to three rule files for enforcement."
+    },
+    {
+      "timestamp": "2025-08-22 19:18",
+      "text": "File created to orchestrate rule metadata addition."
+    }
+  ],
+  "decisions": [
+    "Use minimal frontmatter fields (`description`, `globs`, `alwaysApply`) to match existing enforced rules."
+  ],
+  "lessons_learned": [
+    "TBC"
+  ],
+  "issues_risks": [
+    "None anticipated; simple non-destructive header insertions."
+  ],
+  "next_steps": [
+    "Add frontmatter to the three markdown files."
+  ],
+  "references": [
+    "`.cursor/rules/task-file-usage.mdc` and `terminal-safety.md` as examples of enforced headers."
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-22-add-cursor-rule-frontmatter.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {}
+}

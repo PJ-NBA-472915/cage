@@ -1,0 +1,218 @@
+{
+  "id": "2025-08-22-create-spec-slicing-script",
+  "title": "Create Python script to automatically slice SPEC_RAW.md into heading-based sections",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-22 17:00",
+  "updated_at": "2025-08-22 18:00",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task",
+    "specification",
+    "automation",
+    "python",
+    "scripting"
+  ],
+  "summary": "Create a Python script that automatically slices the SPEC_RAW.md file into sections based on markdown headings, generating properly formatted slice files with correct character ranges, metadata, and validation support.",
+  "success_criteria": [
+    {
+      "text": "Python script successfully parses SPEC_RAW.md and identifies all major headings",
+      "checked": true
+    },
+    {
+      "text": "Script generates slice files with correct character ranges (not the incorrect 32000-45000 from example)",
+      "checked": true
+    },
+    {
+      "text": "Each slice file has proper YAML frontmatter with all required metadata",
+      "checked": true
+    },
+    {
+      "text": "Generated slices pass verification using existing `make verify` command",
+      "checked": true
+    },
+    {
+      "text": "Script handles edge cases gracefully (nested headings, special characters, etc.)",
+      "checked": true
+    },
+    {
+      "text": "Script is idempotent and can be run multiple times safely",
+      "checked": true
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Script identifies all 21+ major sections from the specification document (25 sections found)",
+      "checked": true
+    },
+    {
+      "text": "Character ranges in slice metadata accurately reflect content boundaries",
+      "checked": true
+    },
+    {
+      "text": "All slice files contain exact verbatim content with no alterations",
+      "checked": true
+    },
+    {
+      "text": "Front matter includes: source, slice_id, range.chars, checksum, headings, tags",
+      "checked": true
+    },
+    {
+      "text": "Generated slices pass `make verify` validation",
+      "checked": true
+    },
+    {
+      "text": "Script handles both context/spec and spec directory structures",
+      "checked": true
+    },
+    {
+      "text": "Error handling for malformed markdown or missing files",
+      "checked": true
+    },
+    {
+      "text": "Logging and progress reporting during execution",
+      "checked": true
+    }
+  ],
+  "subtasks": [
+    "✅ Analyze SPEC_RAW.md structure and identify heading patterns",
+    "✅ Design heading detection algorithm (H1-H3 levels, numbered sections)",
+    "✅ Implement character range calculation logic",
+    "✅ Create YAML frontmatter generation with proper metadata",
+    "✅ Add file output and directory management",
+    "✅ Integrate with existing verification system",
+    "✅ Add error handling and validation",
+    "✅ Test with existing slice files and verify correctness"
+  ],
+  "todo": [
+    {
+      "text": "Analyze existing slice structure and identify issues",
+      "checked": true
+    },
+    {
+      "text": "Review SPEC_RAW.md content and heading structure",
+      "checked": true
+    },
+    {
+      "text": "Understand existing verification system and integration points",
+      "checked": true
+    },
+    {
+      "text": "Design heading detection regex patterns for numbered sections",
+      "checked": true
+    },
+    {
+      "text": "Implement character position calculation for accurate ranges",
+      "checked": true
+    },
+    {
+      "text": "Create slice file generation with proper frontmatter",
+      "checked": true
+    },
+    {
+      "text": "Add tag generation based on heading content and context",
+      "checked": true
+    },
+    {
+      "text": "Implement checksum calculation for each slice",
+      "checked": true
+    },
+    {
+      "text": "Add progress reporting and error handling",
+      "checked": true
+    },
+    {
+      "text": "Test script with existing content and verify output",
+      "checked": true
+    },
+    {
+      "text": "Ensure compatibility with both context/spec and spec directories",
+      "checked": true
+    },
+    {
+      "text": "Add command-line interface and configuration options",
+      "checked": true
+    },
+    {
+      "text": "Document script usage and integration",
+      "checked": true
+    },
+    {
+      "text": "Run comprehensive tests and validation",
+      "checked": true
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-22 17:00",
+      "text": "Task file created with detailed requirements from analysis"
+    },
+    {
+      "timestamp": "2025-08-22 17:30",
+      "text": "Implementation completed: added slice_spec_by_headings() method to SpecManager"
+    },
+    {
+      "timestamp": "2025-08-22 17:30",
+      "text": "Added command-line interface support to app.py"
+    },
+    {
+      "timestamp": "2025-08-22 17:30",
+      "text": "Updated Makefile with new 'slice' command"
+    },
+    {
+      "timestamp": "2025-08-22 17:30",
+      "text": "Created test script for validation"
+    },
+    {
+      "timestamp": "2025-08-22 17:45",
+      "text": "Updated slicing function to work with standard Markdown headings (## N. Title)"
+    },
+    {
+      "timestamp": "2025-08-22 17:50",
+      "text": "Successfully sliced main SPEC_RAW.md into 25 sections"
+    },
+    {
+      "timestamp": "2025-08-22 17:55",
+      "text": "All slices verified successfully with make verify command"
+    },
+    {
+      "timestamp": "2025-08-22 18:00",
+      "text": "Task completed: slicing function working with main SPEC_RAW.md file"
+    }
+  ],
+  "decisions": [
+    "**Heading-based splitting**: Use numbered section headings (1., 2., 3., etc.) as primary split points",
+    "**Character range accuracy**: Calculate exact character positions to replace incorrect ranges like 32000-45000",
+    "**Verification integration**: Ensure generated slices work with existing `make verify` command",
+    "**Dual directory support**: Handle both context/spec and spec directory structures",
+    "**Idempotent operation**: Script should be safe to run multiple times without corruption"
+  ],
+  "lessons_learned": [
+    "Current slice example (007-source-control-ci.md) has incorrect character ranges",
+    "SPEC_RAW.md has clear numbered section structure that can be reliably parsed",
+    "Existing verification system expects specific metadata format and character ranges",
+    "Need to preserve exact content while generating accurate metadata"
+  ],
+  "issues_risks": [
+    "**Heading complexity**: Some sections may have nested subsections that need careful handling",
+    "**Character encoding**: Ensure UTF-8 handling for special characters and formatting",
+    "**Metadata validation**: Frontmatter must match expected format for verification to work",
+    "**File conflicts**: Need to handle cases where slice files already exist",
+    "**Performance**: Large files may require efficient processing for character counting"
+  ],
+  "next_steps": [],
+  "references": [
+    "Existing slice example: `context/spec/100_SPLIT/007-source-control-ci.md`",
+    "SPEC_RAW.md content structure and headings",
+    "Existing verification system: `manager/spec_manager.py` and `scripts/verify_slices.py`",
+    "Makefile verify command: `make verify`"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-22-create-spec-slicing-script.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {}
+}

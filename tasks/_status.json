@@ -1,0 +1,21 @@
+{
+  "active_tasks": [],
+  "recently_completed": [
+    {
+      "title": "Move manager module out of memory bank to root directory",
+      "status": "completed",
+      "progress_percent": 100,
+      "updated_at": "2025-08-28 09:00",
+      "latest_work": "Task marked as completed by user request.",
+      "remaining_todo": []
+    },
+    {
+      "title": "Consolidate docker-compose into single stack",
+      "status": "completed",
+      "progress_percent": 100,
+      "updated_at": "2025-08-28 09:00",
+      "latest_work": "Task marked as completed by user request.",
+      "remaining_todo": []
+    }
+  ]
+}

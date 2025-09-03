@@ -1,0 +1,151 @@
+{
+  "id": "2025-08-21-create-notion-mcp-cursor-rule",
+  "title": "Create Cursor Rule File for Notion MCP Tool Interaction",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-08-21 16:00",
+  "updated_at": "2025-08-21 16:35",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task",
+    "notion",
+    "mcp"
+  ],
+  "summary": "Create a cursor rule file that provides guidelines and best practices for interacting with the Notion MCP tool to access and manage the project board which is stored on the Project Tasks database on the PJ-NBA-472915 database in the General Notes database. This rule file will ensure consistent and effective usage of Notion MCP capabilities across the team.\nUsage of this MCP will be managing and interacting with the project tasks board, and writing notes to the PJ-NBA-472915 Notes database.",
+  "success_criteria": [
+    {
+      "text": "Cursor rule file created with comprehensive Notion MCP interaction guidelines",
+      "checked": false
+    },
+    {
+      "text": "Rule file includes best practices for project board access and management",
+      "checked": false
+    },
+    {
+      "text": "Rule file provides examples of common Notion MCP operations",
+      "checked": false
+    },
+    {
+      "text": "Rule file is properly formatted and follows cursor rule conventions",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Rule file exists in the appropriate location",
+      "checked": false
+    },
+    {
+      "text": "Content covers Notion MCP tool usage comprehensively",
+      "checked": false
+    },
+    {
+      "text": "Examples are practical and relevant to project board management",
+      "checked": false
+    },
+    {
+      "text": "Format follows established cursor rule patterns",
+      "checked": false
+    },
+    {
+      "text": "Team can easily understand and follow the guidelines",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Research existing cursor rule patterns and Notion MCP tool capabilities",
+    "Define scope and structure of the rule file",
+    "Create comprehensive guidelines for Notion MCP interaction",
+    "Add practical examples and use cases",
+    "Review and refine the rule file content",
+    "Test rule file format and readability"
+  ],
+  "todo": [
+    {
+      "text": "Research cursor rule file patterns and structure",
+      "checked": true
+    },
+    {
+      "text": "Investigate Notion MCP tool capabilities and limitations",
+      "checked": true
+    },
+    {
+      "text": "Define the scope of guidelines needed",
+      "checked": true
+    },
+    {
+      "text": "Create initial rule file structure",
+      "checked": true
+    },
+    {
+      "text": "Write comprehensive Notion MCP interaction guidelines",
+      "checked": true
+    },
+    {
+      "text": "Add practical examples for project board management",
+      "checked": true
+    },
+    {
+      "text": "Include best practices and common pitfalls",
+      "checked": true
+    },
+    {
+      "text": "Review and refine content for clarity",
+      "checked": true
+    },
+    {
+      "text": "Test rule file format and readability",
+      "checked": true
+    },
+    {
+      "text": "Finalize and commit the rule file",
+      "checked": true
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-08-21 16:35",
+      "text": "Committed completed task and new rule file to git repository."
+    },
+    {
+      "timestamp": "2025-08-21 16:30",
+      "text": "Task completed successfully. Created comprehensive Notion MCP cursor rule file with guidelines, best practices, and examples."
+    },
+    {
+      "timestamp": "2025-08-21 16:00",
+      "text": "File created."
+    }
+  ],
+  "decisions": [
+    "Creating a dedicated rule file for Notion MCP interaction to ensure consistent usage across the team",
+    "Focusing on project board access and management as the primary use case"
+  ],
+  "lessons_learned": [
+    "Cursor rule files should follow established patterns with clear structure and comprehensive coverage",
+    "Notion MCP tool provides extensive capabilities for project board and notes database management",
+    "Integration between local task files and Notion project board requires careful synchronization planning",
+    "Practical examples and troubleshooting sections are essential for team adoption"
+  ],
+  "issues_risks": [
+    "Need to understand the current Notion MCP tool capabilities",
+    "May need to iterate on rule content based on team feedback"
+  ],
+  "next_steps": [
+    "Team should review and provide feedback on the new rule file",
+    "Consider adding specific examples based on actual project board usage",
+    "Monitor rule effectiveness and update as needed based on team feedback"
+  ],
+  "references": [
+    "Notion MCP tool documentation",
+    "Existing cursor rule patterns",
+    "Project board requirements and workflows"
+  ],
+  "migration": {
+    "migrated": true,
+    "source_path": "2025-08-21-create-notion-mcp-cursor-rule.md",
+    "method": "script",
+    "migrated_at": "2025-08-23 18:31"
+  },
+  "metadata": {}
+}

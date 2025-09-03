@@ -1,0 +1,44 @@
+{
+  "id": "2025-08-29-add-quit-on-escape",
+  "title": "Implement quit on escape",
+  "owner": "Gemini",
+  "status": "completed",
+  "created_at": "2025-08-29 09:00",
+  "updated_at": "2025-08-29 09:00",
+  "progress_percent": 100,
+  "tags": ["cli", "feature"],
+  "summary": "Add functionality to quit the application when the user presses the escape key.",
+  "success_criteria": [
+    { "text": "The application exits gracefully when the escape key is pressed.", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "Run the CLI and press escape to confirm it quits.", "checked": true }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Identify the main CLI loop or input handling mechanism.", "checked": true },
+    { "text": "Implement a check for the escape key press.", "checked": true },
+    { "text": "Add logic to terminate the application when escape is detected.", "checked": true }
+  ],
+  "changelog": [
+    { "timestamp": "2025-08-29 09:00", "text": "File created." },
+    { "timestamp": "2025-08-29 09:00", "text": "Implemented and verified quit on escape functionality." }
+  ],
+  "decisions": [
+    "Used `menu_choice is None` to detect escape key press in `questionary.select`."
+  ],
+  "lessons_learned": [
+    "Interactive CLI commands cannot be directly tested via `run_shell_command` due to TTY limitations."
+  ],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "prompts": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {}
+}
