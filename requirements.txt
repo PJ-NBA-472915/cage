@@ -6,7 +6,7 @@ Pygments==2.19.2
 questionary==2.1.0
 rich==14.1.0
 shellingham==1.5.4
-typer==0.16.1
+typer<0.16
 typing_extensions==4.15.0
 wcwidth==0.2.13
 pytest
