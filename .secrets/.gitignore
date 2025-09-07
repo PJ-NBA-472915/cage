@@ -1,0 +1,4 @@
+**/*
+
+# But keep the .gitignore itself
+!.gitignore

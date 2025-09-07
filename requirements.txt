@@ -10,6 +10,8 @@ typer==0.16.1
 typing_extensions==4.15.0
 wcwidth==0.2.13
 pytest
+pytest-asyncio
+httpx
 crewai
 redis
 pyyaml
@@ -19,3 +21,7 @@ loguru
 google-generativeai
 langchain
 modelcontextprotocol
+fastapi
+uvicorn
+python-multipart
+pytest-asyncio

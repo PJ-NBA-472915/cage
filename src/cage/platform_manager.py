@@ -6,7 +6,7 @@ from rich.table import Table
 import questionary
 import sys
 import json
-from modules import repo
+from cage import repo
 
 app = typer.Typer()
 console = Console()

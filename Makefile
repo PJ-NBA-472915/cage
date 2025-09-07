@@ -1,13 +1,35 @@
 PATH := /usr/local/bin:$(PATH)
 
-manage:
-	devbox run -- python ./manage.py
+.PHONY: install
+install:
+	devbox run -- python -m pip install -r requirements.txt
+
+.PHONY: api-start
+api-start:
+	devbox run -- python ./manage.py start
+
+.PHONY: api-stop
+api-stop:
+	devbox run -- python ./manage.py stop
+
+.PHONY: api-status
+api-status:
+	devbox run -- python ./manage.py status
 
 tail-logs:
-	devbox run -- tail -f logs/manage.log
+	devbox run -- tail -f logs/api.log
 
 test:
-	devbox run pytest -q tests/test_runner.py
+	devbox run pytest -q tests/test_api.py
+
+.PHONY: test-e2e
+test-e2e:
+	make install
+	make api-start
+	@echo "Waiting for API service to start..."
+	@sleep 5
+	make test
+	make api-stop
 
 actor-smoke:
 	ACTOR_DEBUG=1 devbox run python -m tools.mcp.actor_server.server --once '{"path": ".", "instruction": "echo hello"}'
@@ -15,38 +37,3 @@ actor-smoke:
 
 setup-gemini:
 	ln -s ./memory-bank/gemini/GEMINI.md ./GEMINI.md
-
-## Initialise a repo
-# Usage:
-#   make init path=<path> [args="..."]
-#   make init url=<url> [args="..."]
-# Example:
-#   make init url=https://github.com/some/repo.git args="--agent-id my-agent --branch main"
-.PHONY: init
-init:
-ifndef path
-ifndef url
-	$(error Usage: make init path=<path> or url=<url>)
-endif
-endif
-	$(if $(path), source .venv/bin/activate && python3 manage.py repo init --origin $(path) $(args))
-	$(if $(url), source .venv/bin/activate && python3 manage.py repo init --origin $(url) $(args))
-
-## Close a repo with optional merge
-# Usage:
-#   make repo-close REPO_PATH=<path> MESSAGE="<message>" [MERGE=1] [TARGET_BRANCH=<branch>] [args="..."]
-# Example:
-#   make repo-close REPO_PATH=/tmp/repo MESSAGE="finalise work" MERGE=1 TARGET_BRANCH=main
-.PHONY: repo-close
-repo-close:
-ifndef REPO_PATH
-	$(error Usage: make repo-close REPO_PATH=<path> MESSAGE="<message>" [MERGE=1] [TARGET_BRANCH=<branch>])
-endif
-ifndef MESSAGE
-	$(error Usage: make repo-close REPO_PATH=<path> MESSAGE="<message>" [MERGE=1] [TARGET_BRANCH=<branch>])
-endif
-	source .venv/bin/activate && python3 manage.py repo close --path $(REPO_PATH) --message "$(MESSAGE)" $(if $(MERGE), --merge) $(if $(TARGET_BRANCH), --target-branch $(TARGET_BRANCH)) $(args)
-
-.PHONY: manager
-manager:
-	source .venv/bin/activate && python3 manage.py manager
