@@ -2,7 +2,7 @@
   "packages": [
     "python@3.11",
     "poetry@1.7.1",
-    "pip"
+    "uv"
   ],
   "shell": {
     "init_hook": [

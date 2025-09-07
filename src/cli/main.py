@@ -1,13 +1,23 @@
 import typer
 import subprocess
+import sys
 
 app = typer.Typer()
 
 CONTAINER_NAME = "cage-api-service"
 
+def check_podman():
+    """Checks if podman is running and connected."""
+    try:
+        subprocess.run(["podman", "system", "connection", "list"], check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("Cannot connect to Podman. Please verify your connection to the Linux system using `podman system connection list`, or try `podman machine init` and `podman machine start` to manage a new Linux VM", file=sys.stderr)
+        sys.exit(1)
+
 @app.command()
 def start():
     """Builds and starts the API service container."""
+    check_podman()
     try:
         # Build the container
         subprocess.run(["podman", "build", "-t", CONTAINER_NAME, "-f", "Containerfile", "."], check=True)

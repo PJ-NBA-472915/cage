@@ -2,10 +2,10 @@
   "id": "2025-09-07-refactor-cli-to-api-service",
   "title": "Refactor CLI to API Service",
   "owner": "Assistant",
-  "status": "planned",
+  "status": "blocked",
   "created_at": "2025-09-07 09:05",
-  "updated_at": "2025-09-07 09:05",
-  "progress_percent": 0,
+  "updated_at": "2025-09-07 10:00",
+  "progress_percent": 90,
   "tags": ["api", "cli", "refactor", "architecture", "podman", "postman"],
   "summary": "Refactor the existing CLI application (manage.py) into a RESTful API service running in a Podman container, with a new CLI tool running outside the container to manage the API service lifecycle. Include Postman collection for API testing and documentation.",
   "success_criteria": [
@@ -27,33 +27,22 @@
     {"text": "Container builds and runs successfully with Podman", "checked": false}
   ],
   "subtasks": [
-    "Analyze current CLI functionality in manage.py and modules",
-    "Choose API framework (FastAPI recommended)",
-    "Design RESTful API endpoints for repo and platform management",
-    "Create new directory structure (src/api/, src/cli/)",
-    "Implement API service with business logic from modules",
-    "Create Containerfile for API service",
-    "Implement new management CLI using devbox",
-    "Add API dependencies to requirements.txt",
-    "Create Postman collection for API testing",
-    "Update tests for new architecture",
-    "Update Makefile for new structure"
+    {"text": "Analyze current CLI functionality in manage.py and modules", "status": "complete"},
+    {"text": "Choose API framework (FastAPI recommended)", "status": "complete"},
+    {"text": "Design RESTful API endpoints for repo and platform management", "status": "complete"},
+    {"text": "Create new directory structure (src/api/, src/cli/)", "status": "complete"},
+    {"text": "Implement API service with business logic from modules", "status": "complete"},
+    {"text": "Create Containerfile for API service", "status": "complete"},
+    {"text": "Implement new management CLI using devbox", "status": "complete"},
+    {"text": "Add API dependencies to requirements.txt", "status": "complete"},
+    {"text": "Create Postman collection for API testing", "status": "complete"},
+    {"text": "Update tests for new architecture", "status": "complete"},
+    {"text": "Update Makefile for new structure", "status": "complete"}
   ],
-  "todo": [
-    {"text": "Analyze current CLI functionality in manage.py and modules", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Choose API framework (FastAPI recommended)", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Design RESTful API endpoints for repo and platform management", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Create new directory structure (src/api/, src/cli/)", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Implement API service with business logic from modules", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Create Containerfile for API service", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Implement new management CLI using devbox", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Add API dependencies to requirements.txt", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Create Postman collection for API testing", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Update tests for new architecture", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Update Makefile for new structure", "status": "not-started", "date_started": null, "date_stopped": null}
-  ],
+  "todo": [],
   "changelog": [
-    {"timestamp": "2025-09-07 09:05", "text": "Task file created with updated requirements for Podman container and Postman collection."}
+    {"timestamp": "2025-09-07 09:05", "text": "Task file created with updated requirements for Podman container and Postman collection."},
+    {"timestamp": "2025-09-07 10:00", "text": "Refactored the CLI to an API service, created a containerized API, a new CLI to manage it, and updated the test suite. The task is currently blocked pending the user to start the Podman service."}
   ],
   "decisions": [
     "Proceed with refactoring the CLI into an API service as requested.",
@@ -71,8 +60,8 @@
     "Dependencies will be added to the project."
   ],
   "next_steps": [
-    "Get user confirmation on the proposed plan.",
-    "Begin analysis of the existing CLI application."
+    "User to ensure Podman is running.",
+    "Run `make test-e2e` to run the end-to-end tests."
   ],
   "references": [
     "/Users/mother/Git/nebula/toolset/tasks/2025-09-06-refactor-cli-to-api-service.json"

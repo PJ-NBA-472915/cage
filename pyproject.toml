@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "cage"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+click = "==8.2.1"
+markdown-it-py = "==4.0.0"
+mdurl = "==0.1.2"
+prompt_toolkit = "==3.0.51"
+Pygments = "==2.19.2"
+questionary = "==2.1.0"
+rich = "==14.1.0"
+shellingham = "==1.5.4"
+typer = "==0.16.1"
+typing_extensions = "==4.15.0"
+wcwidth = "==0.2.13"
+crewai = "*"
+redis = "*"
+pyyaml = "*"
+aiohttp = "*"
+jsonschema = "*"
+loguru = "*"
+google-generativeai = "*"
+langchain = "*"
+modelcontextprotocol = "*"
+fastapi = "*"
+uvicorn = "*"
+python-multipart = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-asyncio = "*"
+httpx = "*"
