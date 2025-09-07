@@ -1,0 +1,103 @@
+{
+  "id": "2025-09-07-refactor-cli-to-api-service",
+  "title": "Refactor CLI to API Service",
+  "owner": "Assistant",
+  "status": "planned",
+  "created_at": "2025-09-07 09:05",
+  "updated_at": "2025-09-07 09:05",
+  "progress_percent": 0,
+  "tags": ["api", "cli", "refactor", "architecture", "podman", "postman"],
+  "summary": "Refactor the existing CLI application (manage.py) into a RESTful API service running in a Podman container, with a new CLI tool running outside the container to manage the API service lifecycle. Include Postman collection for API testing and documentation.",
+  "success_criteria": [
+    {"text": "All core functionality from manage.py is exposed via RESTful API endpoints.", "checked": false},
+    {"text": "API service runs in Podman container.", "checked": false},
+    {"text": "Management CLI (using devbox) can start/stop/status the API container.", "checked": false},
+    {"text": "Postman collection provides complete API testing and documentation.", "checked": false},
+    {"text": "Repository management (init, close, list) works through API.", "checked": false},
+    {"text": "Platform manager functionality is accessible via API.", "checked": false},
+    {"text": "Health check endpoint is available.", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "API service starts in Podman container and responds to health checks", "checked": false},
+    {"text": "Repository init/close/list operations work via API endpoints", "checked": false},
+    {"text": "Management CLI can start/stop/status the API container", "checked": false},
+    {"text": "Postman collection is complete and functional", "checked": false},
+    {"text": "All existing functionality is preserved", "checked": false},
+    {"text": "Tests pass for both API and CLI components", "checked": false},
+    {"text": "Container builds and runs successfully with Podman", "checked": false}
+  ],
+  "subtasks": [
+    "Analyze current CLI functionality in manage.py and modules",
+    "Choose API framework (FastAPI recommended)",
+    "Design RESTful API endpoints for repo and platform management",
+    "Create new directory structure (src/api/, src/cli/)",
+    "Implement API service with business logic from modules",
+    "Create Containerfile for API service",
+    "Implement new management CLI using devbox",
+    "Add API dependencies to requirements.txt",
+    "Create Postman collection for API testing",
+    "Update tests for new architecture",
+    "Update Makefile for new structure"
+  ],
+  "todo": [
+    {"text": "Analyze current CLI functionality in manage.py and modules", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Choose API framework (FastAPI recommended)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Design RESTful API endpoints for repo and platform management", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Create new directory structure (src/api/, src/cli/)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement API service with business logic from modules", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Create Containerfile for API service", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement new management CLI using devbox", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add API dependencies to requirements.txt", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Create Postman collection for API testing", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Update tests for new architecture", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Update Makefile for new structure", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-07 09:05", "text": "Task file created with updated requirements for Podman container and Postman collection."}
+  ],
+  "decisions": [
+    "Proceed with refactoring the CLI into an API service as requested.",
+    "API service will run in Podman container.",
+    "Management CLI will run outside container using devbox.",
+    "Postman collection will be used for API testing and documentation instead of OpenAPI/Swagger.",
+    "FastAPI is the proposed framework due to its speed and automatic documentation."
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "This is a significant architectural change and may have unforeseen consequences.",
+    "Care must be taken to correctly migrate all existing functionality.",
+    "Container networking and volume mounting considerations.",
+    "May require updates to coordination system integration.",
+    "Dependencies will be added to the project."
+  ],
+  "next_steps": [
+    "Get user confirmation on the proposed plan.",
+    "Begin analysis of the existing CLI application."
+  ],
+  "references": [
+    "/Users/mother/Git/nebula/toolset/tasks/2025-09-06-refactor-cli-to-api-service.json"
+  ],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "estimated_effort": "13-21 hours",
+    "priority": "high",
+    "complexity": "high"
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-07 09:02",
+      "text": "Start a task in the cage directory to refactor the app from a cli to an api like we did in this task: /Users/mother/Git/nebula/toolset/tasks/2025-09-06-refactor-cli-to-api-service.json",
+      "context": "User requested starting a new task for refactoring cage CLI to API service"
+    },
+    {
+      "timestamp": "2025-09-07 09:05",
+      "text": "My additions are:\n1. Make and run docker container for the new api service that I can run with podman. Have the CLI then run outside of the docker container with the devbox configuration and start/stop the docker containers.\n2. Rather create a postman collection and documentation for that that I can work with.\n\nOkay, make these changes then you can go.",
+      "context": "User provided additional requirements for Podman container and Postman collection"
+    }
+  ]
+}
