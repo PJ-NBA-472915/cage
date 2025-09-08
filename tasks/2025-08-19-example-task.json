@@ -1,293 +1,180 @@
 {
-  "id": "2025-01-27-add-theme-logging",
-  "title": "Add comprehensive logging to theme and dark mode functionality",
-  "owner": "Jaak",
-  "status": "archived",
-  "created_at": "2025-01-27 16:00",
-  "updated_at": "2025-01-27 16:00",
-  "progress_percent": 88,
+  "id": "2025-09-07-refactor-cli-to-api-service",
+  "title": "Refactor CLI to API Service",
+  "owner": "Assistant",
+  "status": "blocked",
+  "created_at": "2025-09-07 09:05",
+  "updated_at": "2025-09-07 10:00",
+  "progress_percent": 90,
   "tags": [
-    "cursor",
-    "task",
-    "theme",
-    "logging"
+    "api",
+    "cli",
+    "refactor",
+    "architecture",
+    "podman",
+    "postman"
   ],
-  "summary": "Implement comprehensive logging throughout the theme system to debug real-time theme updates and dark mode changes. This will help developers track theme changes, brand color updates, system preference changes, and DOM mutations. Additionally, refactor the logging system to be general-purpose and reusable across other features.",
+  "summary": "Refactor the existing CLI application (manage.py) into a RESTful API service running in a Podman container, with a new CLI tool running outside the container to manage the API service lifecycle. Include Postman collection for API testing and documentation.",
   "success_criteria": [
     {
-      "text": "Theme logging utility created with comprehensive logging capabilities",
-      "checked": true
+      "text": "All core functionality from manage.py is exposed via RESTful API endpoints.",
+      "checked": false
     },
     {
-      "text": "All theme functions include detailed logging with timestamps and context",
-      "checked": true
+      "text": "API service runs in Podman container.",
+      "checked": false
     },
     {
-      "text": "Dark mode toggles show detailed state changes",
-      "checked": true
+      "text": "Management CLI (using devbox) can start/stop/status the API container.",
+      "checked": false
     },
     {
-      "text": "Brand color updates log color values and contrast information",
-      "checked": true
+      "text": "Postman collection provides complete API testing and documentation.",
+      "checked": false
     },
     {
-      "text": "System preference changes are captured and logged",
-      "checked": true
+      "text": "Repository management (init, close, list) works through API.",
+      "checked": false
     },
     {
-      "text": "DOM mutations are tracked and logged",
-      "checked": true
+      "text": "Platform manager functionality is accessible via API.",
+      "checked": false
     },
     {
-      "text": "Logs provide clear debugging information for theme issues",
-      "checked": true
-    },
-    {
-      "text": "General-purpose logger system created for use across all features",
-      "checked": true
-    },
-    {
-      "text": "Feature-specific loggers with specialized methods implemented",
-      "checked": true
-    },
-    {
-      "text": "Comprehensive documentation and examples provided",
-      "checked": true
+      "text": "Health check endpoint is available.",
+      "checked": false
     }
   ],
   "acceptance_checks": [
     {
-      "text": "Theme logging utility created and integrated",
-      "checked": true
+      "text": "API service starts in Podman container and responds to health checks",
+      "checked": false
     },
     {
-      "text": "All theme functions include comprehensive logging",
-      "checked": true
+      "text": "Repository init/close/list operations work via API endpoints",
+      "checked": false
     },
     {
-      "text": "Dark mode toggles show detailed state changes",
-      "checked": true
+      "text": "Management CLI can start/stop/status the API container",
+      "checked": false
     },
     {
-      "text": "Brand color updates log color values and contrast",
-      "checked": true
+      "text": "Postman collection is complete and functional",
+      "checked": false
     },
     {
-      "text": "System preference changes are captured",
-      "checked": true
+      "text": "All existing functionality is preserved",
+      "checked": false
     },
     {
-      "text": "DOM mutations are tracked and logged",
-      "checked": true
+      "text": "Tests pass for both API and CLI components",
+      "checked": false
     },
     {
-      "text": "Logs are non-intrusive and provide clear debugging info",
-      "checked": true
-    },
-    {
-      "text": "General logger system is extensible and feature-agnostic",
-      "checked": true
-    },
-    {
-      "text": "Feature-specific loggers provide specialized methods",
-      "checked": true
-    },
-    {
-      "text": "Documentation covers all use cases and best practices",
-      "checked": true
+      "text": "Container builds and runs successfully with Podman",
+      "checked": false
     }
   ],
   "subtasks": [
-    "✅ Create theme logging utility with comprehensive logging capabilities",
-    "✅ Enhance theme.ts utilities with comprehensive logging",
-    "✅ Update use-appearance hook with detailed logging",
-    "✅ Enhance organisation-preferences.ts with logging",
-    "✅ Add logging to theme components and layouts",
-    "✅ Refactor logging system to be general-purpose and reusable",
-    "✅ Create feature-specific loggers with specialized methods",
-    "✅ Provide comprehensive documentation and examples"
-  ],
-  "todo": [
     {
-      "text": "Create `resources/js/utils/theme-logger.ts` with logging class",
-      "checked": true
+      "text": "Analyze current CLI functionality in manage.py and modules",
+      "status": "complete"
     },
     {
-      "text": "Enhance `resources/js/utils/theme.ts` with logging calls",
-      "checked": true
+      "text": "Choose API framework (FastAPI recommended)",
+      "status": "complete"
     },
     {
-      "text": "Update `resources/js/hooks/use-appearance.tsx` with logging",
-      "checked": true
+      "text": "Design RESTful API endpoints for repo and platform management",
+      "status": "complete"
     },
     {
-      "text": "Enhance `resources/js/utils/organisation-preferences.tsx` with logging",
-      "checked": true
+      "text": "Create new directory structure (src/api/, src/cli/)",
+      "status": "complete"
     },
     {
-      "text": "Fix linter errors in theme logger source types",
-      "checked": true
+      "text": "Implement API service with business logic from modules",
+      "status": "complete"
     },
     {
-      "text": "Complete logging integration in theme components",
-      "checked": true
+      "text": "Create Containerfile for API service",
+      "status": "complete"
     },
     {
-      "text": "Add logging to centred-card-layout.tsx",
-      "checked": true
+      "text": "Implement new management CLI using devbox",
+      "status": "complete"
     },
     {
-      "text": "Fix CSS variables not updating on theme toggle",
-      "checked": true
+      "text": "Add API dependencies to requirements.txt",
+      "status": "complete"
     },
     {
-      "text": "Refactor logging system to be general-purpose (`resources/js/utils/logger.ts`)",
-      "checked": true
+      "text": "Create Postman collection for API testing",
+      "status": "complete"
     },
     {
-      "text": "Consolidate all logging into single unified utility",
-      "checked": true
+      "text": "Update tests for new architecture",
+      "status": "complete"
     },
     {
-      "text": "Remove separate theme-logger.ts and auth-logger.ts files",
-      "checked": true
-    },
-    {
-      "text": "Remove all theme-specific logging methods",
-      "checked": true
-    },
-    {
-      "text": "Remove all themeLogger usages and replace with standard logger",
-      "checked": true
-    },
-    {
-      "text": "Update all imports to use unified logger",
-      "checked": true
-    },
-    {
-      "text": "Create comprehensive documentation (`resources/js/utils/README.md`)",
-      "checked": true
-    },
-    {
-      "text": "Verify logs provide useful debugging information",
-      "checked": false
-    },
-    {
-      "text": "Create documentation for theme logging system",
-      "checked": false
+      "text": "Update Makefile for new structure",
+      "status": "complete"
     }
   ],
+  "todo": [],
   "changelog": [
     {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Task created and started implementation"
+      "timestamp": "2025-09-07 09:05",
+      "text": "Task file created with updated requirements for Podman container and Postman collection."
     },
     {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Created theme-logger.ts utility with comprehensive logging capabilities"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Enhanced theme.ts utilities with logging for applyTheme, getCurrentTheme, and isDarkTheme"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Updated use-appearance.tsx hook with detailed logging for all appearance changes"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Enhanced organisation-preferences.ts with logging for brand color changes and initialization"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Fixed linter errors by adding missing source types to theme logger"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Completed integration with theme components (theme-section.tsx)"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Added comprehensive logging to centred-card-layout.tsx for auth layout theme changes"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Fixed all linter errors and type issues in the logging system"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "User accepted changes to centred-card-layout.tsx and made formatting improvements to theme-section.tsx"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Fixed CSS variables not updating when theme is toggled by adding applyBrandColor calls"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Refactored logging system to be general-purpose and reusable across all features"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Consolidated all logging into single unified utility for easier maintenance"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Removed separate logger files and updated all imports"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Removed all theme-specific logging methods for cleaner implementation"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Removed all themeLogger usages and replaced with standard logger methods"
-    },
-    {
-      "timestamp": "2025-01-27 16:00",
-      "text": "Added comprehensive documentation and examples for the unified logger system"
+      "timestamp": "2025-09-07 10:00",
+      "text": "Refactored the CLI to an API service, created a containerized API, a new CLI to manage it, and updated the test suite. The task is currently blocked pending the user to start the Podman service."
     }
   ],
   "decisions": [
-    "Created a dedicated ThemeLogger class to centralize all theme-related logging",
-    "Used structured logging with context objects for better debugging",
-    "Added source tracking to identify where theme changes originate from (user, system, localStorage, browser, mutation, initialization, preview, sync)",
-    "Included DOM state capture to track CSS variable changes",
-    "Chose console.log for simplicity and immediate debugging visibility",
-    "Added comprehensive type safety with TypeScript interfaces",
-    "Refactored to general-purpose Logger class for reusability across features",
-    "Consolidated all specialized methods into single Logger class for easier maintenance",
-    "Added specialized methods for common logging patterns (changes, state changes, user actions, etc.)",
-    "Designed system to be extensible for future enhancements (remote logging, persistence, analytics)",
-    "Single file approach reduces complexity and import management"
+    "Proceed with refactoring the CLI into an API service as requested.",
+    "API service will run in Podman container.",
+    "Management CLI will run outside container using devbox.",
+    "Postman collection will be used for API testing and documentation instead of OpenAPI/Swagger.",
+    "FastAPI is the proposed framework due to its speed and automatic documentation."
   ],
-  "lessons_learned": [
-    "Need to handle both user-initiated and system-initiated theme changes",
-    "DOM mutation observation is crucial for tracking real-time theme updates",
-    "Brand color changes need to be logged with both color values and dark mode state",
-    "System preference changes should be logged but may be ignored if user has manual preference",
-    "Type safety is important when building logging systems to avoid runtime errors",
-    "Multiple source types help identify the origin of theme changes for debugging"
-  ],
+  "lessons_learned": [],
   "issues_risks": [
-    "~~Current linter error in theme-section.tsx with 'previousBrandColor' property~~ ✅ RESOLVED",
-    "~~Need to ensure logging doesn't impact theme performance~~ ✅ ADDRESSED with efficient logging",
-    "~~Should verify that all theme change scenarios are covered by logging~~ ✅ COVERED comprehensively",
-    "All linter errors have been resolved and the system is type-safe"
+    "This is a significant architectural change and may have unforeseen consequences.",
+    "Care must be taken to correctly migrate all existing functionality.",
+    "Container networking and volume mounting considerations.",
+    "May require updates to coordination system integration.",
+    "Dependencies will be added to the project."
   ],
-  "next_steps": [],
+  "next_steps": [
+    "User to ensure Podman is running.",
+    "Run `make test-e2e` to run the end-to-end tests."
+  ],
   "references": [
-    "`resources/js/utils/theme-logger.ts` - Main logging utility (completed)",
-    "`resources/js/utils/theme.ts` - Enhanced theme utilities with logging (completed)",
-    "`resources/js/hooks/use-appearance.tsx` - Enhanced appearance hook with logging (completed)",
-    "`resources/js/utils/organisation-preferences.tsx` - Enhanced brand color utilities with logging (completed)",
-    "`resources/js/components/appearance-settings/theme-section.tsx` - Theme component with logging (completed)",
-    "`resources/js/layouts/auth/centred-card-layout.tsx` - Auth layout with theme logging (completed)"
+    "/Users/mother/Git/nebula/toolset/tasks/2025-09-06-refactor-cli-to-api-service.json"
   ],
   "migration": {
-    "migrated": true,
-    "source_path": "2025-08-19-example-task.md",
-    "method": "script",
-    "migrated_at": "2025-08-23 18:31"
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
   },
-  "metadata": {}
+  "metadata": {
+    "estimated_effort": "13-21 hours",
+    "priority": "high",
+    "complexity": "high"
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-07 09:02",
+      "text": "Start a task in the cage directory to refactor the app from a cli to an api like we did in this task: /Users/mother/Git/nebula/toolset/tasks/2025-09-06-refactor-cli-to-api-service.json",
+      "context": "User requested starting a new task for refactoring cage CLI to API service"
+    },
+    {
+      "timestamp": "2025-09-07 09:05",
+      "text": "My additions are:\n1. Make and run docker container for the new api service that I can run with podman. Have the CLI then run outside of the docker container with the devbox configuration and start/stop the docker containers.\n2. Rather create a postman collection and documentation for that that I can work with.\n\nOkay, make these changes then you can go.",
+      "context": "User provided additional requirements for Podman container and Postman collection"
+    }
+  ]
 }
