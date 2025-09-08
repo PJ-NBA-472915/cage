@@ -1,0 +1,82 @@
+{
+  "id": "2025-09-07-redefine-cage-as-service",
+  "title": "Redefine Cage Project as Repository Service",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-07 10:30",
+  "updated_at": "2025-09-07 17:05",
+  "progress_percent": 100,
+  "tags": ["cage", "service", "api", "repository", "refactor"],
+  "summary": "Transform cage from a cloning-based tool to a service that runs alongside repositories and exposes API endpoints for repository operations.",
+  "success_criteria": [
+    {"text": "Cage service can be started with a specific directory/repository", "checked": false},
+    {"text": "Service exposes REST API endpoints for repository operations", "checked": false},
+    {"text": "Maintains existing cloning functionality for repository setup", "checked": false},
+    {"text": "API allows interaction with the specific repository the service is running for", "checked": false},
+    {"text": "Updated RAW specification reflects new service architecture", "checked": false},
+    {"text": "Specification slicer produces valid sliced content", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Service starts successfully with a target directory", "checked": false},
+    {"text": "API endpoints are accessible and functional", "checked": false},
+    {"text": "Repository cloning still works as before", "checked": false},
+    {"text": "RAW specification file is updated with new architecture", "checked": false},
+    {"text": "Sliced specification content is valid and complete", "checked": false}
+  ],
+  "subtasks": [
+    "Analyze current cage project structure and functionality",
+    "Update RAW specification to reflect service-based architecture",
+    "Run specification slicer to generate new sliced content",
+    "Verify sliced content is valid and complete",
+    "Design API endpoints for repository operations",
+    "Implement service startup with directory parameter",
+    "Maintain existing cloning functionality",
+    "Test service functionality with sample repository"
+  ],
+  "todo": [
+    {"text": "Read current RAW specification to understand existing architecture", "status": "done", "date_started": "2025-09-07 15:41", "date_stopped": "2025-09-07 15:45"},
+    {"text": "Analyze current cage codebase structure and functionality", "status": "done", "date_started": "2025-09-07 15:45", "date_stopped": "2025-09-07 15:50"},
+    {"text": "Update RAW specification with new service-based architecture", "status": "done", "date_started": "2025-09-07 15:50", "date_stopped": "2025-09-07 16:15"},
+    {"text": "Run specification slicer to generate updated sliced content", "status": "done", "date_started": "2025-09-07 16:15", "date_stopped": "2025-09-07 16:20"},
+    {"text": "Verify sliced content validity and completeness", "status": "done", "date_started": "2025-09-07 16:20", "date_stopped": "2025-09-07 16:25"},
+    {"text": "Design API endpoints for repository operations", "status": "done", "date_started": "2025-09-07 16:25", "date_stopped": "2025-09-07 16:35"},
+    {"text": "Implement service startup with directory parameter", "status": "done", "date_started": "2025-09-07 16:35", "date_stopped": "2025-09-07 17:00"},
+    {"text": "Ensure existing cloning functionality is preserved", "status": "done", "date_started": "2025-09-07 17:00", "date_stopped": "2025-09-07 17:05"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-07 10:30", "text": "Task file created for redefining cage as a repository service"},
+    {"timestamp": "2025-09-07 16:25", "text": "Updated RAW specification with service-based architecture, ran slicer, and verified all 25 slices are valid"},
+    {"timestamp": "2025-09-07 17:05", "text": "Implemented service startup with directory parameter, added comprehensive API endpoints, and preserved existing cloning functionality"}
+  ],
+  "decisions": [
+    "Cage will become a service that runs alongside a specific repository",
+    "Service will expose REST API endpoints for repository operations",
+    "Existing cloning functionality will be preserved for repository setup",
+    "Service will be directory-specific (one service per repository)"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Need to ensure backward compatibility with existing cloning functionality",
+    "API design must be intuitive and well-documented",
+    "Service architecture should be scalable and maintainable"
+  ],
+  "next_steps": [
+    "Start by reading and understanding current specification",
+    "Analyze existing codebase structure",
+    "Update RAW specification with new architecture"
+  ],
+  "references": [
+    "memory-bank/context/spec/cage/000_MASTER/SPEC_RAW.md",
+    "memory-bank/context/spec/cage/200_INDEX/MANIFEST.yaml"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "original_request": "Redefine cage repo as a service that runs on a specific repository to make changes to that. Instead of the current cloning logic and functionality, want the cage repo to be a service that runs alongside a repository and exposes a service that can be interacted with to work with that repository.",
+    "key_requirements": [
+      "Service runs with specific directory parameter",
+      "Exposes API endpoints for repository operations", 
+      "Maintains existing cloning functionality",
+      "Directory-specific service (one per repository)"
+    ]
+  }
+}

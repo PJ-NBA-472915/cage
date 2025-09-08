@@ -1,0 +1,521 @@
+{
+  "info": {
+    "name": "Cage Repository Service API",
+    "description": "Postman collection for testing the Cage Repository Service API endpoints",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "repository_path",
+      "value": "/path/to/your/repository",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check service health and repository status"
+          },
+          "response": []
+        },
+        {
+          "name": "Repository Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repository/info",
+              "host": ["{{base_url}}"],
+              "path": ["repository", "info"]
+            },
+            "description": "Get information about the current repository"
+          },
+          "response": []
+        },
+        {
+          "name": "Repository Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repository/status",
+              "host": ["{{base_url}}"],
+              "path": ["repository", "status"]
+            },
+            "description": "Get detailed Git status information"
+          },
+          "response": []
+        }
+      ],
+      "description": "Health check and repository status endpoints"
+    },
+    {
+      "name": "Branch Operations",
+      "item": [
+        {
+          "name": "List Branches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches?remote=true",
+              "host": ["{{base_url}}"],
+              "path": ["branches"],
+              "query": [
+                {
+                  "key": "remote",
+                  "value": "true",
+                  "description": "Include remote branches"
+                }
+              ]
+            },
+            "description": "List all branches (local and remote)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"feature/new-feature\",\n  \"from_branch\": \"main\",\n  \"checkout\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/branches",
+              "host": ["{{base_url}}"],
+              "path": ["branches"]
+            },
+            "description": "Create a new branch"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Branch",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/feature/old-feature?force=false",
+              "host": ["{{base_url}}"],
+              "path": ["branches", "feature", "old-feature"],
+              "query": [
+                {
+                  "key": "force",
+                  "value": "false",
+                  "description": "Force delete even if not merged"
+                }
+              ]
+            },
+            "description": "Delete a branch"
+          },
+          "response": []
+        }
+      ],
+      "description": "Branch management operations"
+    },
+    {
+      "name": "Commit Operations",
+      "item": [
+        {
+          "name": "Create Commit (All Files)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Add new feature\",\n  \"all\": true,\n  \"signoff\": false,\n  \"no_verify\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/commits",
+              "host": ["{{base_url}}"],
+              "path": ["commits"]
+            },
+            "description": "Create a commit with all modified files"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Commit (Specific Files)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Update specific files\",\n  \"files\": [\"src/main.py\", \"docs/README.md\"],\n  \"signoff\": true,\n  \"no_verify\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/commits",
+              "host": ["{{base_url}}"],
+              "path": ["commits"]
+            },
+            "description": "Create a commit with specific files"
+          },
+          "response": []
+        }
+      ],
+      "description": "Commit creation operations"
+    },
+    {
+      "name": "Push/Pull Operations",
+      "item": [
+        {
+          "name": "Push Changes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remote\": \"origin\",\n  \"branch\": \"main\",\n  \"force\": false,\n  \"tags\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/push",
+              "host": ["{{base_url}}"],
+              "path": ["push"]
+            },
+            "description": "Push changes to remote repository"
+          },
+          "response": []
+        },
+        {
+          "name": "Push Current Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remote\": \"origin\",\n  \"force\": false,\n  \"tags\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/push",
+              "host": ["{{base_url}}"],
+              "path": ["push"]
+            },
+            "description": "Push current branch to remote"
+          },
+          "response": []
+        },
+        {
+          "name": "Pull Changes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remote\": \"origin\",\n  \"branch\": \"main\",\n  \"rebase\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pull",
+              "host": ["{{base_url}}"],
+              "path": ["pull"]
+            },
+            "description": "Pull changes from remote repository"
+          },
+          "response": []
+        },
+        {
+          "name": "Pull with Rebase",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remote\": \"origin\",\n  \"rebase\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pull",
+              "host": ["{{base_url}}"],
+              "path": ["pull"]
+            },
+            "description": "Pull changes with rebase"
+          },
+          "response": []
+        }
+      ],
+      "description": "Push and pull operations"
+    },
+    {
+      "name": "Merge Operations",
+      "item": [
+        {
+          "name": "Merge Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"feature/new-feature\",\n  \"target\": \"main\",\n  \"no_ff\": false,\n  \"message\": \"Merge feature branch\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/merge",
+              "host": ["{{base_url}}"],
+              "path": ["merge"]
+            },
+            "description": "Merge a branch into current branch"
+          },
+          "response": []
+        },
+        {
+          "name": "Merge with No Fast-Forward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"feature/new-feature\",\n  \"no_ff\": true,\n  \"message\": \"Merge feature branch with merge commit\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/merge",
+              "host": ["{{base_url}}"],
+              "path": ["merge"]
+            },
+            "description": "Merge branch with no fast-forward (creates merge commit)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Branch merging operations"
+    },
+    {
+      "name": "Legacy Clone Operations",
+      "item": [
+        {
+          "name": "List Open Repositories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repos",
+              "host": ["{{base_url}}"],
+              "path": ["repos"]
+            },
+            "description": "List open repositories (legacy functionality)"
+          },
+          "response": []
+        },
+        {
+          "name": "List Repositories by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repos?status=initialized,in%20progress",
+              "host": ["{{base_url}}"],
+              "path": ["repos"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "initialized,in progress",
+                  "description": "Filter by status"
+                }
+              ]
+            },
+            "description": "List repositories filtered by status"
+          },
+          "response": []
+        },
+        {
+          "name": "Clone Repository",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"https://github.com/user/repo.git\",\n  \"branch\": \"main\",\n  \"shallow\": true,\n  \"agent_id\": \"agent-123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/repos",
+              "host": ["{{base_url}}"],
+              "path": ["repos"]
+            },
+            "description": "Clone a repository (legacy functionality)"
+          },
+          "response": []
+        },
+        {
+          "name": "Close Repository",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"path\": \"/tmp/agent-repo-agent-123-xyz\",\n  \"message\": \"Complete feature implementation\",\n  \"agent_id\": \"agent-123\",\n  \"task_id\": \"task-456\",\n  \"remote\": \"origin\",\n  \"allow_empty\": false,\n  \"require_changes\": true,\n  \"signoff\": false,\n  \"no_verify\": false,\n  \"merge\": true,\n  \"target_branch\": \"main\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/repos/close",
+              "host": ["{{base_url}}"],
+              "path": ["repos", "close"]
+            },
+            "description": "Close a cloned repository (legacy functionality)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Legacy cloning operations (preserved for backward compatibility)"
+    },
+    {
+      "name": "Error Examples",
+      "item": [
+        {
+          "name": "Invalid Repository Path",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repository/info",
+              "host": ["{{base_url}}"],
+              "path": ["repository", "info"]
+            },
+            "description": "Example of error when repository path is not set"
+          },
+          "response": []
+        },
+        {
+          "name": "Branch Not Found",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/nonexistent-branch",
+              "host": ["{{base_url}}"],
+              "path": ["branches", "nonexistent-branch"]
+            },
+            "description": "Example of error when trying to delete non-existent branch"
+          },
+          "response": []
+        },
+        {
+          "name": "Merge Conflict",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"conflicting-branch\",\n  \"target\": \"main\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/merge",
+              "host": ["{{base_url}}"],
+              "path": ["merge"]
+            },
+            "description": "Example of merge conflict error"
+          },
+          "response": []
+        }
+      ],
+      "description": "Examples of error responses"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set repository path if not already set",
+          "if (!pm.collectionVariables.get('repository_path')) {",
+          "    pm.collectionVariables.set('repository_path', '/path/to/your/repository');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response validation",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has valid JSON', function () {",
+          "    pm.response.to.have.jsonBody();",
+          "});",
+          "",
+          "// Log response for debugging",
+          "console.log('Response:', pm.response.json());"
+        ]
+      }
+    }
+  ]
+}
+
