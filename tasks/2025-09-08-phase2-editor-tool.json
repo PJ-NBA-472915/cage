@@ -1,0 +1,79 @@
+{
+  "id": "2025-09-08-phase2-editor-tool",
+  "title": "Phase 2: Implement Editor Tool for Structured File Operations",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-08 19:30",
+  "updated_at": "2025-09-08 19:30",
+  "progress_percent": 0,
+  "tags": ["phase2", "editor-tool", "file-operations", "locking"],
+  "summary": "Implement the Editor Tool that provides structured file operations (GET/INSERT/UPDATE/DELETE) with locking mechanism. This enables safe, concurrent file modifications through the API and integrates with the task system.",
+  "success_criteria": [
+    {"text": "Editor Tool API endpoint implemented", "checked": false},
+    {"text": "File locking mechanism working", "checked": false},
+    {"text": "Structured operations (GET/INSERT/UPDATE/DELETE) functional", "checked": false},
+    {"text": "Integration with task system complete", "checked": false},
+    {"text": "Concurrent file access properly serialized", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "POST /files/edit handles all operation types", "checked": false},
+    {"text": "File locking prevents concurrent modifications", "checked": false},
+    {"text": "Stale preimage detection returns 409 error", "checked": false},
+    {"text": "Operations integrate with task provenance", "checked": false},
+    {"text": "CLI can perform file operations", "checked": false}
+  ],
+  "subtasks": [
+    "Design file locking mechanism (in-memory for Phase 2)",
+    "Implement POST /files/edit endpoint",
+    "Build structured operation handlers (GET/INSERT/UPDATE/DELETE)",
+    "Add file locking and conflict detection",
+    "Integrate with task system for provenance tracking",
+    "Add CLI commands for file operations",
+    "Test concurrent access scenarios",
+    "Validate operation selectors (region, regex)"
+  ],
+  "todo": [
+    {"text": "Design file locking mechanism (in-memory for Phase 2)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement POST /files/edit endpoint", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Build structured operation handlers (GET/INSERT/UPDATE/DELETE)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add file locking and conflict detection", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Integrate with task system for provenance tracking", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add CLI commands for file operations", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test concurrent access scenarios", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Validate operation selectors (region, regex)", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-08 19:30", "text": "Phase 2 task created - implementing Editor Tool for structured file operations"}
+  ],
+  "decisions": [
+    "Use in-memory locking for Phase 2, upgrade to Redis in Phase 5",
+    "Implement basic selectors (region, regex) first, add AST later",
+    "Focus on core operations before advanced features"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "File locking complexity with concurrent access",
+    "Need robust conflict detection and resolution",
+    "Must ensure atomic file operations"
+  ],
+  "next_steps": [
+    "Design locking mechanism",
+    "Implement core file operations",
+    "Add conflict detection",
+    "Integrate with task system"
+  ],
+  "references": [
+    "memory-bank/context/spec/cage/100_SPLIT/007-editor-tool-structured-edits.md",
+    "memory-bank/context/spec/cage/100_SPLIT/006-concurrency-locking.md",
+    "memory-bank/context/spec/cage/100_SPLIT/016-acceptance-criteria-mvp.md"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "phase": 2,
+    "dependencies": ["phase1-task-file-system"],
+    "estimated_effort": "6-8 hours",
+    "complexity": "medium",
+    "external_services": "none",
+    "future_work": "Phase 3: Git Integration - Implement Git API endpoints (/git/status, /git/commit, etc.) and integrate with Editor Tool to enable commit trail tracking. This will complete the core file modification workflow."
+  }
+}

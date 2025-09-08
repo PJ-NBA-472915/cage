@@ -1,0 +1,79 @@
+{
+  "id": "2025-09-08-phase5-rag-system",
+  "title": "Phase 5: Implement RAG System and Vector Embeddings",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-08 19:30",
+  "updated_at": "2025-09-08 19:30",
+  "progress_percent": 0,
+  "tags": ["phase5", "rag", "embeddings", "vector-search"],
+  "summary": "Implement the RAG (Retrieval-Augmented Generation) system with vector embeddings for code and documentation. This enables intelligent code search, context-aware AI operations, and rebuildable cache from files.",
+  "success_criteria": [
+    {"text": "RAG query endpoint implemented", "checked": false},
+    {"text": "Vector embeddings system working", "checked": false},
+    {"text": "Code and documentation indexing functional", "checked": false},
+    {"text": "Cache rebuild from files working", "checked": false},
+    {"text": "Integration with AI agents complete", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "POST /rag/query returns relevant code/docs", "checked": false},
+    {"text": "POST /rag/reindex processes repository content", "checked": false},
+    {"text": "GET /rag/blobs/{sha} checks metadata presence", "checked": false},
+    {"text": "Cache rebuild repopulates from files only", "checked": false},
+    {"text": "RAG system integrates with CrewAI agents", "checked": false}
+  ],
+  "subtasks": [
+    "Set up PostgreSQL with pgvector extension",
+    "Implement embedding generation and storage",
+    "Build RAG query endpoint",
+    "Implement repository content indexing",
+    "Add cache rebuild functionality",
+    "Integrate with CrewAI for context-aware operations",
+    "Add Redis for hot indexes and caching",
+    "Test complete RAG workflow"
+  ],
+  "todo": [
+    {"text": "Set up PostgreSQL with pgvector extension", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement embedding generation and storage", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Build RAG query endpoint", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement repository content indexing", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add cache rebuild functionality", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Integrate with CrewAI for context-aware operations", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add Redis for hot indexes and caching", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test complete RAG workflow", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-08 19:30", "text": "Phase 5 task created - implementing RAG system and vector embeddings"}
+  ],
+  "decisions": [
+    "Use PostgreSQL with pgvector for embedding storage",
+    "Use OpenAI embeddings for consistency with CrewAI",
+    "Implement file-based cache rebuild as per specification"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Database setup and migration complexity",
+    "Embedding generation costs and rate limits",
+    "Need robust indexing and search performance"
+  ],
+  "next_steps": [
+    "Set up database infrastructure",
+    "Implement embedding generation",
+    "Build query and indexing systems",
+    "Test complete RAG workflow"
+  ],
+  "references": [
+    "memory-bank/context/spec/cage/100_SPLIT/010-rag-practical.md",
+    "memory-bank/context/spec/cage/100_SPLIT/005-data-models.md",
+    "memory-bank/context/spec/cage/100_SPLIT/016-acceptance-criteria-mvp.md"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "phase": 5,
+    "dependencies": ["phase1-task-file-system", "phase2-editor-tool", "phase3-git-integration", "phase4-crewai-integration"],
+    "estimated_effort": "10-15 hours",
+    "complexity": "high",
+    "external_services": "PostgreSQL, Redis, OpenAI API",
+    "future_work": "Phase 6: Production Features - Add webhooks, advanced security, monitoring, and production deployment features. This will complete the full Cage specification and prepare for production use."
+  }
+}

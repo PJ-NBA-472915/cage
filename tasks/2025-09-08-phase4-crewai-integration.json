@@ -1,0 +1,79 @@
+{
+  "id": "2025-09-08-phase4-crewai-integration",
+  "title": "Phase 4: Implement CrewAI Integration and AI Workflows",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-08 19:30",
+  "updated_at": "2025-09-08 19:30",
+  "progress_percent": 0,
+  "tags": ["phase4", "crewai", "ai-workflows", "automation"],
+  "summary": "Implement CrewAI integration to enable AI agent workflows for planning and execution. This adds the intelligent automation layer that can plan tasks, execute file operations through the Editor Tool, and coordinate the complete workflow.",
+  "success_criteria": [
+    {"text": "CrewAI planning endpoint implemented", "checked": false},
+    {"text": "CrewAI execution endpoint working", "checked": false},
+    {"text": "AI agents can plan and execute tasks", "checked": false},
+    {"text": "Run management system implemented", "checked": false},
+    {"text": "Integration with task and file systems complete", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "POST /crew/plan creates task plans", "checked": false},
+    {"text": "POST /crew/apply executes planned operations", "checked": false},
+    {"text": "GET /crew/runs/{run_id} returns run status", "checked": false},
+    {"text": "POST /crew/runs/{run_id}/artefacts uploads files", "checked": false},
+    {"text": "AI agents produce at least one commit per task", "checked": false}
+  ],
+  "subtasks": [
+    "Set up CrewAI framework and agent definitions",
+    "Implement POST /crew/plan endpoint",
+    "Implement POST /crew/apply endpoint",
+    "Build run management system (.cage/runs/ directory)",
+    "Create AI agent workflows (planner, implementer, reviewer, committer)",
+    "Integrate with Editor Tool and Git operations",
+    "Add run status tracking and logging",
+    "Implement artefact upload and management"
+  ],
+  "todo": [
+    {"text": "Set up CrewAI framework and agent definitions", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement POST /crew/plan endpoint", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement POST /crew/apply endpoint", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Build run management system (.cage/runs/ directory)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Create AI agent workflows (planner, implementer, reviewer, committer)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Integrate with Editor Tool and Git operations", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add run status tracking and logging", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement artefact upload and management", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-08 19:30", "text": "Phase 4 task created - implementing CrewAI integration and AI workflows"}
+  ],
+  "decisions": [
+    "Use CrewAI for agent orchestration and workflow management",
+    "Implement standard agent roles: planner, implementer, reviewer, committer",
+    "Store run artifacts in .cage/runs/ directory structure"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "CrewAI integration complexity and learning curve",
+    "AI agent reliability and error handling",
+    "Need robust run management and recovery"
+  ],
+  "next_steps": [
+    "Set up CrewAI framework",
+    "Define agent roles and workflows",
+    "Implement planning and execution endpoints",
+    "Test AI agent workflows"
+  ],
+  "references": [
+    "memory-bank/context/spec/cage/100_SPLIT/008-rest-api-surface.md",
+    "memory-bank/context/spec/cage/100_SPLIT/009-workflows.md",
+    "memory-bank/context/spec/cage/100_SPLIT/016-acceptance-criteria-mvp.md"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "phase": 4,
+    "dependencies": ["phase1-task-file-system", "phase2-editor-tool", "phase3-git-integration"],
+    "estimated_effort": "8-12 hours",
+    "complexity": "high",
+    "external_services": "OpenAI API",
+    "future_work": "Phase 5: RAG System - Implement vector embeddings and retrieval system for code and documentation. This will enable intelligent code search and context-aware AI operations."
+  }
+}

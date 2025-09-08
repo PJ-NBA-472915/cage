@@ -1,0 +1,79 @@
+{
+  "id": "2025-09-08-phase3-git-integration",
+  "title": "Phase 3: Implement Git Integration and Commit Trail",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-08 19:30",
+  "updated_at": "2025-09-08 19:30",
+  "progress_percent": 0,
+  "tags": ["phase3", "git", "commit-trail", "integration"],
+  "summary": "Implement Git API endpoints and commit trail tracking. This enables the complete file modification workflow from Editor Tool operations through Git commits, with full provenance tracking in task files.",
+  "success_criteria": [
+    {"text": "Git API endpoints implemented", "checked": false},
+    {"text": "Commit trail tracking working", "checked": false},
+    {"text": "Integration with Editor Tool complete", "checked": false},
+    {"text": "Task provenance updated with commits", "checked": false},
+    {"text": "Git operations integrated with CLI", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "GET /git/status returns repository status", "checked": false},
+    {"text": "POST /git/commit creates commits with proper messages", "checked": false},
+    {"text": "POST /git/branch creates and manages branches", "checked": false},
+    {"text": "POST /git/push and /git/pull work correctly", "checked": false},
+    {"text": "Task provenance.commits[] updated with commit details", "checked": false}
+  ],
+  "subtasks": [
+    "Implement Git API endpoints (/git/status, /git/commit, /git/branch, etc.)",
+    "Add commit message formatting and validation",
+    "Integrate Git operations with Editor Tool",
+    "Implement commit trail tracking in task provenance",
+    "Add Git CLI commands",
+    "Test complete workflow: edit -> stage -> commit -> track",
+    "Add branch management and merge operations",
+    "Validate commit message patterns"
+  ],
+  "todo": [
+    {"text": "Implement Git API endpoints (/git/status, /git/commit, /git/branch, etc.)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add commit message formatting and validation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Integrate Git operations with Editor Tool", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement commit trail tracking in task provenance", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add Git CLI commands", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test complete workflow: edit -> stage -> commit -> track", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add branch management and merge operations", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Validate commit message patterns", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-08 19:30", "text": "Phase 3 task created - implementing Git integration and commit trail tracking"}
+  ],
+  "decisions": [
+    "Use subprocess for Git operations initially, consider GitPython later",
+    "Implement proper commit message formatting per Cage spec",
+    "Track all commits in task provenance for audit trail"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Git operations can be complex with merge conflicts",
+    "Need robust error handling for Git failures",
+    "Must ensure proper commit message formatting"
+  ],
+  "next_steps": [
+    "Implement basic Git API endpoints",
+    "Add commit trail tracking",
+    "Integrate with Editor Tool",
+    "Test complete workflow"
+  ],
+  "references": [
+    "memory-bank/context/spec/cage/100_SPLIT/008-rest-api-surface.md",
+    "memory-bank/context/spec/cage/100_SPLIT/005-data-models.md",
+    "memory-bank/context/spec/cage/100_SPLIT/016-acceptance-criteria-mvp.md"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "phase": 3,
+    "dependencies": ["phase1-task-file-system", "phase2-editor-tool"],
+    "estimated_effort": "5-7 hours",
+    "complexity": "medium",
+    "external_services": "none",
+    "future_work": "Phase 4: CrewAI Integration - Implement AI agent workflows for planning and execution. This will add the intelligent automation layer that can plan tasks, execute file operations, and coordinate the complete workflow."
+  }
+}
