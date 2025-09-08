@@ -1,0 +1,68 @@
+{
+  "id": "2025-09-08-strip-down-for-new-cage-spec",
+  "title": "Strip down current implementation for new Cage specification",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-08 18:30",
+  "updated_at": "2025-09-08 18:30",
+  "progress_percent": 0,
+  "tags": ["refactor", "cage", "specification", "cleanup"],
+  "summary": "Strip down the current implementation to prepare for rebuilding based on the new Cage specification. Keep API setup and CLI tools but remove outdated components.",
+  "success_criteria": [
+    {"text": "Current implementation stripped down to basic API and CLI structure", "checked": false},
+    {"text": "Memory-bank directory preserved intact", "checked": false},
+    {"text": "New Cage specification requirements clearly identified", "checked": false},
+    {"text": "Reusable components identified and preserved", "checked": false},
+    {"text": "Clean foundation ready for new implementation", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "API server structure maintained for new spec implementation", "checked": false},
+    {"text": "CLI tool structure maintained for new spec implementation", "checked": false},
+    {"text": "Outdated platform manager and repo management code removed", "checked": false},
+    {"text": "Memory-bank directory and specifications preserved", "checked": false},
+    {"text": "Project structure cleaned and ready for new implementation", "checked": false}
+  ],
+  "subtasks": [
+    "Analyze current implementation against new Cage specification",
+    "Identify components to preserve (API setup, CLI tools)",
+    "Remove outdated platform manager and repo management code",
+    "Clean up project structure and dependencies",
+    "Document what was removed and what was preserved",
+    "Verify memory-bank directory is intact and accessible"
+  ],
+  "todo": [
+    {"text": "Analyze current implementation against new Cage specification", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Identify components to preserve (API setup, CLI tools)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Remove outdated platform manager and repo management code", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Clean up project structure and dependencies", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Document what was removed and what was preserved", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Verify memory-bank directory is intact and accessible", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-08 18:30", "text": "Task created - analyzing current implementation vs new Cage specification"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Need to be careful not to remove components that might be useful for new implementation",
+    "Must preserve memory-bank directory completely as it contains the new specifications",
+    "Should maintain basic API structure that can be extended for new spec requirements"
+  ],
+  "next_steps": [
+    "Start by analyzing the new Cage specification requirements",
+    "Compare current implementation with new spec to identify gaps",
+    "Create detailed plan for what to remove vs preserve"
+  ],
+  "references": [
+    "memory-bank/context/spec/cage/000_MASTER/SPEC_RAW.md",
+    "memory-bank/context/spec/cage/GUIDE.md",
+    "src/api/main.py",
+    "src/cli/main.py"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "analysis_notes": "Current implementation has basic API and CLI structure that can be reused. Platform manager and repo management code appears to be outdated compared to new spec requirements.",
+    "preservation_targets": ["API server structure", "CLI tool structure", "Basic FastAPI setup", "Typer CLI setup"],
+    "removal_targets": ["Platform manager code", "Outdated repo management", "Coordination system", "Old task management"]
+  }
+}
