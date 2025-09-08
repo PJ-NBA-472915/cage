@@ -7,8 +7,6 @@ from pathlib import Path
 
 app = typer.Typer()
 
-CONTAINER_NAME = "cage-api-service"
-
 def check_podman():
     """Checks if podman is running and connected."""
     try:
@@ -23,10 +21,10 @@ def start():
     check_podman()
     try:
         # Build the container
-        subprocess.run(["podman", "build", "-t", CONTAINER_NAME, "-f", "Containerfile", "."], check=True)
+        subprocess.run(["podman", "build", "-t", "cage-pod", "-f", "Containerfile", "."], check=True)
         # Run the container
-        subprocess.run(["podman", "run", "-d", "--name", CONTAINER_NAME, "-p", "8000:8000", CONTAINER_NAME], check=True)
-        print(f"Container {CONTAINER_NAME} started successfully.")
+        subprocess.run(["podman", "run", "-d", "--name", "cage-pod", "-p", "8000:8000", "cage-pod"], check=True)
+        print("Container cage-pod started successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error starting container: {e}", file=sys.stderr)
         sys.exit(1)
@@ -35,9 +33,9 @@ def start():
 def stop():
     """Stops and removes the API service container."""
     try:
-        subprocess.run(["podman", "stop", CONTAINER_NAME], check=True)
-        subprocess.run(["podman", "rm", CONTAINER_NAME], check=True)
-        print(f"Container {CONTAINER_NAME} stopped and removed successfully.")
+        subprocess.run(["podman", "stop", "cage-pod"], check=True)
+        subprocess.run(["podman", "rm", "cage-pod"], check=True)
+        print("Container cage-pod stopped and removed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error stopping container: {e}", file=sys.stderr)
         sys.exit(1)
@@ -46,7 +44,7 @@ def stop():
 def status():
     """Checks the status of the API service container."""
     try:
-        subprocess.run(["podman", "ps", "-f", f"name={CONTAINER_NAME}"], check=True)
+        subprocess.run(["podman", "ps", "-f", "name=cage-pod"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error checking container status: {e}", file=sys.stderr)
         sys.exit(1)
@@ -68,8 +66,10 @@ def serve(
         print(f"Error: Not a Git repository: {repository_path}", file=sys.stderr)
         sys.exit(1)
     
-    # Set environment variable for the repository path
-    os.environ["CAGE_REPOSITORY_PATH"] = str(repo_path)
+    # Set environment variables for the new Cage specification
+    os.environ["REPO_PATH"] = str(repo_path)
+    os.environ["POD_ID"] = os.environ.get("POD_ID", "dev-pod")
+    os.environ["POD_TOKEN"] = os.environ.get("POD_TOKEN", "dev-token")
     
     print(f"Starting Cage service for repository: {repo_path}")
     print(f"Service will be available at: http://{host}:{port}")

@@ -1,74 +1,70 @@
-PATH := /usr/local/bin:$(PATH)
+# Cage Pod - Multi-Agent Repository Service
+# Makefile for development and deployment
 
-.PHONY: help
+.PHONY: help install dev test clean build run stop logs
+
+# Default target
 help:
-	@echo "Cage Repository Service - Available Commands:"
-	@echo ""
-	@echo "  make install              - Install dependencies"
-	@echo "  make serve REPO=<path>    - Start service for specific repository"
-	@echo "  make api-start            - Start API service container"
-	@echo "  make api-stop             - Stop API service container"
-	@echo "  make api-status           - Check API service status"
-	@echo "  make test                 - Run API tests"
-	@echo "  make test-e2e             - Run end-to-end tests"
-	@echo "  make tail-logs            - Follow API logs"
-	@echo "  make actor-smoke          - Run actor smoke test"
-	@echo "  make setup-gemini         - Setup Gemini configuration"
-	@echo ""
-	@echo "Examples:"
-	@echo "  make serve REPO=/path/to/my-repo"
-	@echo "  make serve REPO=./current-directory"
+	@echo "Cage Pod - Available commands:"
+	@echo "  install    - Install dependencies"
+	@echo "  dev        - Start development server"
+	@echo "  test       - Run tests"
+	@echo "  clean      - Clean up build artifacts"
+	@echo "  build      - Build container image"
+	@echo "  run        - Run container"
+	@echo "  stop       - Stop container"
+	@echo "  logs       - Show container logs"
 
-.PHONY: install
+# Install dependencies
 install:
-	devbox run -- uv pip install -r requirements.txt
+	pip install -r requirements.txt
 
-.PHONY: api-start
-api-start:
-	devbox run -- uv run python ./manage.py start
+# Development server
+dev:
+	@echo "Starting Cage development server..."
+	@echo "Make sure to set REPO_PATH environment variable"
+	python -m uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
 
-.PHONY: api-stop
-api-stop:
-	devbox run -- uv run python ./manage.py stop
-
-.PHONY: api-status
-api-status:
-	devbox run -- uv run python ./manage.py status
-
-.PHONY: serve
-serve:
-	@if [ -z "$(REPO)" ]; then \
-		echo "Error: REPO variable is required. Usage: make serve REPO=/path/to/repository"; \
-		exit 1; \
-	fi
-	@if [ ! -d "$(REPO)" ]; then \
-		echo "Error: Repository path does not exist: $(REPO)"; \
-		exit 1; \
-	fi
-	@if [ ! -d "$(REPO)/.git" ]; then \
-		echo "Error: Not a Git repository: $(REPO)"; \
-		exit 1; \
-	fi
-	devbox run -- uv run python -m src.cli.main serve $(REPO)
-
-tail-logs:
-	tail -f logs/api.log
-
+# Run tests
 test:
-	devbox run -- uv run pytest -q tests/test_api.py
+	pytest tests/ -v
 
-.PHONY: test-e2e
-test-e2e:
-	make install
-	make api-start
-	@echo "Waiting for API service to start..."
-	@sleep 5
-	make test
-	make api-stop
+# Clean up
+clean:
+	rm -rf __pycache__/
+	rm -rf src/*/__pycache__/
+	rm -rf .pytest_cache/
+	rm -rf logs/
+	find . -name "*.pyc" -delete
 
-actor-smoke:
-	ACTOR_DEBUG=1 devbox run -- uv run python -m tools.mcp.actor_server.server --once '{"path": ".", "instruction": "echo hello"}'
+# Build container image
+build:
+	podman build -t cage-pod:latest .
 
+# Run container
+run:
+	podman run -d \
+		--name cage-pod \
+		-p 8000:8000 \
+		-v $(PWD)/repo:/work/repo \
+		-e REPO_PATH=/work/repo \
+		-e POD_ID=dev-pod \
+		-e POD_TOKEN=dev-token \
+		cage-pod:latest
 
-setup-gemini:
-	ln -s ./memory-bank/gemini/GEMINI.md ./GEMINI.md
+# Stop container
+stop:
+	podman stop cage-pod || true
+	podman rm cage-pod || true
+
+# Show logs
+logs:
+	podman logs -f cage-pod
+
+# Development with podman-compose
+dev-compose:
+	podman-compose up --build
+
+# Stop development
+dev-stop:
+	podman-compose down
