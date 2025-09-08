@@ -12,6 +12,10 @@ import uvicorn
 # Add src to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
+# Import task management
+from src.cage.task_models import TaskManager, TaskFile
+from src.cage.editor_tool import EditorTool, FileOperation, OperationType
+
 # Security
 security = HTTPBearer()
 
@@ -29,6 +33,9 @@ app = FastAPI(
     description="Pod-based Multi-Agent Repository Service",
     version="0.1.0"
 )
+
+# Initialize task manager
+task_manager = TaskManager(Path("tasks"))
 
 # Configure logging
 LOG_DIR = "logs"
@@ -58,6 +65,9 @@ def get_repository_path():
     """Get the repository path from environment variable."""
     repo_path = os.environ.get("REPO_PATH", "/work/repo")
     return Path(repo_path)
+
+# Initialize editor tool
+editor_tool = EditorTool(get_repository_path(), task_manager=task_manager)
 
 # Pydantic models for new Cage specification
 
@@ -144,7 +154,7 @@ def health():
 @app.get("/about")
 def about():
     """About endpoint with pod information."""
-        return {
+    return {
         "pod_id": os.environ.get("POD_ID", "dev-pod"),
         "version": "0.1.0",
         "capabilities": ["tasks", "crew", "files", "git", "rag"],
@@ -156,26 +166,113 @@ def about():
 @app.post("/tasks/confirm")
 def confirm_task(request: TaskConfirmRequest, token: str = Depends(get_pod_token)):
     """Create/update task file."""
-    # TODO: Implement task file creation/update
-    return {"status": "success", "task_id": request.task_id}
+    try:
+        # Check if task already exists
+        existing_task = task_manager.load_task(request.task_id)
+        
+        if existing_task:
+            # Update existing task status
+            updates = {"status": request.status}
+            task = task_manager.update_task(request.task_id, updates)
+            if task:
+                logger.info(f"Updated task {request.task_id} status to {request.status}")
+                return {"status": "success", "task_id": request.task_id, "action": "updated"}
+            else:
+                raise HTTPException(status_code=500, detail="Failed to update task")
+        else:
+            # Create new task with basic structure
+            task_data = {
+                "id": request.task_id,
+                "title": f"Task {request.task_id}",
+                "owner": "system",
+                "status": request.status,
+                "summary": "Auto-created task",
+                "tags": [],
+                "success_criteria": [],
+                "acceptance_checks": [],
+                "subtasks": [],
+                "todo": [],
+                "decisions": [],
+                "issues_risks": [],
+                "next_steps": [],
+                "references": [],
+                "metadata": {}
+            }
+            
+            task = task_manager.create_task(task_data)
+            if task:
+                logger.info(f"Created new task {request.task_id}")
+                return {"status": "success", "task_id": request.task_id, "action": "created"}
+            else:
+                raise HTTPException(status_code=500, detail="Failed to create task")
+                
+    except Exception as e:
+        logger.error(f"Error in confirm_task: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/tasks/{task_id}")
 def update_task(task_id: str, request: TaskUpdateRequest, token: str = Depends(get_pod_token)):
     """Update task fields."""
-    # TODO: Implement task update
-    return {"status": "success", "task_id": task_id}
+    try:
+        # Convert request to update dict, filtering out None values
+        updates = {k: v for k, v in request.dict().items() if v is not None}
+        
+        if not updates:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        task = task_manager.update_task(task_id, updates)
+        if task:
+            logger.info(f"Updated task {task_id}")
+            return {"status": "success", "task_id": task_id, "updated_fields": list(updates.keys())}
+        else:
+            raise HTTPException(status_code=404, detail="Task not found")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating task {task_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/tasks/{task_id}")
 def get_task(task_id: str, token: str = Depends(get_pod_token)):
     """Get full task JSON."""
-    # TODO: Implement task retrieval
-    return {"task_id": task_id, "status": "not_implemented"}
+    try:
+        task = task_manager.load_task(task_id)
+        if task:
+            return task.dict()
+        else:
+            raise HTTPException(status_code=404, detail="Task not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error loading task {task_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/tasks")
+def list_tasks(token: str = Depends(get_pod_token)):
+    """List all tasks."""
+    try:
+        tasks = task_manager.list_tasks()
+        return {"status": "success", "tasks": tasks, "count": len(tasks)}
+    except Exception as e:
+        logger.error(f"Error listing tasks: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/tracker/rebuild")
 def rebuild_tracker(token: str = Depends(get_pod_token)):
     """Rebuild tracker from task files."""
-    # TODO: Implement tracker rebuild
-    return {"status": "success", "message": "Tracker rebuild not yet implemented"}
+    try:
+        status_data = task_manager.rebuild_status()
+        logger.info("Rebuilt task tracker")
+        return {
+            "status": "success", 
+            "message": "Tracker rebuilt successfully",
+            "active_tasks": len(status_data.get("active_tasks", [])),
+            "recently_completed": len(status_data.get("recently_completed", []))
+        }
+    except Exception as e:
+        logger.error(f"Error rebuilding tracker: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Crew endpoints
 @app.post("/crew/plan")
@@ -206,13 +303,54 @@ def upload_artefacts(run_id: str, token: str = Depends(get_pod_token)):
 @app.post("/files/edit")
 def edit_file(request: FileEditRequest, token: str = Depends(get_pod_token)):
     """Structured file operations with locking."""
-    # TODO: Implement Editor Tool
-        return {
-        "ok": False,
-        "file": request.path,
-        "operation": request.operation,
-        "error": "Editor Tool not yet implemented"
-    }
+    try:
+        # Convert operation string to enum
+        try:
+            operation_type = OperationType(request.operation)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Invalid operation: {request.operation}")
+        
+        # Create file operation
+        operation = FileOperation(
+            operation=operation_type,
+            path=request.path,
+            selector=request.selector,
+            payload=request.payload,
+            intent=request.intent,
+            dry_run=request.dry_run,
+            author=request.author,
+            correlation_id=request.correlation_id
+        )
+        
+        # Execute operation
+        result = editor_tool.execute_operation(operation)
+        
+        # Convert result to response format
+        response = {
+            "ok": result.ok,
+            "file": result.file,
+            "operation": result.operation,
+            "lock_id": result.lock_id,
+            "pre_hash": result.pre_hash,
+            "post_hash": result.post_hash,
+            "diff": result.diff,
+            "warnings": result.warnings,
+            "conflicts": result.conflicts
+        }
+        
+        if not result.ok:
+            response["error"] = result.error
+            logger.error(f"File operation failed: {result.error}")
+            raise HTTPException(status_code=400, detail=result.error)
+        
+        logger.info(f"File operation completed: {operation_type.value} on {request.path}")
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in edit_file: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Git endpoints
 @app.get("/git/status")

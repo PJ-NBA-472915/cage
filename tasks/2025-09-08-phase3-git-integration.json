@@ -3,52 +3,114 @@
   "title": "Phase 3: Implement Git Integration and Commit Trail",
   "owner": "AI Agent",
   "status": "planned",
-  "created_at": "2025-09-08 19:30",
-  "updated_at": "2025-09-08 19:30",
+  "created_at": "2025-09-08T19:30:00",
+  "updated_at": "2025-09-08T20:15:00",
   "progress_percent": 0,
-  "tags": ["phase3", "git", "commit-trail", "integration"],
-  "summary": "Implement Git API endpoints and commit trail tracking. This enables the complete file modification workflow from Editor Tool operations through Git commits, with full provenance tracking in task files.",
+  "tags": [
+    "phase3",
+    "git",
+    "commit-trail",
+    "integration",
+    "internal"
+  ],
+  "summary": "Implement Git integration as internal Python functions and expose REST API endpoints per Cage spec (/git/status, /git/branch, /git/commit, /git/push, /git/pull, /git/merge). Enable commit trail tracking in task.provenance and integrate with Editor Tool operations for a complete, auditable workflow.",
   "success_criteria": [
-    {"text": "Git API endpoints implemented", "checked": false},
+    {
+      "text": "Git Python functions implemented",
+      "checked": false
+    },
     {"text": "Commit trail tracking working", "checked": false},
     {"text": "Integration with Editor Tool complete", "checked": false},
     {"text": "Task provenance updated with commits", "checked": false},
-    {"text": "Git operations integrated with CLI", "checked": false}
+    {
+      "text": "Git REST API endpoints implemented (/git/status, /git/branch, /git/commit, /git/push, /git/pull, /git/merge)",
+      "checked": false
+    },
+    {
+      "text": "Git CLI tools working",
+      "checked": false
+    }
   ],
   "acceptance_checks": [
-    {"text": "GET /git/status returns repository status", "checked": false},
-    {"text": "POST /git/commit creates commits with proper messages", "checked": false},
-    {"text": "POST /git/branch creates and manages branches", "checked": false},
-    {"text": "POST /git/push and /git/pull work correctly", "checked": false},
-    {"text": "Task provenance.commits[] updated with commit details", "checked": false}
+    {
+      "text": "Git status function returns repository status",
+      "checked": false
+    },
+    {
+      "text": "Git commit function creates commits with proper messages",
+      "checked": false
+    },
+    {
+      "text": "Git branch functions create and manage branches",
+      "checked": false
+    },
+    {
+      "text": "Git push and pull functions work correctly",
+      "checked": false
+    },
+    {
+      "text": "Expose REST endpoints per spec: /git/status, /git/branch, /git/commit, /git/push, /git/pull, /git/merge",
+      "checked": false
+    },
+    {
+      "text": "Emit event cage.git.commit.created after successful commit",
+      "checked": false
+    },
+    {
+      "text": "task.provenance.commits[0].sha equals `git rev-parse HEAD` and includes {sha,title,files_changed,insertions,deletions}",
+      "checked": false
+    }
   ],
   "subtasks": [
-    "Implement Git API endpoints (/git/status, /git/commit, /git/branch, etc.)",
+    "Implement Git Python functions (status, commit, branch, push, pull, merge)",
     "Add commit message formatting and validation",
-    "Integrate Git operations with Editor Tool",
-    "Implement commit trail tracking in task provenance",
+    "Integrate Git operations with Editor Tool functions",
+    "Implement commit trail tracking in task.provenance",
+    "Expose REST API endpoints per spec (/git/*)",
+    "Wire event emission for cage.git.commit.created",
     "Add Git CLI commands",
     "Test complete workflow: edit -> stage -> commit -> track",
     "Add branch management and merge operations",
     "Validate commit message patterns"
   ],
   "todo": [
-    {"text": "Implement Git API endpoints (/git/status, /git/commit, /git/branch, etc.)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {
+      "text": "Implement Git Python functions (status, commit, branch, push, pull, merge)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
     {"text": "Add commit message formatting and validation", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Integrate Git operations with Editor Tool", "status": "not-started", "date_started": null, "date_stopped": null},
-    {"text": "Implement commit trail tracking in task provenance", "status": "not-started", "date_started": null, "date_stopped": null},
+    {
+      "text": "Integrate Git operations with Editor Tool functions",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {"text": "Implement commit trail tracking in task.provenance", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Expose REST API endpoints per spec (/git/*)", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Wire event emission for cage.git.commit.created", "status": "not-started", "date_started": null, "date_stopped": null},
     {"text": "Add Git CLI commands", "status": "not-started", "date_started": null, "date_stopped": null},
     {"text": "Test complete workflow: edit -> stage -> commit -> track", "status": "not-started", "date_started": null, "date_stopped": null},
     {"text": "Add branch management and merge operations", "status": "not-started", "date_started": null, "date_stopped": null},
     {"text": "Validate commit message patterns", "status": "not-started", "date_started": null, "date_stopped": null}
   ],
   "changelog": [
-    {"timestamp": "2025-09-08 19:30", "text": "Phase 3 task created - implementing Git integration and commit trail tracking"}
+    {
+      "timestamp": "2025-09-08 19:30",
+      "text": "Phase 3 task created - implementing Git integration and commit trail tracking"
+    },
+    {
+      "timestamp": "2025-09-08T20:15:00",
+      "text": "Aligned with Cage spec: include REST /git endpoints, provenance commit fields, and event emission"
+    }
   ],
   "decisions": [
+    "Implement internal Python functions and expose REST API endpoints per spec",
     "Use subprocess for Git operations initially, consider GitPython later",
     "Implement proper commit message formatting per Cage spec",
-    "Track all commits in task provenance for audit trail"
+    "Track all commits in task provenance for audit trail",
+    "Design for use by CrewAI agents in future phases"
   ],
   "lessons_learned": [],
   "issues_risks": [
@@ -57,15 +119,19 @@
     "Must ensure proper commit message formatting"
   ],
   "next_steps": [
-    "Implement basic Git API endpoints",
+    "Implement basic Git Python functions",
+    "Expose REST API endpoints per spec",
     "Add commit trail tracking",
-    "Integrate with Editor Tool",
+    "Integrate with Editor Tool functions",
+    "Emit events for commits",
+    "Create Git CLI tools",
     "Test complete workflow"
   ],
   "references": [
     "memory-bank/context/spec/cage/100_SPLIT/008-rest-api-surface.md",
     "memory-bank/context/spec/cage/100_SPLIT/005-data-models.md",
-    "memory-bank/context/spec/cage/100_SPLIT/016-acceptance-criteria-mvp.md"
+    "memory-bank/context/spec/cage/100_SPLIT/016-acceptance-criteria-mvp.md",
+    "docs/api-design.md"
   ],
   "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
   "metadata": {
@@ -74,6 +140,8 @@
     "estimated_effort": "5-7 hours",
     "complexity": "medium",
     "external_services": "none",
-    "future_work": "Phase 4: CrewAI Integration - Implement AI agent workflows for planning and execution. This will add the intelligent automation layer that can plan tasks, execute file operations, and coordinate the complete workflow."
-  }
+    "future_work": "Phase 4: CrewAI Integration - Implement AI agent workflows for planning and execution. This will add the intelligent automation layer that can plan tasks, execute file operations through Editor Tool functions, and coordinate the complete workflow using Git functions."
+  },
+  "prompts": [],
+  "locks": []
 }
