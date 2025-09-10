@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from src.cage.task_models import TaskManager, TaskFile
 from src.cage.editor_tool import EditorTool, FileOperation, OperationType
 from src.cage.git_tool import GitTool
+from src.cage.crew_tool import CrewTool
 
 # Security
 security = HTTPBearer()
@@ -49,6 +50,7 @@ app.add_middleware(
 # Initialize task manager and git tool
 task_manager = TaskManager(Path("tasks"))
 git_tool = GitTool(Path("."))
+crew_tool = CrewTool(Path("."), task_manager)
 
 # Configure logging
 LOG_DIR = "logs"
@@ -104,7 +106,7 @@ class CrewApplyRequest(BaseModel):
 class FileEditRequest(BaseModel):
     operation: str  # GET, INSERT, UPDATE, DELETE
     path: str
-    selector: dict
+    selector: dict | None = None
     payload: dict | None = None
     intent: str
     dry_run: bool = False
@@ -252,7 +254,7 @@ def get_task(task_id: str, token: str = Depends(get_pod_token)):
     try:
         task = task_manager.load_task(task_id)
         if task:
-            return task.dict()
+            return task.model_dump()
         else:
             raise HTTPException(status_code=404, detail="Task not found")
     except HTTPException:
@@ -291,26 +293,65 @@ def rebuild_tracker(token: str = Depends(get_pod_token)):
 @app.post("/crew/plan")
 def crew_plan(request: CrewPlanRequest, token: str = Depends(get_pod_token)):
     """Write/merge task plan."""
-    # TODO: Implement CrewAI planning
-    return {"status": "success", "task_id": request.task_id}
+    try:
+        result = crew_tool.create_plan(request.task_id, request.plan)
+        
+        if result["status"] == "success":
+            logger.info(f"Created plan for task {request.task_id}")
+            return result
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error creating plan for task {request.task_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/crew/apply")
 def crew_apply(request: CrewApplyRequest, token: str = Depends(get_pod_token)):
     """Apply crew changes through Editor Tool."""
-    # TODO: Implement CrewAI application
-    return {"status": "success", "task_id": request.task_id}
+    try:
+        result = crew_tool.apply_plan(request.task_id, request.run_id)
+        
+        if result["status"] == "success":
+            logger.info(f"Applied plan for task {request.task_id}")
+            return result
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error applying plan for task {request.task_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/crew/runs/{run_id}")
 def get_crew_run(run_id: str, token: str = Depends(get_pod_token)):
     """Get crew run status/logs/summary."""
-    # TODO: Implement crew run retrieval
-    return {"run_id": run_id, "status": "not_implemented"}
+    try:
+        result = crew_tool.get_run_status(run_id)
+        
+        if result["status"] == "success":
+            return result
+        else:
+            raise HTTPException(status_code=404, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error getting run status for {run_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/crew/runs/{run_id}/artefacts")
-def upload_artefacts(run_id: str, token: str = Depends(get_pod_token)):
+def upload_artefacts(run_id: str, files: Dict[str, str], token: str = Depends(get_pod_token)):
     """Upload files into .cage/runs/<run_id>/*."""
-    # TODO: Implement artefact upload
-    return {"status": "success", "run_id": run_id}
+    try:
+        result = crew_tool.upload_artefacts(run_id, files)
+        
+        if result["status"] == "success":
+            logger.info(f"Uploaded artefacts for run {run_id}")
+            return result
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error uploading artefacts for run {run_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Files (Editor Tool) endpoints
 @app.post("/files/edit")

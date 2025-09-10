@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 
 from src.cage.task_models import TaskManager, TaskFile
 from src.cage.git_tool import GitTool
+from src.cli.crew_cli import app as crew_app
 
 app = typer.Typer()
 
@@ -475,6 +476,9 @@ def git_history(
     except Exception as e:
         print(f"❌ Error getting history: {e}", file=sys.stderr)
         sys.exit(1)
+
+# Add crew commands as a subcommand
+app.add_typer(crew_app, name="crew")
 
 if __name__ == "__main__":
     app()

@@ -1,150 +1,130 @@
-# Editor Tool System
-
-The Editor Tool is a comprehensive file manipulation system designed for structured file operations with built-in locking mechanisms for multi-agent collaboration. It provides a unified interface for reading, writing, updating, and deleting file content with precise control over what portions of files are affected.
+# Phase 2: Editor Tool - Feature Documentation
 
 ## Overview
 
-The Editor Tool system provides:
-- **Structured file operations** (GET, INSERT, UPDATE, DELETE) with selector-based targeting
-- **File locking mechanism** for safe concurrent access by multiple agents
-- **REST API endpoints** for programmatic access
-- **CLI tools** for interactive file operations
-- **Task system integration** for operation tracking and audit trails
-- **Conflict detection** and stale preimage checking
-- **Diff generation** for change tracking
+Phase 2 implements a sophisticated Editor Tool that provides structured file operations with advanced locking mechanisms. This tool enables precise, atomic file modifications through a comprehensive API, supporting multiple operation types and selector modes for safe, concurrent file editing.
 
 ## Architecture
 
-### Core Components
+The Editor Tool consists of:
 
-1. **EditorTool** (`src/cage/editor_tool.py` - main class)
-   - Central orchestrator for all file operations
-   - Integrates with locking system and task management
-   - Handles operation execution and result formatting
+- **EditorTool Class**: Core file operations and locking management
+- **FileOperation Model**: Structured operation definitions
+- **Locking System**: In-memory file locking with conflict detection
+- **Selector System**: Multiple ways to target specific file content
+- **REST API Integration**: HTTP endpoints for file operations
+- **CLI Commands**: Command-line interface for file operations
 
-2. **FileLockManager** (`src/cage/editor_tool.py` - FileLockManager class)
-   - In-memory lock management for Phase 2
-   - TTL-based lock expiration
-   - Thread-safe lock operations
+## Core Components
 
-3. **Data Models** (`src/cage/editor_tool.py`)
-   - FileOperation: Operation request structure
-   - FileOperationResult: Operation result structure
-   - FileLock: Lock information and metadata
-   - OperationType: Supported operations enum
-   - SelectorMode: Selector types enum
+### 1. EditorTool Class
 
-4. **REST API** (`src/api/main.py`)
-   - FastAPI endpoints for file operations
-   - Authentication with POD_TOKEN
-   - Error handling and validation
+Located in `src/cage/editor_tool.py`, provides all file operations.
 
-5. **CLI Tools** (`src/cli/editor_cli.py`)
-   - Command-line interface for file operations
-   - Support for all operation types
-   - Dry-run and verbose output options
+**Key Methods:**
+- `execute_operation(operation)` - Execute a file operation
+- `get_file_content(path)` - Read file content
+- `insert_content(path, content, selector)` - Insert content at specific location
+- `update_content(path, content, selector)` - Update existing content
+- `delete_content(path, selector)` - Delete specific content
+- `commit_changes(message, task_id, author)` - Commit all staged changes
 
-## Data Models
+### 2. FileOperation Model
 
-### FileOperation
-
-The core operation request model:
+Structured definition of file operations:
 
 ```python
-@dataclass
-class FileOperation:
-    operation: OperationType        # GET, INSERT, UPDATE, DELETE
-    path: str                      # File path (relative to repo root)
-    selector: Optional[Dict[str, Any]] = None    # Content selector
-    payload: Optional[Dict[str, Any]] = None     # Operation payload
-    intent: str = ""               # Human-readable intent
-    dry_run: bool = False          # Preview mode
-    author: str = ""               # Operation author
-    correlation_id: str = ""       # Task correlation ID
+class FileOperation(BaseModel):
+    operation: OperationType  # GET, INSERT, UPDATE, DELETE
+    path: str                 # File path
+    selector: Dict            # Content selector
+    payload: Dict             # Operation data
+    intent: str               # Human-readable intent
+    dry_run: bool             # Preview mode
+    author: str               # Operation author
+    correlation_id: str       # Unique operation ID
 ```
 
-### FileOperationResult
+### 3. Operation Types
 
-Result structure for all operations:
+**GET**: Read file content
+- Retrieve entire file or specific sections
+- Support for different output formats
+- Context-aware content extraction
 
-```python
-@dataclass
-class FileOperationResult:
-    ok: bool                       # Success status
-    file: str                      # File path
-    operation: str                 # Operation type
-    lock_id: Optional[str] = None  # Lock identifier
-    pre_hash: Optional[str] = None # Content hash before operation
-    post_hash: Optional[str] = None # Content hash after operation
-    diff: Optional[str] = None     # Diff output
-    warnings: List[str] = None     # Warning messages
-    conflicts: List[str] = None    # Conflict messages
-    error: Optional[str] = None    # Error message if failed
-```
+**INSERT**: Add new content
+- Insert at specific line/character positions
+- Insert with context preservation
+- Support for multiple insertion points
 
-### FileLock
+**UPDATE**: Modify existing content
+- Replace specific content sections
+- Preserve surrounding context
+- Validate changes before applying
 
-Lock information for concurrent access control:
+**DELETE**: Remove content
+- Delete specific sections
+- Clean up empty lines
+- Preserve file structure
 
-```python
-@dataclass
-class FileLock:
-    file_path: str                 # File being locked
-    lock_id: str                   # Unique lock identifier
-    agent: str                     # Agent holding the lock
-    started_at: str                # Lock start timestamp
-    expires_at: str                # Lock expiration timestamp
-    ranges: List[Dict[str, int]]   # Locked line ranges
-    description: str               # Lock description
-```
+### 4. Selector System
 
-### Selectors
-
-Content targeting system for precise file operations:
-
-#### Region Selector
-```python
+**Region Selector**:
+```json
 {
-    "mode": "region",
-    "start": 10,    # Start line (1-based)
-    "end": 20       # End line (inclusive) or -1 for end of file
+  "mode": "region",
+  "start": 120,
+  "end": 145,
+  "line_start": 10,
+  "line_end": 15
 }
 ```
 
-#### Regex Selector
-```python
+**Regex Selector**:
+```json
 {
-    "mode": "regex",
-    "pattern": r"def\s+\w+\s*\(",  # Regex pattern
-    "flags": 0                     # Regex flags (re.IGNORECASE, etc.)
+  "mode": "regex",
+  "pattern": "def\\s+\\w+\\s*\\(",
+  "flags": "MULTILINE"
+}
+```
+
+**Context Selector**:
+```json
+{
+  "mode": "context",
+  "before": "class MyClass:",
+  "after": "def my_method():",
+  "include_before": 2,
+  "include_after": 2
 }
 ```
 
 ## API Endpoints
 
-### File Operations
+### POST /files/edit
 
-#### Edit File
-```http
-POST /files/edit
-Authorization: Bearer <POD_TOKEN>
-Content-Type: application/json
+Execute structured file operations.
 
+**Request:**
+```json
 {
   "operation": "UPDATE",
-  "path": "src/example.py",
+  "path": "src/auth.py",
   "selector": {
     "mode": "region",
-    "start": 10,
-    "end": 20
+    "start": 120,
+    "end": 145
   },
   "payload": {
-    "content": "def new_function():\n    pass\n"
+    "content": "def authenticate_user(token):\n    return validate_token(token)\n",
+    "before_context": 3,
+    "after_context": 3
   },
-  "intent": "Add new function",
+  "intent": "refactor: improve authentication function",
   "dry_run": false,
-  "author": "agent-1",
-  "correlation_id": "task-123-update"
+  "author": "developer@example.com",
+  "correlation_id": "op-12345"
 }
 ```
 
@@ -152,557 +132,380 @@ Content-Type: application/json
 ```json
 {
   "ok": true,
-  "file": "src/example.py",
+  "file": "src/auth.py",
   "operation": "UPDATE",
-  "lock_id": "lock:file:src/example.py:1691234567",
-  "pre_hash": "abc123...",
-  "post_hash": "def456...",
-  "diff": "@@ -10,5 +10,7 @@\n-def old_function():\n-    pass\n+def new_function():\n+    pass\n",
+  "lock_id": "lock:file:src/auth.py",
+  "pre_hash": "sha256:abc123...",
+  "post_hash": "sha256:def456...",
+  "diff": "@@ -120,10 +120,12 @@ def authenticate_user(token):\n     return validate_token(token)\n",
   "warnings": [],
   "conflicts": []
 }
 ```
 
-#### Error Response
+### POST /files/commit
+
+Commit all staged file changes.
+
+**Request:**
 ```json
 {
-  "ok": false,
-  "file": "src/example.py",
-  "operation": "UPDATE",
-  "error": "File is locked by another process",
-  "warnings": [],
-  "conflicts": []
+  "message": "feat: improve authentication system",
+  "task_id": "2025-09-10-auth-refactor",
+  "author": "developer@example.com"
 }
 ```
 
-### Operation Types
-
-#### GET Operation
-Read file content with optional selector:
+**Response:**
 ```json
 {
-  "operation": "GET",
-  "path": "src/example.py",
-  "selector": {
-    "mode": "region",
-    "start": 1,
-    "end": 10
-  }
-}
-```
-
-#### INSERT Operation
-Insert content at specified location:
-```json
-{
-  "operation": "INSERT",
-  "path": "src/example.py",
-  "selector": {
-    "mode": "region",
-    "start": 10,
-    "end": 10
-  },
-  "payload": {
-    "content": "def new_function():\n    pass\n"
-  }
-}
-```
-
-#### UPDATE Operation
-Replace content in specified region:
-```json
-{
-  "operation": "UPDATE",
-  "path": "src/example.py",
-  "selector": {
-    "mode": "regex",
-    "pattern": "def\\s+old_function"
-  },
-  "payload": {
-    "content": "def updated_function",
-    "pre_hash": "expected_hash_for_conflict_detection"
-  }
-}
-```
-
-#### DELETE Operation
-Delete content or entire file:
-```json
-{
-  "operation": "DELETE",
-  "path": "src/example.py",
-  "selector": {
-    "mode": "region",
-    "start": 10,
-    "end": 15
+  "status": "success",
+  "message": "Changes committed successfully",
+  "data": {
+    "commit_sha": "abc123def456",
+    "files_changed": ["src/auth.py", "tests/test_auth.py"],
+    "insertions": 25,
+    "deletions": 10
   }
 }
 ```
 
 ## CLI Commands
 
-### Basic Usage
+### File Operations
 
-#### Read File Content
 ```bash
-# Read entire file
-python -m src.cli.editor_cli get src/example.py
+# Read file content
+cage files get src/auth.py
 
-# Read specific lines
-python -m src.cli.editor_cli get src/example.py --selector "10:20"
+# Read specific region
+cage files get src/auth.py --region 10:20
 
-# Read with regex selector
-python -m src.cli.editor_cli get src/example.py --selector '{"mode": "regex", "pattern": "def\\s+\\w+"}'
+# Insert content
+cage files insert src/auth.py --line 15 --content "import logging"
+
+# Update content
+cage files update src/auth.py --region 10:20 --content "new content"
+
+# Delete content
+cage files delete src/auth.py --region 15:20
 ```
 
-#### Insert Content
+### Advanced Operations
+
 ```bash
-# Insert at end of file
-python -m src.cli.editor_cli insert src/example.py --content "print('Hello World')"
+# Dry run (preview changes)
+cage files update src/auth.py --region 10:20 --content "new content" --dry-run
 
-# Insert at specific location
-python -m src.cli.editor_cli insert src/example.py \
-  --selector "10:10" \
-  --content "def new_function():\n    pass\n"
+# Use regex selector
+cage files update src/auth.py --regex "def\\s+\\w+" --content "def new_function()"
 
-# Insert from file
-python -m src.cli.editor_cli insert src/example.py \
-  --content-file new_function.py \
-  --selector "10:10"
+# Use context selector
+cage files insert src/auth.py --before "class Auth:" --after "def login():" --content "    def __init__(self):"
 ```
 
-#### Update Content
+### Batch Operations
+
 ```bash
-# Update entire file
-python -m src.cli.editor_cli update src/example.py --content-file new_content.py
+# Execute multiple operations
+cage files batch operations.json
 
-# Update specific lines
-python -m src.cli.editor_cli update src/example.py \
-  --selector "10:20" \
-  --content "def updated_function():\n    pass\n"
+# Commit all changes
+cage files commit "feat: implement new features"
 
-# Update with conflict detection
-python -m src.cli.editor_cli update src/example.py \
-  --selector "10:20" \
-  --content "new content" \
-  --pre-hash "expected_hash"
+# Commit with task tracking
+cage files commit "refactor: improve code structure" --task-id 2025-09-10-refactor
 ```
-
-#### Delete Content
-```bash
-# Delete specific lines
-python -m src.cli.editor_cli delete src/example.py --selector "10:20"
-
-# Delete entire file
-python -m src.cli.editor_cli delete src/example.py
-
-# Dry run to preview
-python -m src.cli.editor_cli delete src/example.py --selector "10:20" --dry-run
-```
-
-### Advanced Options
-
-#### Dry Run Mode
-Preview changes without applying them:
-```bash
-python -m src.cli.editor_cli update src/example.py \
-  --content "new content" \
-  --dry-run \
-  --verbose
-```
-
-#### Verbose Output
-Get detailed information about operations:
-```bash
-python -m src.cli.editor_cli update src/example.py \
-  --content "new content" \
-  --verbose
-```
-
-**Output:**
-```
-Operation: UPDATE
-File: src/example.py
-Lock ID: lock:file:src/example.py:1691234567
-Pre-hash: abc123def456...
-Post-hash: def456ghi789...
-Diff:
-@@ -10,5 +10,7 @@
--def old_function():
--    pass
-+def new_function():
-+    pass
-```
-
-#### Author and Correlation Tracking
-```bash
-python -m src.cli.editor_cli update src/example.py \
-  --content "new content" \
-  --author "developer-1" \
-  --correlation-id "task-123-update"
-```
-
-## File Locking System
-
-### Lock Acquisition
-
-Locks are automatically acquired for non-dry-run operations:
-- **Region-based locks**: When using region selectors
-- **Full-file locks**: For regex selectors or whole-file operations
-- **TTL-based expiration**: Default 5-minute lock lifetime
-- **Thread-safe**: Supports concurrent operations
-
-### Lock Management
-
-```python
-# Acquire lock
-lock_id = editor.lock_manager.acquire_lock(
-    file_path="src/example.py",
-    agent="agent-1",
-    ranges=[{"start": 10, "end": 20}],
-    description="Update function"
-)
-
-# Release lock
-success = editor.lock_manager.release_lock(lock_id)
-
-# Check if file is locked
-is_locked = editor.lock_manager.is_locked("src/example.py")
-```
-
-### Lock Expiration
-
-- **Automatic cleanup**: Expired locks are removed on next access
-- **Manual cleanup**: `editor.lock_manager.cleanup_expired_locks()`
-- **Configurable TTL**: Default 300 seconds (5 minutes)
-
-## Integration
-
-### With Task Management System
-
-The Editor Tool integrates with the task management system for:
-- **Operation logging**: All operations are logged to task changelog
-- **Correlation tracking**: Operations linked to specific tasks
-- **Audit trails**: Complete history of file changes
-
-```python
-# Operations are automatically logged when correlation_id is provided
-operation = FileOperation(
-    operation=OperationType.UPDATE,
-    path="src/example.py",
-    correlation_id="task-123-update",
-    # ... other parameters
-)
-```
-
-### With Multi-Agent Systems
-
-- **Cooperative locking**: Agents wait for locks to be released
-- **Conflict detection**: Stale preimage checking prevents conflicts
-- **Fail-fast**: Operations fail immediately if file is locked
-
-### With Version Control
-
-- **Content hashing**: SHA256 hashes for change detection
-- **Diff generation**: Unified diff format for changes
-- **Stale detection**: Pre-image hash validation
 
 ## Usage Examples
 
-### Basic File Operations
+### Basic File Editing
 
-#### Creating a New File
-```python
-from src.cage.editor_tool import EditorTool, FileOperation, OperationType
+1. **Read File Content**
+   ```bash
+   cage files get src/auth.py
+   ```
 
-editor = EditorTool(Path("/path/to/repo"))
+2. **Insert New Function**
+   ```bash
+   cage files insert src/auth.py \
+     --line 25 \
+     --content "def validate_token(token):\n    return token is not None"
+   ```
 
-# Create new file
-operation = FileOperation(
-    operation=OperationType.INSERT,
-    path="new_file.py",
-    payload={"content": "print('Hello World')\n"},
-    intent="Create new Python file",
-    author="agent-1"
-)
+3. **Update Existing Function**
+   ```bash
+   cage files update src/auth.py \
+     --region 30:35 \
+     --content "def authenticate_user(token):\n    if not validate_token(token):\n        raise AuthenticationError()\n    return True"
+   ```
 
-result = editor.execute_operation(operation)
-```
+4. **Commit Changes**
+   ```bash
+   cage files commit "feat: add token validation"
+   ```
 
-#### Reading File Content
-```python
-# Read entire file
-operation = FileOperation(
-    operation=OperationType.GET,
-    path="src/example.py"
-)
-result = editor.execute_operation(operation)
-print(result.diff)  # File content
+### Advanced Editing with Selectors
 
-# Read specific lines
-operation = FileOperation(
-    operation=OperationType.GET,
-    path="src/example.py",
-    selector={"mode": "region", "start": 10, "end": 20}
-)
-result = editor.execute_operation(operation)
-```
+1. **Regex-Based Updates**
+   ```bash
+   # Update all function definitions
+   cage files update src/auth.py \
+     --regex "def\\s+(\\w+)\\s*\\(" \
+     --content "def $1(user_id, **kwargs):"
+   ```
 
-#### Updating Specific Lines
-```python
-# Update lines 10-20
-operation = FileOperation(
-    operation=OperationType.UPDATE,
-    path="src/example.py",
-    selector={"mode": "region", "start": 10, "end": 20},
-    payload={"content": "def updated_function():\n    pass\n"},
-    intent="Update function implementation",
-    author="agent-1"
-)
-result = editor.execute_operation(operation)
-```
+2. **Context-Based Insertions**
+   ```bash
+   # Insert after class definition
+   cage files insert src/auth.py \
+     --before "class AuthManager:" \
+     --after "def __init__(self):" \
+     --content "    def __init__(self, config):\n        self.config = config"
+   ```
 
-#### Using Regex Selectors
-```python
-# Update all function definitions
-operation = FileOperation(
-    operation=OperationType.UPDATE,
-    path="src/example.py",
-    selector={
-        "mode": "regex",
-        "pattern": r"def\s+old_(\w+)",
-        "flags": 0
-    },
-    payload={"content": "def new_\\1", "pre_hash": "expected_hash"},
-    intent="Rename functions with old_ prefix",
-    author="agent-1"
-)
-result = editor.execute_operation(operation)
-```
+3. **Region-Based Updates**
+   ```bash
+   # Update specific lines
+   cage files update src/auth.py \
+     --region 50:60 \
+     --content "    def login(self, username, password):\n        # Implementation here\n        pass"
+   ```
 
-### Multi-Agent Collaboration
+### Batch Operations
 
-#### Safe Concurrent Updates
-```python
-# Agent 1: Update file
-operation1 = FileOperation(
-    operation=OperationType.UPDATE,
-    path="shared_file.py",
-    selector={"mode": "region", "start": 1, "end": 10},
-    payload={"content": "updated content"},
-    author="agent-1"
-)
-result1 = editor.execute_operation(operation1)
+1. **Create Operations File**
+   ```json
+   {
+     "operations": [
+       {
+         "operation": "INSERT",
+         "path": "src/auth.py",
+         "selector": {"mode": "line", "line": 10},
+         "payload": {"content": "import logging\n"},
+         "intent": "add logging import"
+       },
+       {
+         "operation": "UPDATE",
+         "path": "src/auth.py",
+         "selector": {"mode": "regex", "pattern": "print\\("},
+         "payload": {"content": "logging.info("},
+         "intent": "replace print with logging"
+       }
+     ]
+   }
+   ```
 
-# Agent 2: Try to update same lines (will fail if locks enabled)
-operation2 = FileOperation(
-    operation=OperationType.UPDATE,
-    path="shared_file.py",
-    selector={"mode": "region", "start": 1, "end": 10},
-    payload={"content": "conflicting content"},
-    author="agent-2"
-)
-result2 = editor.execute_operation(operation2)
-# Will fail with "File is locked by another process"
-```
+2. **Execute Batch Operations**
+   ```bash
+   cage files batch operations.json
+   ```
 
-### Error Handling
+3. **Commit All Changes**
+   ```bash
+   cage files commit "refactor: improve logging and error handling"
+   ```
 
-#### Handling Lock Conflicts
-```python
-result = editor.execute_operation(operation)
-if not result.ok:
-    if "locked by another process" in result.error:
-        print("File is busy, retrying later...")
-    else:
-        print(f"Operation failed: {result.error}")
-```
+## Locking System
 
-#### Handling Stale Preimages
-```python
-# Check for stale preimage conflicts
-if not result.ok and "Stale preimage detected" in result.error:
-    # Re-read file and retry with updated hash
-    read_op = FileOperation(operation=OperationType.GET, path=operation.path)
-    read_result = editor.execute_operation(read_op)
-    # Use new hash for retry
-    operation.payload["pre_hash"] = read_result.pre_hash
-    result = editor.execute_operation(operation)
-```
+### File Locking
+
+The Editor Tool implements a sophisticated locking system:
+
+- **In-Memory Locks**: Fast, lightweight locking mechanism
+- **Conflict Detection**: Prevents concurrent modifications
+- **Automatic Cleanup**: Locks expire after timeout
+- **Lock Validation**: Ensures operation consistency
+
+### Lock Lifecycle
+
+1. **Acquire Lock**: Operation requests file lock
+2. **Validate Content**: Check file hasn't changed
+3. **Execute Operation**: Perform the file modification
+4. **Release Lock**: Free the lock for other operations
+
+### Conflict Resolution
+
+**Stale Preimage Detection**:
+- Operations include file hash validation
+- Conflicts detected if file changed during operation
+- Automatic retry with updated content
+
+**Lock Timeout**:
+- Locks expire after 30 seconds (configurable)
+- Prevents deadlocks from failed operations
+- Automatic cleanup of stale locks
+
+## Integration Points
+
+### With Phase 1 (Task Management)
+- Operations tracked in task provenance
+- Task-based change management
+- Progress tracking through file operations
+
+### With Phase 3 (Git Integration)
+- Automatic staging of changes
+- Commit integration with file operations
+- Change tracking and history
+
+### With Phase 4 (CrewAI Integration)
+- AI agents can perform file operations
+- Structured operations for AI workflows
+- Automated file modification capabilities
 
 ## Configuration
 
 ### Environment Variables
-- `REPO_PATH`: Repository root path for file operations
-- `POD_TOKEN`: Authentication token for API access
-- `LOG_LEVEL`: Logging level (DEBUG, INFO, WARNING, ERROR)
 
-### Lock Manager Configuration
-```python
-# Custom lock TTL (default: 300 seconds)
-lock_manager = FileLockManager(lock_ttl=600)  # 10 minutes
-editor = EditorTool(repo_path, lock_manager)
+```bash
+# File operation settings
+export EDITOR_LOCK_TIMEOUT=30
+export EDITOR_MAX_FILE_SIZE=10485760  # 10MB
+export EDITOR_BACKUP_ENABLED=true
+
+# Repository settings
+export REPO_PATH="/path/to/repository"
+export EDITOR_WORKSPACE="/path/to/workspace"
 ```
 
-### Repository Path
-```python
-# Set repository root
-editor = EditorTool(Path("/path/to/repo"))
+### Lock Configuration
 
-# Or use current directory
-editor = EditorTool(Path.cwd())
+```python
+# In editor_tool.py
+LOCK_TIMEOUT = 30  # seconds
+MAX_RETRIES = 3
+RETRY_DELAY = 1  # seconds
 ```
 
-## Features
+## Error Handling
 
-### Selector System
+### Common Error Scenarios
 
-The Editor Tool supports multiple ways to target content:
+1. **File Not Found**
+   ```
+   Error: File 'src/nonexistent.py' not found
+   Solution: Check file path and ensure file exists
+   ```
 
-#### Region Selectors
-- **Line-based**: Target specific line ranges
-- **1-based indexing**: User-friendly line numbers
-- **End-of-file support**: Use -1 for end of file
-- **Overflow protection**: Automatically clamped to file bounds
+2. **Lock Conflict**
+   ```
+   Error: File is locked by another operation
+   Solution: Wait for lock to be released or retry operation
+   ```
 
-#### Regex Selectors
-- **Pattern matching**: Regular expression support
-- **Flag support**: Case sensitivity, multiline, etc.
-- **Multiple matches**: All matches are processed
-- **Capture groups**: Support for replacement patterns
+3. **Stale Preimage**
+   ```
+   Error: File content has changed during operation
+   Solution: Retry operation with updated content
+   ```
 
-### Content Validation
+4. **Invalid Selector**
+   ```
+   Error: Invalid selector mode 'invalid'
+   Solution: Use supported selector modes: region, regex, context
+   ```
 
-- **Hash verification**: SHA256 content hashing
-- **Stale detection**: Pre-image validation
-- **Change tracking**: Before/after content comparison
-- **Diff generation**: Unified diff format
+### Error Recovery
 
-### Multi-Agent Safety
+- Automatic retry for transient errors
+- Detailed error messages for debugging
+- Operation rollback on failure
+- Lock cleanup on errors
 
-- **Cooperative locking**: Agents respect existing locks
-- **Lock expiration**: Automatic cleanup of stale locks
-- **Conflict detection**: Stale preimage checking
-- **Fail-fast**: Immediate failure on conflicts
+## Performance Considerations
+
+### File Size Limits
+- Maximum file size: 10MB (configurable)
+- Large files processed in chunks
+- Memory-efficient content handling
+
+### Lock Performance
+- In-memory locks for speed
+- Minimal overhead for lock operations
+- Efficient conflict detection
+
+### Batch Operations
+- Optimized for multiple operations
+- Reduced lock acquisition overhead
+- Atomic batch execution
+
+## Testing
+
+### Unit Tests
+
+```bash
+# Run Editor Tool tests
+python -m pytest tests/unit/test_editor_tool.py -v
+
+# Run specific test
+python -m pytest tests/unit/test_editor_tool.py::TestEditorTool::test_insert_operation -v
+```
+
+### Integration Tests
+
+```bash
+# Run file operation integration tests
+python -m pytest tests/integration/test_file_operations.py -v
+```
+
+## Security Considerations
+
+### File Access Control
+- Repository-based access control
+- Path validation and sanitization
+- Prevention of directory traversal
+
+### Operation Validation
+- Content validation before operations
+- Malicious content detection
+- Safe file path handling
 
 ### Audit Trail
+- All operations logged with timestamps
+- Author tracking for all changes
+- Correlation ID for operation tracing
 
-- **Operation logging**: Complete history in task system
-- **Author tracking**: Who made changes
-- **Intent documentation**: Human-readable operation purpose
-- **Correlation IDs**: Link operations to tasks
+## Troubleshooting
+
+### Debug Mode
+
+Enable verbose logging:
+
+```bash
+# Set environment variable
+export EDITOR_DEBUG=1
+
+# Or use debug flag
+cage files get src/auth.py --debug
+```
+
+### Common Issues
+
+1. **Operations Failing**
+   - Check file permissions
+   - Verify file exists and is readable
+   - Check for lock conflicts
+
+2. **Poor Performance**
+   - Monitor file sizes
+   - Check for excessive lock contention
+   - Review operation complexity
+
+3. **Content Issues**
+   - Validate selector syntax
+   - Check file encoding
+   - Verify content format
 
 ## Future Enhancements
 
 ### Planned Features
+- AST-based selectors for code operations
+- Advanced conflict resolution strategies
+- Real-time collaboration support
+- Enhanced batch operation capabilities
 
-#### Advanced Selectors
-- **AST selectors**: Parse and target code structures
-- **Semantic selectors**: Target by meaning, not syntax
-- **Multi-file selectors**: Cross-file operations
-- **Template selectors**: Reusable selector patterns
-
-#### Enhanced Locking
-- **Distributed locks**: Redis-based locking for multi-pod environments
-- **Lock priorities**: Priority-based lock acquisition
-- **Lock inheritance**: Sub-operation lock sharing
-- **Deadlock detection**: Automatic deadlock resolution
-
-#### Improved Collaboration
-- **Real-time updates**: WebSocket-based notifications
-- **Conflict resolution**: Automatic merge capabilities
-- **Branch awareness**: Git branch-aware operations
-- **Change suggestions**: Collaborative editing features
-
-#### Performance Optimization
-- **Caching**: Content caching for repeated operations
-- **Batch operations**: Multiple operations in single transaction
-- **Async operations**: Non-blocking file operations
-- **Streaming**: Large file streaming support
-
-### Integration Roadmap
-
-#### Git Integration (Phase 3)
-- **Commit tracking**: Automatic commit on changes
-- **Branch operations**: Branch-aware file operations
-- **Merge integration**: Conflict resolution during merges
-- **History integration**: Git history in audit trails
-
-#### CrewAI Integration (Phase 4)
-- **Agent workflows**: Automated file operations
-- **Planning integration**: Task-based operation planning
-- **Execution tracking**: Agent operation monitoring
-- **Coordination**: Multi-agent operation coordination
-
-#### RAG System Integration (Phase 5)
-- **Content indexing**: File content for semantic search
-- **Context-aware operations**: AI-informed file changes
-- **Knowledge integration**: Documentation-aware editing
-- **Search integration**: Find files by content similarity
-
-## Troubleshooting
-
-### Common Issues
-
-#### Lock Timeout Errors
-```
-Error: File is locked by another process
-```
-**Solution**: Wait for lock to expire or release the lock manually.
-
-#### Stale Preimage Errors
-```
-Error: Stale preimage detected - file was modified by another process
-```
-**Solution**: Re-read file content and retry with updated hash.
-
-#### Selector Errors
-```
-Error: Invalid selector format
-```
-**Solution**: Ensure selector follows correct JSON format or use region syntax.
-
-#### Permission Errors
-```
-Error: Permission denied
-```
-**Solution**: Check file permissions and repository access rights.
-
-### Debug Mode
-
-Enable detailed logging:
-```bash
-export LOG_LEVEL=DEBUG
-python -m src.cli.editor_cli get src/example.py --verbose
-```
-
-### Lock Management
-
-List active locks:
-```bash
-python -m src.cli.editor_cli locks
-```
-
-Clean up expired locks:
-```python
-editor.lock_manager.cleanup_expired_locks()
-```
-
-## Contributing
-
-### Adding New Features
-1. Update data models in `src/cage/editor_tool.py`
-2. Add API endpoints in `src/api/main.py`
-3. Add CLI commands in `src/cli/editor_cli.py`
-4. Add comprehensive tests
-5. Update documentation
-
-### Code Style
-- Follow PEP 8 for Python code
-- Use type hints for all functions
-- Add docstrings for all public methods
-- Include comprehensive error handling
-
-## License
-
-This Editor Tool system is part of the Cage project and follows the same licensing terms.
+### Extension Points
+- Custom selector types
+- Plugin system for operation types
+- Integration with external editors
+- Advanced content validation rules

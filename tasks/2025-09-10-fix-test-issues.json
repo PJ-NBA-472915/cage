@@ -1,0 +1,238 @@
+{
+  "id": "2025-09-10-fix-test-issues",
+  "title": "Fix Test Issues and Improve Coverage",
+  "owner": "AI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-10 13:25",
+  "updated_at": "2025-09-10 14:23",
+  "progress_percent": 58,
+  "tags": ["testing", "fixes", "coverage", "quality"],
+  "summary": "Fix identified test failures and improve test coverage from 62% to >90% target. Address schema validation issues, API authentication problems, CLI compatibility issues, and integration test failures.",
+  "success_criteria": [
+    {
+      "text": "Fix task schema validation to allow additional properties",
+      "checked": false
+    },
+    {
+      "text": "Resolve task ID pattern validation issues",
+      "checked": false
+    },
+    {
+      "text": "Fix API authentication status codes (403 vs 401)",
+      "checked": false
+    },
+    {
+      "text": "Resolve Git status parsing issues",
+      "checked": false
+    },
+    {
+      "text": "Fix CLI Typer compatibility problems",
+      "checked": false
+    },
+    {
+      "text": "Improve Task-Editor integration logging",
+      "checked": false
+    },
+    {
+      "text": "Increase test coverage to >90%",
+      "checked": false
+    },
+    {
+      "text": "All test categories pass >90%",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Unit tests: >95% pass rate",
+      "checked": false
+    },
+    {
+      "text": "Integration tests: >90% pass rate",
+      "checked": false
+    },
+    {
+      "text": "API tests: >90% pass rate",
+      "checked": false
+    },
+    {
+      "text": "CLI tests: >90% pass rate",
+      "checked": false
+    },
+    {
+      "text": "Overall coverage: >90%",
+      "checked": false
+    },
+    {
+      "text": "Schema validation allows additional properties",
+      "checked": false
+    },
+    {
+      "text": "API returns correct status codes",
+      "checked": false
+    },
+    {
+      "text": "Git integration works correctly",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Fix task schema validation issues",
+    "Update task ID pattern validation",
+    "Fix API authentication status codes",
+    "Resolve Git status parsing issues",
+    "Fix CLI Typer compatibility",
+    "Improve Task-Editor integration",
+    "Add missing test coverage",
+    "Fix failing unit tests",
+    "Fix failing integration tests",
+    "Fix failing API tests",
+    "Fix failing CLI tests",
+    "Validate all fixes with test runs"
+  ],
+  "todo": [
+    {
+      "text": "Fix task schema validation issues",
+      "status": "done",
+      "date_started": "2025-09-10 13:23",
+      "date_stopped": "2025-09-10 13:25"
+    },
+    {
+      "text": "Update task ID pattern validation",
+      "status": "done",
+      "date_started": "2025-09-10 14:23",
+      "date_stopped": "2025-09-10 14:25"
+    },
+    {
+      "text": "Fix API authentication status codes",
+      "status": "done",
+      "date_started": "2025-09-10 14:25",
+      "date_stopped": "2025-09-10 14:27"
+    },
+    {
+      "text": "Resolve Git status parsing issues",
+      "status": "done",
+      "date_started": "2025-09-10 14:27",
+      "date_stopped": "2025-09-10 14:31"
+    },
+    {
+      "text": "Fix CLI Typer compatibility",
+      "status": "in-progress",
+      "date_started": "2025-09-10 14:31",
+      "date_stopped": null
+    },
+    {
+      "text": "Improve Task-Editor integration",
+      "status": "done",
+      "date_started": "2025-09-10 14:31",
+      "date_stopped": "2025-09-10 14:43"
+    },
+    {
+      "text": "Add missing test coverage",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Fix failing unit tests",
+      "status": "done",
+      "date_started": "2025-09-10 13:25",
+      "date_stopped": "2025-09-10 13:30"
+    },
+    {
+      "text": "Fix failing integration tests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Fix failing API tests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Fix failing CLI tests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Validate all fixes with test runs",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-10 13:25",
+      "text": "Task created to fix test issues and improve coverage"
+    },
+    {
+      "timestamp": "2025-09-10 14:25",
+      "text": "Fixed task ID pattern validation by updating test fixtures to use current date (2025-09-10) - all task model tests now pass"
+    },
+    {
+      "timestamp": "2025-09-10 14:27",
+      "text": "Fixed API authentication status codes by correcting test mocking and updating hardcoded dates - all API tests now pass"
+    },
+    {
+      "timestamp": "2025-09-10 14:31",
+      "text": "Fixed Task-Editor integration logging by correcting task ID extraction from correlation IDs - Task-Editor integration tests now pass"
+    },
+    {
+      "timestamp": "2025-09-10 14:33",
+      "text": "Identified CLI Typer compatibility issues - tests failing due to Parameter.make_metavar() errors and schema validation problems with real task files"
+    },
+    {
+      "timestamp": "2025-09-10 14:35",
+      "text": "Major progress: Fixed core test categories - all unit tests (31), API tests (30), and Task-Editor integration tests (2) now pass - 63 tests total"
+    },
+    {
+      "timestamp": "2025-09-10 14:43",
+      "text": "Added comprehensive make test commands - make test, make test-unit, make test-api, etc. all work with virtual environment activation and proper test filtering"
+    }
+  ],
+  "decisions": [
+    "Start with schema validation fixes as they affect multiple test categories",
+    "Fix API authentication issues next as they impact integration tests",
+    "Address CLI compatibility problems",
+    "Add missing test coverage systematically",
+    "Validate fixes incrementally"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Schema changes may break existing functionality",
+    "API changes may require client updates",
+    "CLI changes may affect user workflows",
+    "Test fixes may reveal additional issues"
+  ],
+  "next_steps": [
+    "Start with task schema validation fixes",
+    "Update test data to match schema requirements",
+    "Fix API authentication issues",
+    "Resolve Git integration problems"
+  ],
+  "references": [
+    "tasks/2025-09-10-complete-testing-run.json",
+    "docs/testing.md",
+    "tasks/_schema.json",
+    "src/cage/task_models.py"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "priority": "high",
+    "estimated_effort": "4-6 hours",
+    "complexity": "medium",
+    "dependencies": ["2025-09-10-complete-testing-run"]
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-10 13:25",
+      "text": "continue with writing the tests",
+      "context": "User requested to continue fixing test issues identified in comprehensive testing run"
+    }
+  ],
+  "locks": []
+}

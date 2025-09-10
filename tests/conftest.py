@@ -39,6 +39,7 @@ def temp_tasks_dir(temp_dir):
     # Create schema file
     schema = {
         "type": "object",
+        "additionalProperties": True,
         "properties": {
             "id": {"type": "string"},
             "title": {"type": "string"},
@@ -81,7 +82,14 @@ def temp_tasks_dir(temp_dir):
 @pytest.fixture
 def task_manager(temp_tasks_dir):
     """Create a TaskManager instance for testing."""
-    return TaskManager(temp_tasks_dir)
+    return TaskManager(os.path.join(temp_tasks_dir, "tasks"))
+
+
+@pytest.fixture
+def cli_task_manager_patch(temp_tasks_dir):
+    """Create a patch for CLI task manager to use temporary directory."""
+    tasks_dir = os.path.join(temp_tasks_dir, "tasks")
+    return patch('src.cli.main.task_manager', TaskManager(tasks_dir))
 
 
 @pytest.fixture
@@ -100,12 +108,12 @@ def file_lock_manager():
 def sample_task_data():
     """Sample task data for testing."""
     return {
-        "id": "2025-09-08-test-task",
+        "id": "2025-09-10-test-task",
         "title": "Test Task",
         "owner": "test-user",
         "status": "in-progress",
-        "created_at": "2025-09-08T10:00:00",
-        "updated_at": "2025-09-08T10:00:00",
+        "created_at": "2025-09-10T10:00:00",
+        "updated_at": "2025-09-10T10:00:00",
         "progress_percent": 50,
         "tags": ["test", "example"],
         "summary": "A test task for unit testing",
@@ -126,13 +134,13 @@ def sample_task_data():
             {
                 "text": "Set up test environment",
                 "status": "done",
-                "date_started": "2025-09-08T10:00:00",
-                "date_stopped": "2025-09-08T10:30:00"
+                "date_started": "2025-09-10T10:00:00",
+                "date_stopped": "2025-09-10T10:30:00"
             },
             {
                 "text": "Write test cases",
-                "status": "in-progress",
-                "date_started": "2025-09-08T10:30:00",
+                "status": "not-started",
+                "date_started": "2025-09-10T10:30:00",
                 "date_stopped": None
             },
             {
@@ -144,11 +152,11 @@ def sample_task_data():
         ],
         "changelog": [
             {
-                "timestamp": "2025-09-08T10:00:00",
+                "timestamp": "2025-09-10T10:00:00",
                 "text": "Task created"
             },
             {
-                "timestamp": "2025-09-08T10:30:00",
+                "timestamp": "2025-09-10T10:30:00",
                 "text": "Completed test environment setup"
             }
         ],
@@ -182,7 +190,7 @@ def sample_tasks(sample_task_data):
     
     # Task 1: In progress
     task1 = sample_task_data.copy()
-    task1["id"] = "2025-09-08-task-1"
+    task1["id"] = "2025-09-10-task-1"
     task1["title"] = "Task 1"
     task1["status"] = "in-progress"
     task1["progress_percent"] = 50
@@ -190,28 +198,28 @@ def sample_tasks(sample_task_data):
     
     # Task 2: Completed
     task2 = sample_task_data.copy()
-    task2["id"] = "2025-09-08-task-2"
+    task2["id"] = "2025-09-10-task-2"
     task2["title"] = "Task 2"
     task2["status"] = "done"
     task2["progress_percent"] = 100
-    task2["updated_at"] = "2025-09-08T09:00:00"
+    task2["updated_at"] = "2025-09-10T09:00:00"
     task2["todo"] = [
         {
             "text": "Complete task",
             "status": "done",
-            "date_started": "2025-09-08T08:00:00",
-            "date_stopped": "2025-09-08T09:00:00"
+            "date_started": "2025-09-10T08:00:00",
+            "date_stopped": "2025-09-10T09:00:00"
         }
     ]
     tasks.append(task2)
     
     # Task 3: Planned
     task3 = sample_task_data.copy()
-    task3["id"] = "2025-09-08-task-3"
+    task3["id"] = "2025-09-10-task-3"
     task3["title"] = "Task 3"
     task3["status"] = "planned"
     task3["progress_percent"] = 0
-    task3["updated_at"] = "2025-09-08T08:00:00"
+    task3["updated_at"] = "2025-09-10T08:00:00"
     task3["todo"] = [
         {
             "text": "Start task",

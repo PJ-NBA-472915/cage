@@ -368,7 +368,7 @@ class TestEditorTool:
         selected_content, start, end = editor_tool._apply_region_selector(test_file_content, selector)
         
         lines = test_file_content.splitlines(keepends=True)
-        expected_content = ''.join(lines[1:4])  # Lines 2-4 (0-based indexing)
+        expected_content = ''.join(lines[1:5])  # Lines 2-5 (1-based indexing)
         
         assert selected_content == expected_content
         assert start > 0

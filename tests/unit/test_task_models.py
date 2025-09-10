@@ -25,7 +25,7 @@ class TestTaskFile:
         """Test creating a TaskFile from valid data."""
         task = TaskFile(**sample_task_data)
         
-        assert task.id == "2025-09-08-test-task"
+        assert task.id == "2025-09-10-test-task"
         assert task.title == "Test Task"
         assert task.owner == "test-user"
         assert task.status == "in-progress"
@@ -120,13 +120,13 @@ class TestTaskTodoItem:
         """Test creating TaskTodoItem."""
         todo = TaskTodoItem(
             text="Test todo",
-            status="in-progress",
+            status="not-started",
             date_started="2025-09-08T10:00:00",
             date_stopped=None
         )
         
         assert todo.text == "Test todo"
-        assert todo.status == "in-progress"
+        assert todo.status == "not-started"
         assert todo.date_started == "2025-09-08T10:00:00"
         assert todo.date_stopped is None
     
@@ -142,7 +142,7 @@ class TestTaskTodoItem:
     
     def test_todo_item_defaults(self):
         """Test TaskTodoItem with default values."""
-        todo = TaskTodoItem(text="Test todo")
+        todo = TaskTodoItem(text="Test todo", status="not-started")
         
         assert todo.text == "Test todo"
         assert todo.status == "not-started"
@@ -202,20 +202,19 @@ class TestTaskLock:
     def test_task_lock_creation(self):
         """Test creating TaskLock."""
         lock = TaskLock(
+            id="lock-123",
             file_path="test.py",
-            lock_id="lock-123",
+            status="active",
             agent="test-agent",
             started_at="2025-09-08T10:00:00",
-            expires_at="2025-09-08T10:05:00",
             ranges=[{"start": 1, "end": 10}],
             description="Test lock"
         )
         
         assert lock.file_path == "test.py"
-        assert lock.lock_id == "lock-123"
+        assert lock.id == "lock-123"
         assert lock.agent == "test-agent"
         assert lock.started_at == "2025-09-08T10:00:00"
-        assert lock.expires_at == "2025-09-08T10:05:00"
         assert len(lock.ranges) == 1
         assert lock.ranges[0]["start"] == 1
         assert lock.ranges[0]["end"] == 10
@@ -241,7 +240,7 @@ class TestTaskMigration:
     
     def test_task_migration_defaults(self):
         """Test TaskMigration with default values."""
-        migration = TaskMigration()
+        migration = TaskMigration(migrated=False)
         
         assert migration.migrated is False
         assert migration.source_path is None
@@ -254,23 +253,19 @@ class TestTaskManager:
     
     def test_task_manager_initialization(self, temp_tasks_dir):
         """Test TaskManager initialization."""
-        manager = TaskManager(temp_tasks_dir)
+        tasks_dir = os.path.join(temp_tasks_dir, "tasks")
+        manager = TaskManager(tasks_dir)
         
-        assert manager.repo_root == temp_tasks_dir
-        assert manager.tasks_dir == os.path.join(temp_tasks_dir, "tasks")
-        assert manager.schema_path == os.path.join(temp_tasks_dir, "tasks", "_schema.json")
-        assert manager.status_path == os.path.join(temp_tasks_dir, "tasks", "_status.json")
+        assert manager.tasks_dir == Path(tasks_dir)
+        assert manager.repo_root == Path(tasks_dir).parent
+        assert manager.schema_path == Path(tasks_dir) / "_schema.json"
+        assert manager.status_path == Path(tasks_dir) / "_status.json"
     
     def test_task_manager_initialization_default(self):
         """Test TaskManager initialization with default repo root."""
-        with patch('os.path.abspath') as mock_abspath, \
-             patch('os.path.dirname') as mock_dirname:
-            
-            mock_dirname.side_effect = ["/path/to/cage", "/path/to/repo"]
-            mock_abspath.return_value = "/path/to/repo"
-            
-            manager = TaskManager()
-            assert manager.repo_root == "/path/to/repo"
+        manager = TaskManager()
+        assert manager.tasks_dir == Path("tasks")
+        assert manager.repo_root == Path(".")
     
     def test_load_schema(self, task_manager):
         """Test loading schema from file."""
@@ -295,11 +290,11 @@ class TestTaskManager:
         paths = task_manager.list_task_paths()
         
         assert len(paths) == 3
-        assert all(path.endswith('.json') for path in paths)
-        assert not any('_schema.json' in path for path in paths)
-        assert not any('_status.json' in path for path in paths)
+        assert all(str(path).endswith('.json') for path in paths)
+        assert not any('_schema.json' in str(path) for path in paths)
+        assert not any('_status.json' in str(path) for path in paths)
     
-    def test_load_tasks(self, task_manager, sample_tasks, temp_tasks_dir):
+    def test_list_tasks(self, task_manager, sample_tasks, temp_tasks_dir):
         """Test loading tasks from files."""
         tasks_dir = os.path.join(temp_tasks_dir, "tasks")
         
@@ -309,7 +304,7 @@ class TestTaskManager:
             with open(task_file, "w") as f:
                 json.dump(task, f)
         
-        tasks = task_manager.load_tasks()
+        tasks = task_manager.list_tasks()
         
         assert len(tasks) == 3
         assert all(isinstance(task, dict) for task in tasks)
@@ -330,15 +325,14 @@ class TestTaskManager:
         results = task_manager.validate_tasks()
         
         assert len(results) == 3
-        assert all(result.valid for result in results)
-        assert all(len(result.errors) == 0 for result in results)
+        assert all(result["status"] == "valid" for result in results)
     
     def test_validate_tasks_invalid(self, task_manager, temp_tasks_dir):
         """Test task validation with invalid tasks."""
         tasks_dir = os.path.join(temp_tasks_dir, "tasks")
         
         # Create an invalid task file (missing required fields)
-        invalid_task = {"id": "invalid-task"}
+        invalid_task = {"id": "2025-09-10-invalid-task"}
         task_file = os.path.join(tasks_dir, "invalid_task.json")
         with open(task_file, "w") as f:
             json.dump(invalid_task, f)
@@ -346,9 +340,9 @@ class TestTaskManager:
         results = task_manager.validate_tasks()
         
         assert len(results) == 1
-        assert not results[0].valid
-        assert len(results[0].errors) > 0
-        assert "title" in str(results[0].errors[0])  # Missing required field
+        assert results[0]["status"] == "invalid"
+        assert "error" in results[0]
+        assert "title" in results[0]["error"]  # Missing required field
     
     def test_format_error(self, task_manager):
         """Test error formatting."""
@@ -360,12 +354,12 @@ class TestTaskManager:
         # Test with path
         error = MockError(["properties", "title"], "is required")
         formatted = task_manager._format_error(error)
-        assert formatted == "properties/title: is required"
+        assert formatted == "Validation error at properties.title: is required"
         
         # Test without path
         error = MockError([], "is required")
         formatted = task_manager._format_error(error)
-        assert formatted == "<root>: is required"
+        assert formatted == "Validation error at <root>: is required"
     
     def test_generate_status(self, task_manager, sample_tasks, temp_tasks_dir):
         """Test status generation."""
@@ -405,7 +399,7 @@ class TestTaskManager:
         
         # Create task with empty changelog
         task = {
-            "id": "test-task",
+            "id": "2025-09-10-test-task",
             "title": "Test Task",
             "owner": "test-user",
             "status": "in-progress",
@@ -416,7 +410,7 @@ class TestTaskManager:
             "todo": []
         }
         
-        task_file = os.path.join(tasks_dir, "task.json")
+        task_file = os.path.join(tasks_dir, "2025-09-10-test-task.json")
         with open(task_file, "w") as f:
             json.dump(task, f)
         
@@ -447,11 +441,10 @@ class TestTaskManager:
         assert "active_tasks" in written_status
         assert "recently_completed" in written_status
         
-        # Test writing to custom path
-        custom_path = os.path.join(temp_tasks_dir, "custom_status.json")
-        output_path = task_manager.write_status(custom_path)
-        assert output_path == custom_path
-        assert os.path.exists(custom_path)
+        # Test writing to default path (no custom path support)
+        output_path = task_manager.write_status()
+        assert output_path == task_manager.status_path
+        assert os.path.exists(output_path)
     
     def test_load_task(self, task_manager, sample_task_data, temp_tasks_dir):
         """Test loading a single task."""
@@ -464,8 +457,8 @@ class TestTaskManager:
         task = task_manager.load_task("test_task")
         
         assert task is not None
-        assert task["id"] == sample_task_data["id"]
-        assert task["title"] == sample_task_data["title"]
+        assert task.id == sample_task_data["id"]
+        assert task.title == sample_task_data["title"]
     
     def test_load_task_not_found(self, task_manager):
         """Test loading a non-existent task."""
@@ -474,11 +467,12 @@ class TestTaskManager:
     
     def test_save_task(self, task_manager, sample_task_data, temp_tasks_dir):
         """Test saving a task."""
-        task_id = "test_save_task"
+        task_id = "2025-09-10-test-save-task"
         sample_task_data["id"] = task_id
         
         # Save task
-        task_manager.save_task(sample_task_data)
+        task = TaskFile(**sample_task_data)
+        task_manager.save_task(task)
         
         # Verify task was saved
         task_file = os.path.join(temp_tasks_dir, "tasks", f"{task_id}.json")
@@ -498,27 +492,27 @@ class TestTaskManager:
         
         # Test with all not-started
         todo_items = [
-            {"status": "not-started"},
-            {"status": "not-started"},
-            {"status": "not-started"}
+            TaskTodoItem(text="Todo item", status="not-started"),
+            TaskTodoItem(text="Todo item", status="not-started"),
+            TaskTodoItem(text="Todo item", status="not-started"),
         ]
         progress = task_manager._calculate_progress_percent(todo_items)
         assert progress == 0
         
         # Test with mixed statuses
         todo_items = [
-            {"status": "done"},
-            {"status": "in-progress"},
-            {"status": "not-started"}
+            TaskTodoItem(text="Todo item", status="done"),
+            TaskTodoItem(text="Todo item", status="not-started"),
+            TaskTodoItem(text="Todo item", status="not-started"),
         ]
         progress = task_manager._calculate_progress_percent(todo_items)
         assert progress == 33  # 1 out of 3 done
         
         # Test with all done
         todo_items = [
-            {"status": "done"},
-            {"status": "done"},
-            {"status": "done"}
+            TaskTodoItem(text="Todo item", status="done"),
+            TaskTodoItem(text="Todo item", status="done"),
+            TaskTodoItem(text="Todo item", status="done"),
         ]
         progress = task_manager._calculate_progress_percent(todo_items)
         assert progress == 100

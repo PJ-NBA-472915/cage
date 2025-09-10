@@ -307,33 +307,41 @@ class EditorTool:
             # Extract task ID from correlation ID if it follows the pattern
             # correlation_id format: "task-{task_id}-{operation_type}"
             if operation.correlation_id.startswith("task-"):
-                parts = operation.correlation_id.split("-", 2)
-                if len(parts) >= 2:
-                    task_id = parts[1]
-                    
-                    # Create changelog entry
-                    changelog_entry = {
-                        "timestamp": datetime.now().isoformat(),
-                        "text": f"File operation: {operation.operation.value} on {operation.path}",
-                        "lock_id": result.lock_id,
-                        "file_path": operation.path
-                    }
-                    
-                    # Add operation details to the changelog text
-                    if result.ok:
-                        changelog_entry["text"] += f" - Success (hash: {result.post_hash or result.pre_hash})"
-                        if result.diff:
-                            changelog_entry["text"] += f" - Diff: {result.diff[:100]}..."
-                    else:
-                        changelog_entry["text"] += f" - Failed: {result.error}"
-                    
-                    # Update task with changelog entry
-                    task = self.task_manager.load_task(task_id)
-                    if task:
-                        task.changelog.append(changelog_entry)
-                        task.updated_at = datetime.now().isoformat()
-                        self.task_manager.save_task(task)
-                        logger.info(f"Logged operation to task {task_id}")
+                # Remove "task-" prefix and find the last "-" to separate task_id from operation_type
+                remaining = operation.correlation_id[5:]  # Remove "task-"
+                last_dash = remaining.rfind("-")
+                if last_dash > 0:
+                    task_id = remaining[:last_dash]
+                else:
+                    task_id = remaining
+                
+                logger.debug(f"Extracted task_id: {task_id} from correlation_id: {operation.correlation_id}")
+                
+                # Create changelog entry
+                changelog_entry = {
+                    "timestamp": datetime.now().isoformat(),
+                    "text": f"File operation: {operation.operation.value} on {operation.path}",
+                    "lock_id": result.lock_id,
+                    "file_path": operation.path
+                }
+                
+                # Add operation details to the changelog text
+                if result.ok:
+                    changelog_entry["text"] += f" - Success (hash: {result.post_hash or result.pre_hash})"
+                    if result.diff:
+                        changelog_entry["text"] += f" - Diff: {result.diff[:100]}..."
+                else:
+                    changelog_entry["text"] += f" - Failed: {result.error}"
+                
+                # Update task with changelog entry
+                task = self.task_manager.load_task(task_id)
+                if task:
+                    task.changelog.append(changelog_entry)
+                    task.updated_at = datetime.now().isoformat()
+                    self.task_manager.save_task(task)
+                    logger.info(f"Logged operation to task {task_id}")
+                else:
+                    logger.warning(f"Task {task_id} not found for logging operation")
         
         except Exception as e:
             logger.warning(f"Failed to log operation to task system: {e}")

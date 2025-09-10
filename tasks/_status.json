@@ -1,21 +1,72 @@
 {
-  "active_tasks": [],
-  "recently_completed": [
+  "active_tasks": [
     {
-      "title": "Move manager module out of memory bank to root directory",
-      "status": "completed",
-      "progress_percent": 100,
-      "updated_at": "2025-08-28 09:00",
-      "latest_work": "Task marked as completed by user request.",
-      "remaining_todo": []
+      "id": "2025-09-08-workflow-test",
+      "title": "Workflow Test Task",
+      "status": "in-progress",
+      "progress_percent": 50,
+      "updated_at": "2025-09-10T16:09:47.325581",
+      "summary": "Test complete workflow",
+      "latest_work": ""
     },
     {
-      "title": "Consolidate docker-compose into single stack",
-      "status": "completed",
+      "id": "2025-09-10-cli-api-test",
+      "title": "CLI API Test Task",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-10T16:06:21.126772",
+      "summary": "Test CLI API consistency",
+      "latest_work": ""
+    },
+    {
+      "id": "2025-09-08-cli-api-test",
+      "title": "CLI API Test Task",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-10T14:27:34.099976",
+      "summary": "Test CLI API consistency",
+      "latest_work": ""
+    },
+    {
+      "id": "2025-09-10-complete-testing-run",
+      "title": "Complete Testing Run for Phases 1, 2, and 3",
+      "status": "in-progress",
       "progress_percent": 100,
-      "updated_at": "2025-08-28 09:00",
-      "latest_work": "Task marked as completed by user request.",
-      "remaining_todo": []
+      "updated_at": "2025-09-10 12:30",
+      "summary": "Execute a comprehensive testing suite to validate all functionality implemented in Phase 1 (Task File System), Phase 2 (Editor Tool), and Phase 3 (Git Integration). This includes unit tests, integration tests, API tests, CLI tests, and coverage reporting.",
+      "latest_work": "Completed comprehensive testing run - identified key issues requiring fixes"
+    }
+  ],
+  "recently_completed": [
+    {
+      "id": "2025-09-10-test-analysis",
+      "title": "Analyze Current Test Suite Value and Specification Alignment",
+      "status": "done",
+      "progress_percent": 100,
+      "updated_at": "2025-09-10T16:05",
+      "summary": "Comprehensive analysis of current test suite to assess value, specification alignment, and coverage of important functionality",
+      "latest_work": "Completed comprehensive analysis of test suite covering structure, specification alignment, quality assessment, gap identification, and recommendations",
+      "done_on": "2025-09-10T16:05"
+    },
+    {
+      "id": "2025-09-08-test-task",
+      "title": "Updated Task Title",
+      "status": "done",
+      "progress_percent": 100,
+      "updated_at": "2025-09-10T15:15:18.118022",
+      "summary": "A test task",
+      "latest_work": "",
+      "done_on": "2025-09-10T15:15:18.118022"
+    },
+    {
+      "id": "2025-09-10-fix-cors-errors",
+      "title": "Fix CORS Errors in API",
+      "status": "done",
+      "progress_percent": 100,
+      "updated_at": "2025-09-10 11:01",
+      "summary": "Fixed CORS errors by adding CORSMiddleware to the FastAPI application to allow cross-origin requests from frontend applications.",
+      "latest_work": "Fixed CORS errors by adding CORSMiddleware to FastAPI application",
+      "done_on": "2025-09-10 11:01"
     }
   ]
 }

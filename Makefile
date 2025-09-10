@@ -17,46 +17,115 @@ help:
 
 # Install dependencies
 install:
-	pip install -r requirements.txt
+	@echo "Setting up virtual environment and installing dependencies..."
+	@if [ ! -d .venv ]; then \
+		echo "Creating virtual environment..."; \
+		python3 -m venv .venv; \
+	fi
+	@echo "Activating virtual environment and installing dependencies..."
+	@. .venv/bin/activate && pip install --upgrade pip
+	@. .venv/bin/activate && pip install -r requirements.txt
+	@. .venv/bin/activate && pip install -r requirements-test.txt
+	@echo "✅ Installation complete! Virtual environment ready."
 
 # Development server
 dev:
 	@echo "Starting Cage development server..."
 	@echo "Make sure to set REPO_PATH environment variable"
-	python -m uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python -m uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 # Run tests
 test:
-	python tests/run_tests.py
+	@echo "Running complete test suite in virtual environment..."
+	@if [ -f .venv/bin/activate ]; then \
+		echo "Activating virtual environment..."; \
+		. .venv/bin/activate && python tests/run_tests.py; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 # Run specific test types
 test-unit:
-	python tests/run_tests.py unit -v
+	@echo "Running unit tests..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python tests/run_tests.py unit -v; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 test-integration:
-	python tests/run_tests.py integration -v
+	@echo "Running integration tests..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python tests/run_tests.py integration -v; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 test-api:
-	python tests/run_tests.py api -v
+	@echo "Running API tests..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python tests/run_tests.py api -v; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 test-cli:
-	python tests/run_tests.py cli -v
+	@echo "Running CLI tests..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python tests/run_tests.py cli -v; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 # Run tests with coverage
 test-coverage:
-	python tests/run_tests.py all -v --coverage
+	@echo "Running tests with coverage..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python tests/run_tests.py all -v --coverage; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 # Run tests in parallel
 test-parallel:
-	python tests/run_tests.py all -v --parallel
+	@echo "Running tests in parallel..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python tests/run_tests.py all -v --parallel; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 # Install test dependencies
 test-deps:
-	pip install -r requirements-test.txt
+	@echo "Installing test dependencies..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && pip install -r requirements-test.txt; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 # Run all tests with full reporting
 test-all:
-	python tests/run_tests.py all -v --coverage --parallel
+	@echo "Running all tests with full reporting..."
+	@if [ -f .venv/bin/activate ]; then \
+		. .venv/bin/activate && python tests/run_tests.py all -v --coverage --parallel; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
 
 # Clean up
 clean:

@@ -3,7 +3,7 @@
   "$id": "https://example.com/task.schema.json",
   "title": "Task File",
   "type": "object",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "required": [
     "id",
     "title",
@@ -153,104 +153,105 @@
     "issues_risks": { "type": "array", "items": { "type": "string" } },
     "next_steps": { "type": "array", "items": { "type": "string" } },
     "references": { "type": "array", "items": { "type": "string" } },
-"prompts": {
-  "type": "array",
-  "items": {
-    "type": "object",
-    "required": [
-      "timestamp",
-      "text",
-      "context"
-    ],
-    "properties": {
-      "timestamp": {
-        "type": "string"
-      },
-      "text": {
-        "type": "string"
-      },
-      "context": {
-        "type": "string"
+    "prompts": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "text",
+          "context"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "context": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
       }
     },
-    "additionalProperties": false
-  }
-},
-"locks": {
-  "description": "Cooperative file locks for multi-agent collaboration.",
-  "type": "array",
-  "items": {
-    "type": "object",
-    "additionalProperties": false,
-    "required": [
-      "id",
-      "file_path",
-      "ranges",
-      "description",
-      "agent",
-      "started_at",
-      "status"
-    ],
-    "properties": {
-      "id": {
-        "type": "string",
-        "minLength": 1
-      },
-      "file_path": {
-        "type": "string",
-        "minLength": 1
-      },
-      "ranges": {
-        "description": "One or more line ranges the agent intends to modify.",
-        "type": "array",
-        "minItems": 1,
-        "items": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "start_line",
-            "end_line"
-          ],
-          "properties": {
-            "start_line": {
-              "type": "integer",
-              "minimum": 1
-            },
-            "end_line": {
-              "type": "integer",
-              "minimum": 1
+    "locks": {
+      "description": "Cooperative file locks for multi-agent collaboration.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "file_path",
+          "ranges",
+          "description",
+          "agent",
+          "started_at",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ranges": {
+            "description": "One or more line ranges the agent intends to modify.",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "start_line",
+                "end_line"
+              ],
+              "properties": {
+                "start_line": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "end_line": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
             }
+          },
+          "description": {
+            "type": "string"
+          },
+          "agent": {
+            "type": "string",
+            "minLength": 1
+          },
+          "started_at": {
+            "type": "string"
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "released",
+              "aborted",
+              "stale"
+            ]
           }
         }
-      },
-      "description": {
-        "type": "string"
-      },
-      "agent": {
-        "type": "string",
-        "minLength": 1
-      },
-      "started_at": {
-        "type": "string"
-      },
-      "completed_at": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "status": {
-        "type": "string",
-        "enum": [
-          "active",
-          "released",
-          "aborted",
-          "stale"
-        ]
       }
-    }
-  }
-},
+    },
     "migration": {
       "type": "object",
       "required": ["migrated"],

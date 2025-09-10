@@ -155,10 +155,12 @@ class TaskFile(BaseModel):
 class TaskManager:
     """Task file management operations."""
     
-    def __init__(self, tasks_dir: Path = Path("tasks")):
+    def __init__(self, tasks_dir: Union[str, Path] = Path("tasks")):
         self.tasks_dir = Path(tasks_dir)
+        self.repo_root = self.tasks_dir.parent
         self.tasks_dir.mkdir(exist_ok=True)
         self.schema_path = self.tasks_dir / "_schema.json"
+        self.status_path = self.tasks_dir / "_status.json"
     
     def load_schema(self) -> Dict[str, Any]:
         """Load the JSON schema for validation."""
@@ -168,15 +170,15 @@ class TaskManager:
         else:
             raise FileNotFoundError("Task schema not found")
     
-    def validate_task(self, task_data: Dict[str, Any]) -> bool:
+    def validate_task(self, task_data: Dict[str, Any]) -> tuple[bool, str]:
         """Validate task data against schema."""
         try:
             schema = self.load_schema()
             jsonschema.validate(task_data, schema)
-            return True
+            return True, ""
         except (jsonschema.ValidationError, FileNotFoundError) as e:
             print(f"Validation error: {e}")
-            return False
+            return False, str(e)
     
     def load_task(self, task_id: str) -> Optional[TaskFile]:
         """Load a task file by ID."""
@@ -188,7 +190,8 @@ class TaskManager:
             with open(task_path, 'r') as f:
                 task_data = json.load(f)
             
-            if self.validate_task(task_data):
+            is_valid, _ = self.validate_task(task_data)
+            if is_valid:
                 return TaskFile(**task_data)
             else:
                 return None
@@ -201,7 +204,7 @@ class TaskManager:
         task_path = self.tasks_dir / f"{task.id}.json"
         try:
             with open(task_path, 'w') as f:
-                json.dump(task.dict(), f, indent=2)
+                json.dump(task.model_dump(), f, indent=2)
             return True
         except Exception as e:
             print(f"Error saving task {task.id}: {e}")
@@ -253,12 +256,19 @@ class TaskManager:
             task_id = task_file.stem
             task = self.load_task(task_id)
             if task:
+                # Get latest changelog entry
+                latest_work = ""
+                if task.changelog:
+                    latest_work = task.changelog[-1].text
+                
                 tasks.append({
                     "id": task.id,
                     "title": task.title,
                     "status": task.status,
                     "progress_percent": task.progress_percent,
-                    "updated_at": task.updated_at
+                    "updated_at": task.updated_at,
+                    "summary": task.summary,
+                    "latest_work": latest_work
                 })
         
         return sorted(tasks, key=lambda x: x["updated_at"], reverse=True)
@@ -274,6 +284,7 @@ class TaskManager:
             if task["status"] in ["planned", "in-progress", "blocked", "review"]:
                 active_tasks.append(task)
             elif task["status"] == "done":
+                task["done_on"] = task["updated_at"]
                 recently_completed.append(task)
         
         # Limit recently completed to 3 most recent
@@ -324,3 +335,52 @@ class TaskManager:
         if task:
             return task.provenance
         return None
+
+    def validate_tasks(self) -> List[Dict[str, Any]]:
+        """Validate all tasks in the tasks directory."""
+        results = []
+        for task_file in self.list_task_paths():
+            task_id = task_file.stem
+            try:
+                with open(task_file, 'r') as f:
+                    task_data = json.load(f)
+                is_valid, error_msg = self.validate_task(task_data)
+                if is_valid:
+                    results.append({"task_id": task_id, "status": "valid"})
+                else:
+                    results.append({"task_id": task_id, "status": "invalid", "error": error_msg})
+            except Exception as e:
+                results.append({"task_id": task_id, "status": "invalid", "error": str(e)})
+        return results
+
+    def list_task_paths(self) -> List[Path]:
+        """List all task file paths."""
+        return [p for p in self.tasks_dir.glob("*.json") if not p.name.startswith("_")]
+
+    def _format_error(self, error: jsonschema.ValidationError) -> str:
+        """Format a validation error message."""
+        path_str = '.'.join(str(p) for p in error.path) if error.path else '<root>'
+        return f"Validation error at {path_str}: {error.message}"
+
+    def generate_status(self) -> Dict[str, Any]:
+        """Generate status dictionary from tasks."""
+        return self.rebuild_status()
+
+    def write_status(self) -> Optional[Path]:
+        """Write the status file and return its path."""
+        status_data = self.rebuild_status()
+        status_path = self.tasks_dir / "_status.json"
+        try:
+            with open(status_path, 'w') as f:
+                json.dump(status_data, f, indent=2)
+            return status_path
+        except Exception:
+            return None
+
+    def _calculate_progress_percent(self, todo_items: List[TaskTodoItem]) -> int:
+        """Calculate progress percentage from todo items."""
+        if not todo_items:
+            return 0
+        completed = sum(1 for item in todo_items if item.status == 'done')
+        total = len(todo_items)
+        return int((completed / total) * 100) if total > 0 else 0

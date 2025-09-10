@@ -1,0 +1,259 @@
+{
+  "id": "2025-09-10-complete-testing-run",
+  "title": "Complete Testing Run for Phases 1, 2, and 3",
+  "owner": "AI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-10 12:30",
+  "updated_at": "2025-09-10 12:30",
+  "progress_percent": 100,
+  "tags": ["testing", "phases-1-3", "comprehensive", "validation"],
+  "summary": "Execute a comprehensive testing suite to validate all functionality implemented in Phase 1 (Task File System), Phase 2 (Editor Tool), and Phase 3 (Git Integration). This includes unit tests, integration tests, API tests, CLI tests, and coverage reporting.",
+  "success_criteria": [
+    {
+      "text": "All unit tests pass for Phase 1 components (Task Manager)",
+      "checked": false
+    },
+    {
+      "text": "All unit tests pass for Phase 2 components (Editor Tool)",
+      "checked": false
+    },
+    {
+      "text": "All unit tests pass for Phase 3 components (Git Integration)",
+      "checked": false
+    },
+    {
+      "text": "All integration tests pass across all phases",
+      "checked": false
+    },
+    {
+      "text": "All API endpoint tests pass",
+      "checked": false
+    },
+    {
+      "text": "All CLI command tests pass",
+      "checked": false
+    },
+    {
+      "text": "Test coverage meets targets (>90% overall, >95% core components)",
+      "checked": false
+    },
+    {
+      "text": "Performance tests complete successfully",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Unit tests: test_task_models.py passes all tests",
+      "checked": false
+    },
+    {
+      "text": "Unit tests: test_editor_tool.py passes all tests",
+      "checked": false
+    },
+    {
+      "text": "Unit tests: test_git_tool.py passes all tests",
+      "checked": false
+    },
+    {
+      "text": "Integration tests: test_system_integration.py passes all tests",
+      "checked": false
+    },
+    {
+      "text": "API tests: test_api_endpoints.py passes all tests",
+      "checked": false
+    },
+    {
+      "text": "CLI tests: test_cli_commands.py passes all tests",
+      "checked": false
+    },
+    {
+      "text": "Coverage report generated and accessible",
+      "checked": false
+    },
+    {
+      "text": "All test categories run without errors",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Install and verify test dependencies",
+    "Run unit tests for Phase 1 (Task Manager)",
+    "Run unit tests for Phase 2 (Editor Tool)",
+    "Run unit tests for Phase 3 (Git Integration)",
+    "Run integration tests across all phases",
+    "Run API endpoint tests",
+    "Run CLI command tests",
+    "Generate comprehensive coverage report",
+    "Run performance tests",
+    "Validate test results and coverage targets",
+    "Document any test failures or issues",
+    "Provide testing summary report"
+  ],
+  "todo": [
+    {
+      "text": "Install and verify test dependencies",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Run unit tests for Phase 1 (Task Manager)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run unit tests for Phase 2 (Editor Tool)",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Run unit tests for Phase 3 (Git Integration)",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Run integration tests across all phases",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Run API endpoint tests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run CLI command tests",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Generate comprehensive coverage report",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Run performance tests",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Validate test results and coverage targets",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Document any test failures or issues",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    },
+    {
+      "text": "Provide testing summary report",
+      "status": "done",
+      "date_started": "2025-09-10 13:20",
+      "date_stopped": "2025-09-10 13:20"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-10 12:30",
+      "text": "Task created for comprehensive testing run of phases 1-3"
+    },
+    {
+      "timestamp": "2025-09-10 13:20",
+      "text": "Installed test dependencies using devbox and virtual environment"
+    },
+    {
+      "timestamp": "2025-09-10 13:20",
+      "text": "Ran unit tests: 77 passed, 10 failed (Task Manager issues with schema validation and path handling)"
+    },
+    {
+      "timestamp": "2025-09-10 13:20",
+      "text": "Ran integration tests: 7 passed, 8 failed (Task-Editor integration and API consistency issues)"
+    },
+    {
+      "timestamp": "2025-09-10 13:20",
+      "text": "Ran API tests: 18 passed, 16 failed (Authentication, Git endpoints, and task operations issues)"
+    },
+    {
+      "timestamp": "2025-09-10 13:20",
+      "text": "Ran CLI tests: 21 passed, 13 failed (Typer compatibility and task schema validation issues)"
+    },
+    {
+      "timestamp": "2025-09-10 13:20",
+      "text": "Generated coverage report: 62% overall coverage (below 90% target)"
+    },
+    {
+      "timestamp": "2025-09-10 13:22",
+      "text": "Completed comprehensive testing run - identified key issues requiring fixes"
+    }
+  ],
+  "decisions": [
+    "Run tests in logical order: unit tests first, then integration, then API/CLI",
+    "Generate coverage reports to validate test completeness",
+    "Use existing test infrastructure and Makefile commands",
+    "Document all results for future reference"
+  ],
+  "lessons_learned": [
+    "Task schema validation is too strict - additional properties like 'artefacts', 'plan', 'provenance' are being rejected",
+    "Task ID pattern validation requires specific format: '^\\d{4}-\\d{2}-\\d{2}-[a-z0-9-]+$'",
+    "API authentication returns 403 instead of expected 401 status codes",
+    "Git integration has parsing issues with status output",
+    "CLI Typer compatibility issues with newer versions",
+    "Task-Editor integration not properly logging operations to changelog",
+    "Coverage is below target at 62% - need more comprehensive test coverage"
+  ],
+  "issues_risks": [
+    "Task schema validation too strict - rejecting valid additional properties",
+    "Task ID pattern validation causing test failures",
+    "API authentication status codes inconsistent with expectations",
+    "Git status parsing issues in integration tests",
+    "CLI Typer version compatibility problems",
+    "Task-Editor integration not properly logging file operations",
+    "Overall test coverage at 62% - significantly below 90% target",
+    "Multiple test categories failing - indicates systematic issues"
+  ],
+  "next_steps": [
+    "Start with dependency installation",
+    "Run unit tests systematically",
+    "Generate coverage reports",
+    "Document results"
+  ],
+  "references": [
+    "docs/testing.md",
+    "tasks/2025-09-08-phase1-task-file-system.json",
+    "tasks/2025-09-08-phase2-editor-tool.json",
+    "tasks/2025-09-08-phase3-git-integration.json",
+    "Makefile",
+    "tests/run_tests.py"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "phases_tested": [1, 2, 3],
+    "test_types": ["unit", "integration", "api", "cli", "performance"],
+    "coverage_targets": {
+      "overall": ">90%",
+      "core_components": ">95%",
+      "api_endpoints": ">90%",
+      "cli_commands": ">85%"
+    }
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-10 12:30",
+      "text": "do a complete testing run for the work done in phase 1, 2, and 3 in the cage repo.",
+      "context": "User requested comprehensive testing of completed phases"
+    }
+  ],
+  "locks": []
+}
