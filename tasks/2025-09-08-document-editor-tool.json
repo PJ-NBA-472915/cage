@@ -1,0 +1,115 @@
+{
+  "id": "2025-09-08-document-editor-tool",
+  "title": "Document Editor Tool Feature",
+  "owner": "assistant",
+  "status": "done",
+  "created_at": "2025-09-08 16:45",
+  "updated_at": "2025-09-08 21:04",
+  "progress_percent": 100,
+  "tags": ["documentation", "editor-tool", "features"],
+  "summary": "Create comprehensive documentation for the Editor Tool feature including architecture, API, CLI, and usage examples.",
+  "success_criteria": [
+    {"text": "Complete feature documentation created following established format", "checked": true},
+    {"text": "Documentation includes all major components and capabilities", "checked": true},
+    {"text": "Usage examples and API documentation provided", "checked": true},
+    {"text": "Features README updated to include Editor Tool", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Editor tool documentation file exists in docs/features/", "checked": true},
+    {"text": "Documentation follows the same structure as task-manager.md", "checked": true},
+    {"text": "All major classes and methods are documented", "checked": true},
+    {"text": "API endpoints and CLI commands are documented", "checked": true},
+    {"text": "Usage examples are practical and comprehensive", "checked": true},
+    {"text": "Features README is updated with Editor Tool entry", "checked": true}
+  ],
+  "subtasks": [
+    "Analyze Editor Tool implementation and features",
+    "Create comprehensive feature documentation",
+    "Update features README to include Editor Tool",
+    "Review and validate documentation completeness"
+  ],
+  "todo": [
+    {
+      "text": "Analyze Editor Tool implementation to understand features and capabilities",
+      "status": "done",
+      "date_started": "2025-09-08 16:45",
+      "date_stopped": "2025-09-08 17:00"
+    },
+    {
+      "text": "Create detailed feature documentation following established format",
+      "status": "done",
+      "date_started": "2025-09-08 17:00",
+      "date_stopped": "2025-09-08 20:30"
+    },
+    {
+      "text": "Update features README to include Editor Tool documentation",
+      "status": "done",
+      "date_started": "2025-09-08 20:30",
+      "date_stopped": "2025-09-08 20:45"
+    },
+    {
+      "text": "Review and validate documentation completeness",
+      "status": "done",
+      "date_started": "2025-09-08 20:45",
+      "date_stopped": "2025-09-08 21:04"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-08 16:45",
+      "text": "Task created for Editor Tool documentation"
+    },
+    {
+      "timestamp": "2025-09-08 17:00",
+      "text": "Completed analysis of Editor Tool implementation and features"
+    },
+    {
+      "timestamp": "2025-09-08 20:30",
+      "text": "Created comprehensive feature documentation with architecture, API, CLI, and usage examples"
+    },
+    {
+      "timestamp": "2025-09-08 20:45",
+      "text": "Updated features README to include Editor Tool documentation"
+    },
+    {
+      "timestamp": "2025-09-08 21:04",
+      "text": "Completed documentation review and validation - task completed successfully"
+    }
+  ],
+  "decisions": [
+    "Follow the same documentation structure as task-manager.md",
+    "Include comprehensive API and CLI documentation",
+    "Provide practical usage examples for all major features"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [
+    "Complete analysis of Editor Tool implementation",
+    "Create comprehensive documentation file",
+    "Update features README"
+  ],
+  "references": [
+    "src/cage/editor_tool.py",
+    "docs/features/task-manager.md",
+    "docs/features/README.md"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-09-08 16:45",
+      "text": "add a details docs/features entry for the edit tool",
+      "context": "User requested detailed documentation for the Editor Tool feature"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "phase": 2,
+    "complexity": "medium",
+    "estimated_effort": "2-3 hours"
+  }
+}

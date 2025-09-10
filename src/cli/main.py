@@ -12,11 +12,13 @@ from typing import Optional, List
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from src.cage.task_models import TaskManager, TaskFile
+from src.cage.git_tool import GitTool
 
 app = typer.Typer()
 
-# Initialize task manager
+# Initialize task manager and git tool
 task_manager = TaskManager(Path("tasks"))
+git_tool = GitTool(Path("."))
 
 def check_podman():
     """Checks if podman is running and connected."""
@@ -283,6 +285,195 @@ def tracker_rebuild():
         
     except Exception as e:
         print(f"❌ Error rebuilding tracker: {e}", file=sys.stderr)
+        sys.exit(1)
+
+# Git commands
+@app.command()
+def git_status():
+    """Get Git repository status."""
+    try:
+        result = git_tool.get_status()
+        
+        if result.success:
+            data = result.data
+            print(f"Current branch: {data.get('current_branch', 'unknown')}")
+            print(f"Commit count: {data.get('commit_count', '0')}")
+            print(f"Repository clean: {data.get('is_clean', False)}")
+            
+            if data.get('staged_files'):
+                print(f"\nStaged files ({len(data['staged_files'])}):")
+                for file in data['staged_files']:
+                    print(f"  + {file}")
+            
+            if data.get('unstaged_files'):
+                print(f"\nUnstaged files ({len(data['unstaged_files'])}):")
+                for file in data['unstaged_files']:
+                    print(f"  M {file}")
+            
+            if data.get('untracked_files'):
+                print(f"\nUntracked files ({len(data['untracked_files'])}):")
+                for file in data['untracked_files']:
+                    print(f"  ? {file}")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error getting Git status: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@app.command()
+def git_branches():
+    """List Git branches."""
+    try:
+        result = git_tool.get_branches()
+        
+        if result.success:
+            branches = result.data.get('branches', [])
+            if branches:
+                print("Branches:")
+                for branch in branches:
+                    print(f"  {branch}")
+            else:
+                print("No branches found")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error listing branches: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@app.command()
+def git_create_branch(
+    name: str = typer.Argument(..., help="Branch name")
+):
+    """Create a new Git branch."""
+    try:
+        result = git_tool.create_branch(name)
+        
+        if result.success:
+            print(f"✅ Created and switched to branch: {name}")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error creating branch: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@app.command()
+def git_commit(
+    message: str = typer.Argument(..., help="Commit message"),
+    author: Optional[str] = typer.Option(None, help="Commit author"),
+    task_id: Optional[str] = typer.Option(None, help="Task ID for provenance tracking")
+):
+    """Create a Git commit."""
+    try:
+        # Add files first
+        add_result = git_tool.add_files()
+        if not add_result.success:
+            print(f"❌ Error staging files: {add_result.error}", file=sys.stderr)
+            sys.exit(1)
+        
+        # Create commit
+        result = git_tool.commit(message, author, task_id)
+        
+        if result.success:
+            data = result.data
+            print(f"✅ Created commit: {data.get('sha', 'unknown')[:8]}")
+            print(f"   Message: {data.get('title', '')}")
+            
+            # Update task provenance if task_id provided
+            if task_id:
+                task_manager.update_task_provenance(task_id, data)
+                print(f"   Updated task provenance: {task_id}")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error creating commit: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@app.command()
+def git_push(
+    remote: str = typer.Option("origin", help="Remote name"),
+    branch: Optional[str] = typer.Option(None, help="Branch name")
+):
+    """Push changes to remote repository."""
+    try:
+        result = git_tool.push(remote, branch)
+        
+        if result.success:
+            print(f"✅ Pushed to {remote}/{branch or 'current branch'}")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error pushing: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@app.command()
+def git_pull(
+    remote: str = typer.Option("origin", help="Remote name"),
+    branch: Optional[str] = typer.Option(None, help="Branch name")
+):
+    """Pull changes from remote repository."""
+    try:
+        result = git_tool.pull(remote, branch)
+        
+        if result.success:
+            print(f"✅ Pulled from {remote}/{branch or 'current branch'}")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error pulling: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@app.command()
+def git_merge(
+    branch: str = typer.Argument(..., help="Branch to merge")
+):
+    """Merge a branch into current branch."""
+    try:
+        result = git_tool.merge_branch(branch)
+        
+        if result.success:
+            print(f"✅ Merged branch: {branch}")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error merging: {e}", file=sys.stderr)
+        sys.exit(1)
+
+@app.command()
+def git_history(
+    limit: int = typer.Option(10, help="Number of commits to show")
+):
+    """Show Git commit history."""
+    try:
+        result = git_tool.get_commit_history(limit)
+        
+        if result.success:
+            commits = result.data.get('commits', [])
+            if commits:
+                print(f"Commit history (last {len(commits)} commits):")
+                for commit in commits:
+                    print(f"  {commit['sha'][:8]} - {commit['title']} ({commit['author']})")
+            else:
+                print("No commits found")
+        else:
+            print(f"❌ Error: {result.error}", file=sys.stderr)
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f"❌ Error getting history: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -61,6 +61,40 @@ class TaskMigration(BaseModel):
     migrated_at: Optional[str] = None
 
 
+class TaskPlan(BaseModel):
+    """Task execution plan."""
+    title: str = ""
+    assumptions: List[str] = []
+    steps: List[Dict[str, Any]] = []
+    commit_message: str = ""
+
+
+class TaskCommit(BaseModel):
+    """Git commit information."""
+    sha: str
+    title: str
+    files_changed: int = 0
+    insertions: int = 0
+    deletions: int = 0
+
+
+class TaskProvenance(BaseModel):
+    """Task provenance tracking."""
+    branch_from: str = ""
+    work_branch: str = ""
+    commits: List[TaskCommit] = []
+    blobs_indexed: List[str] = []
+
+
+class TaskArtefacts(BaseModel):
+    """Task artefacts and outputs."""
+    run_id: str = ""
+    logs: List[str] = []
+    reports: List[str] = []
+    diff_bundles: List[str] = []
+    external: List[Dict[str, Any]] = []
+
+
 class TaskFile(BaseModel):
     """Complete task file model."""
     id: str = Field(..., pattern="^\\d{4}-\\d{2}-\\d{2}-[a-z0-9-]+$")
@@ -85,6 +119,9 @@ class TaskFile(BaseModel):
     prompts: List[TaskPrompt] = []
     locks: List[TaskLock] = []
     migration: TaskMigration = TaskMigration(migrated=False)
+    plan: TaskPlan = TaskPlan()
+    provenance: TaskProvenance = TaskProvenance()
+    artefacts: TaskArtefacts = TaskArtefacts()
     metadata: Dict[str, Any] = {}
 
     @field_validator('progress_percent')
@@ -255,3 +292,35 @@ class TaskManager:
         except Exception as e:
             print(f"Error saving status: {e}")
             return {}
+    
+    def update_task_provenance(self, task_id: str, commit_info: Dict[str, Any]) -> Optional[TaskFile]:
+        """Update task provenance with commit information."""
+        task = self.load_task(task_id)
+        if not task:
+            return None
+        
+        # Create commit object
+        commit = TaskCommit(
+            sha=commit_info.get("sha", ""),
+            title=commit_info.get("title", ""),
+            files_changed=commit_info.get("files_changed", 0),
+            insertions=commit_info.get("insertions", 0),
+            deletions=commit_info.get("deletions", 0)
+        )
+        
+        # Add to provenance commits
+        task.provenance.commits.insert(0, commit)  # Insert at beginning
+        
+        # Update timestamp
+        task.updated_at = datetime.now().isoformat()
+        
+        if self.save_task(task):
+            return task
+        return None
+    
+    def get_task_provenance(self, task_id: str) -> Optional[TaskProvenance]:
+        """Get task provenance information."""
+        task = self.load_task(task_id)
+        if task:
+            return task.provenance
+        return None

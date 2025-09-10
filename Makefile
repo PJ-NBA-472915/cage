@@ -27,7 +27,36 @@ dev:
 
 # Run tests
 test:
-	pytest tests/ -v
+	python tests/run_tests.py
+
+# Run specific test types
+test-unit:
+	python tests/run_tests.py unit -v
+
+test-integration:
+	python tests/run_tests.py integration -v
+
+test-api:
+	python tests/run_tests.py api -v
+
+test-cli:
+	python tests/run_tests.py cli -v
+
+# Run tests with coverage
+test-coverage:
+	python tests/run_tests.py all -v --coverage
+
+# Run tests in parallel
+test-parallel:
+	python tests/run_tests.py all -v --parallel
+
+# Install test dependencies
+test-deps:
+	pip install -r requirements-test.txt
+
+# Run all tests with full reporting
+test-all:
+	python tests/run_tests.py all -v --coverage --parallel
 
 # Clean up
 clean:

@@ -4,8 +4,10 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 
@@ -15,6 +17,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 # Import task management
 from src.cage.task_models import TaskManager, TaskFile
 from src.cage.editor_tool import EditorTool, FileOperation, OperationType
+from src.cage.git_tool import GitTool
 
 # Security
 security = HTTPBearer()
@@ -34,8 +37,18 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# Initialize task manager
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure this properly for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Initialize task manager and git tool
 task_manager = TaskManager(Path("tasks"))
+git_tool = GitTool(Path("."))
 
 # Configure logging
 LOG_DIR = "logs"
@@ -352,42 +365,188 @@ def edit_file(request: FileEditRequest, token: str = Depends(get_pod_token)):
         logger.error(f"Error in edit_file: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.post("/files/commit")
+def commit_file_changes(
+    message: str,
+    task_id: Optional[str] = None,
+    author: Optional[str] = None,
+    token: str = Depends(get_pod_token)
+):
+    """Commit all file changes using Editor Tool integration."""
+    try:
+        result = editor_tool.commit_changes(message, task_id, author)
+        
+        if result["success"]:
+            return {
+                "status": "success",
+                "message": "Changes committed successfully",
+                "data": result
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error committing file changes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Git endpoints
 @app.get("/git/status")
 def git_status(token: str = Depends(get_pod_token)):
-    """Get Git status."""
-    # TODO: Implement Git status
-    return {"status": "not_implemented"}
+    """Get Git repository status."""
+    try:
+        result = git_tool.get_status()
+        if result.success:
+            return {
+                "status": "success",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except Exception as e:
+        logger.error(f"Error getting Git status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/git/branch")
+def git_branches(token: str = Depends(get_pod_token)):
+    """Get Git branches."""
+    try:
+        result = git_tool.get_branches()
+        if result.success:
+            return {
+                "status": "success",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except Exception as e:
+        logger.error(f"Error getting Git branches: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/git/branch")
 def create_branch(request: GitBranchRequest, token: str = Depends(get_pod_token)):
-    """Create Git branch."""
-    # TODO: Implement Git branch creation
-    return {"status": "success", "branch": request.name}
+    """Create a new Git branch."""
+    try:
+        result = git_tool.create_branch(request.name)
+        if result.success:
+            return {
+                "status": "success",
+                "message": f"Created branch: {request.name}",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except Exception as e:
+        logger.error(f"Error creating branch: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/git/commit")
-def create_commit(request: GitCommitRequest, token: str = Depends(get_pod_token)):
-    """Create Git commit."""
-    # TODO: Implement Git commit
-    return {"status": "success", "message": "Commit not yet implemented"}
+def create_commit(request: GitCommitRequest, task_id: str = None, token: str = Depends(get_pod_token)):
+    """Create a Git commit."""
+    try:
+        # First add all changes
+        add_result = git_tool.add_files()
+        if not add_result.success:
+            raise HTTPException(status_code=400, detail=f"Failed to stage changes: {add_result.error}")
+        
+        # Create commit
+        result = git_tool.commit(request.message, task_id=task_id)
+        if result.success:
+            # Update task provenance if task_id provided
+            if task_id and result.data:
+                task_manager.update_task_provenance(task_id, result.data)
+            
+            # Emit event (placeholder for now)
+            logger.info(f"Emitted event: cage.git.commit.created for commit {result.data.get('sha', 'unknown')[:8]}")
+            
+            return {
+                "status": "success",
+                "message": "Commit created successfully",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating commit: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/git/push")
 def push_changes(request: GitPushRequest, token: str = Depends(get_pod_token)):
-    """Push changes to remote."""
-    # TODO: Implement Git push
-    return {"status": "success", "message": "Push not yet implemented"}
+    """Push changes to remote repository."""
+    try:
+        result = git_tool.push(request.remote, request.branch)
+        if result.success:
+            return {
+                "status": "success",
+                "message": f"Pushed to {request.remote}/{request.branch or 'current branch'}",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except Exception as e:
+        logger.error(f"Error pushing to remote: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/git/pull")
 def pull_changes(request: GitPullRequest, token: str = Depends(get_pod_token)):
-    """Pull changes from remote."""
-    # TODO: Implement Git pull
-    return {"status": "success", "message": "Pull not yet implemented"}
+    """Pull changes from remote repository."""
+    try:
+        result = git_tool.pull(request.remote, request.branch)
+        if result.success:
+            return {
+                "status": "success",
+                "message": f"Pulled from {request.remote}/{request.branch or 'current branch'}",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except Exception as e:
+        logger.error(f"Error pulling from remote: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/git/merge")
 def merge_branches(request: GitMergeRequest, token: str = Depends(get_pod_token)):
-    """Merge branches."""
-    # TODO: Implement Git merge
-    return {"status": "success", "message": "Merge not yet implemented"}
+    """Merge a branch into current branch."""
+    try:
+        result = git_tool.merge_branch(request.source)
+        if result.success:
+            return {
+                "status": "success",
+                "message": f"Merged branch: {request.source}",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except Exception as e:
+        logger.error(f"Error merging branch: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/git/history")
+def git_history(limit: int = 10, token: str = Depends(get_pod_token)):
+    """Get Git commit history."""
+    try:
+        result = git_tool.get_commit_history(limit)
+        if result.success:
+            return {
+                "status": "success",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+    except Exception as e:
+        logger.error(f"Error getting commit history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # RAG endpoints
 @app.post("/rag/query")

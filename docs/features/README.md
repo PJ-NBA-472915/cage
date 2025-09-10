@@ -18,29 +18,31 @@ Complete task file management system with JSON-based storage, validation, and tr
 
 **Status:** ✅ Complete (Phase 1)
 
+#### [Editor Tool System](editor-tool.md)
+Comprehensive file manipulation system with structured operations and multi-agent locking.
+
+**Key Components:**
+- Structured file operations (GET/INSERT/UPDATE/DELETE) with selector-based targeting
+- File locking mechanism for safe concurrent access
+- REST API endpoints for programmatic access
+- CLI tools for interactive file operations
+- Task system integration for operation tracking
+- Conflict detection and stale preimage checking
+
+**Status:** ✅ Complete (Phase 2)
+
 ### 🚧 Planned Features
 
-#### Editor Tool (Phase 2)
-Structured file operations with locking mechanism for multi-agent collaboration.
-
-**Planned Components:**
-- Internal Python functions for file operations (GET/INSERT/UPDATE/DELETE)
-- CLI tools for structured file editing
-- Basic locking mechanism for multi-agent collaboration
-- Integration with task management system
-
-**Status:** 🚧 Planned
-
-#### Git Integration (Phase 3)
+#### [Git Integration](git-integration.md)
 Comprehensive Git operations with commit trail tracking.
 
-**Planned Components:**
+**Key Components:**
 - Git operations as internal Python functions
 - Commit trail tracking in task provenance
 - Integration with Editor Tool functions
 - Branch management and merge operations
 
-**Status:** 📋 Planned
+**Status:** ✅ Complete (Phase 3)
 
 #### CrewAI Integration (Phase 4)
 AI agent workflows for planning and execution.

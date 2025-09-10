@@ -641,3 +641,102 @@ class EditorTool:
     def cleanup_expired_locks(self):
         """Clean up expired locks."""
         self.lock_manager.cleanup_expired_locks()
+    
+    def commit_changes(self, message: str, task_id: str = None, author: str = None) -> Dict[str, Any]:
+        """Commit all changes using Git integration."""
+        try:
+            # Import GitTool here to avoid circular imports
+            from .git_tool import GitTool
+            
+            git_tool = GitTool(self.repo_path)
+            
+            # Check if this is a Git repository
+            if not git_tool.is_git_repo():
+                return {
+                    "success": False,
+                    "error": "Not a Git repository - cannot commit changes"
+                }
+            
+            # Get current status
+            status_result = git_tool.get_status()
+            if not status_result.success:
+                return {
+                    "success": False,
+                    "error": f"Failed to get Git status: {status_result.error}"
+                }
+            
+            # Check if there are changes to commit
+            if status_result.data.get("is_clean", True):
+                return {
+                    "success": False,
+                    "error": "No changes to commit"
+                }
+            
+            # Add all changes
+            add_result = git_tool.add_files()
+            if not add_result.success:
+                return {
+                    "success": False,
+                    "error": f"Failed to stage changes: {add_result.error}"
+                }
+            
+            # Create commit
+            commit_result = git_tool.commit(message, author, task_id)
+            if not commit_result.success:
+                return {
+                    "success": False,
+                    "error": f"Failed to create commit: {commit_result.error}"
+                }
+            
+            # Update task provenance if task_id provided and task_manager available
+            if task_id and self.task_manager and commit_result.data:
+                self.task_manager.update_task_provenance(task_id, commit_result.data)
+                logger.info(f"Updated task provenance for {task_id}")
+            
+            return {
+                "success": True,
+                "commit_sha": commit_result.data.get("sha", ""),
+                "message": commit_result.data.get("title", ""),
+                "files_changed": commit_result.data.get("files_changed", 0),
+                "insertions": commit_result.data.get("insertions", 0),
+                "deletions": commit_result.data.get("deletions", 0)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error committing changes: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def get_git_status(self) -> Dict[str, Any]:
+        """Get Git repository status."""
+        try:
+            from .git_tool import GitTool
+            
+            git_tool = GitTool(self.repo_path)
+            
+            if not git_tool.is_git_repo():
+                return {
+                    "success": False,
+                    "error": "Not a Git repository"
+                }
+            
+            result = git_tool.get_status()
+            if result.success:
+                return {
+                    "success": True,
+                    "data": result.data
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": result.error
+                }
+                
+        except Exception as e:
+            logger.error(f"Error getting Git status: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
