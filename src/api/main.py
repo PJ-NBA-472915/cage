@@ -19,6 +19,7 @@ from src.cage.task_models import TaskManager, TaskFile
 from src.cage.editor_tool import EditorTool, FileOperation, OperationType
 from src.cage.git_tool import GitTool
 from src.cage.crew_tool import CrewTool
+from src.cage.rag_service import RAGService
 
 # Security
 security = HTTPBearer()
@@ -52,6 +53,9 @@ task_manager = TaskManager(Path("tasks"))
 git_tool = GitTool(Path("."))
 crew_tool = CrewTool(Path("."), task_manager)
 
+# Initialize RAG service
+rag_service = None
+
 # Configure logging
 LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "api.log")
@@ -83,6 +87,37 @@ def get_repository_path():
 
 # Initialize editor tool
 editor_tool = EditorTool(get_repository_path(), task_manager=task_manager)
+
+# Initialize RAG service on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize RAG service on startup."""
+    global rag_service
+    try:
+        db_url = os.environ.get("DATABASE_URL", "postgresql://postgres:password@localhost:5432/cage")
+        redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379")
+        openai_api_key = os.environ.get("OPENAI_API_KEY")
+        
+        if openai_api_key:
+            rag_service = RAGService(
+                db_url=db_url,
+                redis_url=redis_url,
+                openai_api_key=openai_api_key
+            )
+            await rag_service.initialize()
+            logger.info("RAG service initialized successfully")
+        else:
+            logger.warning("OPENAI_API_KEY not set, RAG service disabled")
+    except Exception as e:
+        logger.error(f"Failed to initialize RAG service: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown."""
+    global rag_service
+    if rag_service:
+        await rag_service.close()
+        logger.info("RAG service closed")
 
 # Pydantic models for new Cage specification
 
@@ -591,22 +626,81 @@ def git_history(limit: int = 10, token: str = Depends(get_pod_token)):
 
 # RAG endpoints
 @app.post("/rag/query")
-def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token)):
+async def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token)):
     """Query RAG system."""
-    # TODO: Implement RAG query
-    return {"hits": [], "message": "RAG not yet implemented"}
+    if not rag_service:
+        raise HTTPException(status_code=503, detail="RAG service not available")
+    
+    try:
+        results = await rag_service.query(
+            query_text=request.query,
+            top_k=request.top_k,
+            filters=request.filters
+        )
+        
+        # Convert results to response format
+        hits = []
+        for result in results:
+            hit = {
+                "content": result.content,
+                "metadata": {
+                    "path": result.metadata.path,
+                    "language": result.metadata.language,
+                    "commit_sha": result.metadata.commit_sha,
+                    "branch": result.metadata.branch,
+                    "chunk_id": result.metadata.chunk_id
+                },
+                "score": result.score,
+                "blob_sha": result.blob_sha
+            }
+            hits.append(hit)
+        
+        return {
+            "status": "success",
+            "hits": hits,
+            "total": len(hits),
+            "query": request.query
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in RAG query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/rag/reindex")
-def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_token)):
+async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_token)):
     """Reindex RAG system."""
-    # TODO: Implement RAG reindexing
-    return {"status": "success", "scope": request.scope}
+    if not rag_service:
+        raise HTTPException(status_code=503, detail="RAG service not available")
+    
+    try:
+        repo_path = get_repository_path()
+        result = await rag_service.reindex_repository(repo_path, request.scope)
+        
+        return {
+            "status": "success",
+            "scope": request.scope,
+            "indexed_files": result["indexed_files"],
+            "total_chunks": result["total_chunks"],
+            "blob_shas": result["blob_shas"]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in RAG reindex: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/rag/blobs/{sha}")
-def get_rag_blob(sha: str, token: str = Depends(get_pod_token)):
+async def get_rag_blob(sha: str, token: str = Depends(get_pod_token)):
     """Check if blob metadata is present."""
-    # TODO: Implement blob metadata check
-    return {"present": False, "sha": sha}
+    if not rag_service:
+        raise HTTPException(status_code=503, detail="RAG service not available")
+    
+    try:
+        result = await rag_service.check_blob_metadata(sha)
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error checking blob metadata: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Webhooks endpoint
 @app.post("/webhooks")
