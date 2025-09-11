@@ -224,6 +224,10 @@
     {
       "timestamp": "2025-09-11 11:00",
       "text": "Documentation moved to memory-bank/docs/features/ - rag-system-implementation.md, rag-system-verification.md, docker-containerization.md"
+    },
+    {
+      "timestamp": "2025-09-11 11:05",
+      "text": "Makefile refactored - replaced podman with docker commands, added comprehensive Docker Compose management, RAG system commands, database management, and convenience workflows"
     }
   ],
   "decisions": [

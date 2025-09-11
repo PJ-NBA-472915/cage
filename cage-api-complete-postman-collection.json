@@ -1,0 +1,699 @@
+{
+  "info": {
+    "name": "Cage Pod API - Complete Collection",
+    "description": "Comprehensive Postman collection for the Cage Pod-based Multi-Agent Repository Service API. This collection includes all endpoints for task management, crew operations, file editing, git operations, and RAG services.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string",
+      "description": "Base URL for the Cage API service"
+    },
+    {
+      "key": "pod_token",
+      "value": "your-pod-token-here",
+      "type": "string",
+      "description": "POD_TOKEN for API authentication"
+    },
+    {
+      "key": "task_id",
+      "value": "example-task-123",
+      "type": "string",
+      "description": "Example task ID for testing"
+    },
+    {
+      "key": "run_id",
+      "value": "example-run-456",
+      "type": "string",
+      "description": "Example crew run ID for testing"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{pod_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health & Status",
+      "description": "Health check and service information endpoints",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check service health and repository status. Returns current date, repository path, branch information, and last index time."
+          },
+          "response": []
+        },
+        {
+          "name": "About",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/about",
+              "host": ["{{base_url}}"],
+              "path": ["about"]
+            },
+            "description": "Get pod information including ID, version, capabilities, and repository details."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Task Management",
+      "description": "Task creation, updates, and management endpoints",
+      "item": [
+        {
+          "name": "Confirm Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task_id\": \"{{task_id}}\",\n  \"status\": \"confirmed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "confirm"]
+            },
+            "description": "Create or update a task file. If task exists, updates status; if not, creates new task with basic structure."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in-progress\",\n  \"progress_percent\": 50,\n  \"logs\": [\"Task started\", \"Working on implementation\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}"]
+            },
+            "description": "Update specific task fields. Supports updating status, progress_percent, and logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Task",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}"]
+            },
+            "description": "Retrieve full task JSON data including all fields and metadata."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks",
+              "host": ["{{base_url}}"],
+              "path": ["tasks"]
+            },
+            "description": "List all tasks in the system with their basic information."
+          },
+          "response": []
+        },
+        {
+          "name": "Rebuild Tracker",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tracker/rebuild",
+              "host": ["{{base_url}}"],
+              "path": ["tracker", "rebuild"]
+            },
+            "description": "Rebuild the task tracker from task files. Useful for refreshing status after external changes."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Crew Operations",
+      "description": "CrewAI integration endpoints for task planning and execution",
+      "item": [
+        {
+          "name": "Create Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task_id\": \"{{task_id}}\",\n  \"plan\": {\n    \"steps\": [\n      {\n        \"action\": \"analyze_code\",\n        \"description\": \"Review existing codebase\",\n        \"expected_output\": \"Code analysis report\"\n      },\n      {\n        \"action\": \"implement_feature\",\n        \"description\": \"Add new functionality\",\n        \"expected_output\": \"Working feature implementation\"\n      }\n    ],\n    \"agents\": [\"analyst\", \"developer\"],\n    \"timeline\": \"2 hours\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/plan",
+              "host": ["{{base_url}}"],
+              "path": ["crew", "plan"]
+            },
+            "description": "Create or update a task plan for crew execution. Defines steps, agents, and timeline for task completion."
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task_id\": \"{{task_id}}\",\n  \"run_id\": \"{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/apply",
+              "host": ["{{base_url}}"],
+              "path": ["crew", "apply"]
+            },
+            "description": "Execute a crew plan through the Editor Tool. Applies the planned changes to the codebase."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Crew Run Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/crew/runs/{{run_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["crew", "runs", "{{run_id}}"]
+            },
+            "description": "Get status, logs, and summary for a specific crew run execution."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Artefacts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file1.txt\": \"Content of file 1\",\n  \"file2.py\": \"def hello():\n    print('Hello World')\",\n  \"report.md\": \"# Analysis Report\\n\\nFindings...\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/runs/{{run_id}}/artefacts",
+              "host": ["{{base_url}}"],
+              "path": ["crew", "runs", "{{run_id}}", "artefacts"]
+            },
+            "description": "Upload files into .cage/runs/<run_id>/ directory for crew run artefacts."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "File Operations",
+      "description": "File editing and management through the Editor Tool",
+      "item": [
+        {
+          "name": "Edit File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"UPDATE\",\n  \"path\": \"src/main.py\",\n  \"selector\": {\n    \"type\": \"line_range\",\n    \"start_line\": 10,\n    \"end_line\": 15\n  },\n  \"payload\": {\n    \"content\": \"# Updated code section\\nprint('Hello World')\"\n  },\n  \"intent\": \"Add new functionality\",\n  \"dry_run\": false,\n  \"author\": \"developer\",\n  \"correlation_id\": \"{{task_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/files/edit",
+              "host": ["{{base_url}}"],
+              "path": ["files", "edit"]
+            },
+            "description": "Perform structured file operations with locking. Supports GET, INSERT, UPDATE, DELETE operations with selectors and payloads."
+          },
+          "response": []
+        },
+        {
+          "name": "Commit File Changes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Add new feature implementation\",\n  \"task_id\": \"{{task_id}}\",\n  \"author\": \"developer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/files/commit",
+              "host": ["{{base_url}}"],
+              "path": ["files", "commit"]
+            },
+            "description": "Commit all file changes using Editor Tool integration. Automatically stages and commits all modified files."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Git Operations",
+      "description": "Git repository management and version control operations",
+      "item": [
+        {
+          "name": "Get Git Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/git/status",
+              "host": ["{{base_url}}"],
+              "path": ["git", "status"]
+            },
+            "description": "Get current Git repository status including working directory state, staged changes, and branch information."
+          },
+          "response": []
+        },
+        {
+          "name": "List Branches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/git/branch",
+              "host": ["{{base_url}}"],
+              "path": ["git", "branch"]
+            },
+            "description": "List all Git branches (local and remote) with their current status."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Branch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"feature/new-feature\",\n  \"from_branch\": \"main\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/git/branch",
+              "host": ["{{base_url}}"],
+              "path": ["git", "branch"]
+            },
+            "description": "Create a new Git branch from the specified source branch."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Commit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Implement new feature\",\n  \"include_audits\": [\"task-123\"],\n  \"coauthors\": [\"developer@example.com\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/git/commit",
+              "host": ["{{base_url}}"],
+              "path": ["git", "commit"]
+            },
+            "description": "Create a Git commit with the specified message. Automatically stages all changes before committing."
+          },
+          "response": []
+        },
+        {
+          "name": "Push Changes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remote\": \"origin\",\n  \"branch\": \"main\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/git/push",
+              "host": ["{{base_url}}"],
+              "path": ["git", "push"]
+            },
+            "description": "Push changes to the remote repository. If no branch specified, pushes current branch."
+          },
+          "response": []
+        },
+        {
+          "name": "Pull Changes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remote\": \"origin\",\n  \"branch\": \"main\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/git/pull",
+              "host": ["{{base_url}}"],
+              "path": ["git", "pull"]
+            },
+            "description": "Pull changes from the remote repository. If no branch specified, pulls current branch."
+          },
+          "response": []
+        },
+        {
+          "name": "Merge Branches",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"feature/new-feature\",\n  \"target\": \"main\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/git/merge",
+              "host": ["{{base_url}}"],
+              "path": ["git", "merge"]
+            },
+            "description": "Merge a source branch into the target branch (or current branch if target not specified)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Commit History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/git/history?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["git", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of commits to return"
+                }
+              ]
+            },
+            "description": "Get Git commit history with optional limit on number of commits returned."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "RAG Service",
+      "description": "Retrieval-Augmented Generation service endpoints for code search and indexing",
+      "item": [
+        {
+          "name": "Query RAG System",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"How does authentication work in this codebase?\",\n  \"filters\": {\n    \"language\": \"python\",\n    \"path_pattern\": \"src/**/*.py\"\n  },\n  \"top_k\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/query",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "query"]
+            },
+            "description": "Query the RAG system for code search. Returns relevant code snippets with metadata and similarity scores. Requires OPENAI_API_KEY to be configured."
+          },
+          "response": []
+        },
+        {
+          "name": "Reindex RAG System",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scope\": \"all\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/rag/reindex",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "reindex"]
+            },
+            "description": "Reindex the RAG system. Scope can be 'repo', 'tasks', 'chat', or 'all'. Requires OPENAI_API_KEY to be configured."
+          },
+          "response": []
+        },
+        {
+          "name": "Check Blob Metadata",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rag/blobs/abc123def456",
+              "host": ["{{base_url}}"],
+              "path": ["rag", "blobs", "abc123def456"]
+            },
+            "description": "Check if blob metadata is present in the RAG system for a specific SHA hash."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "description": "Webhook registration and management (placeholder implementation)",
+      "item": [
+        {
+          "name": "Register Webhook",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/webhooks",
+              "host": ["{{base_url}}"],
+              "path": ["webhooks"]
+            },
+            "description": "Register webhook (placeholder implementation - not yet implemented)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set default values if not already configured",
+          "if (!pm.collectionVariables.get('pod_token')) {",
+          "    pm.collectionVariables.set('pod_token', 'your-pod-token-here');",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('task_id')) {",
+          "    pm.collectionVariables.set('task_id', 'example-task-' + Date.now());",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('run_id')) {",
+          "    pm.collectionVariables.set('run_id', 'example-run-' + Date.now());",
+          "}",
+          "",
+          "// Log current configuration",
+          "console.log('Using base URL:', pm.collectionVariables.get('base_url'));",
+          "console.log('Using task ID:', pm.collectionVariables.get('task_id'));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response validation",
+          "pm.test('Response time is less than 10000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+          "});",
+          "",
+          "pm.test('Response has valid JSON', function () {",
+          "    if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
+          "        pm.response.to.have.jsonBody();",
+          "    }",
+          "});",
+          "",
+          "// Check for common error patterns",
+          "pm.test('No server errors', function () {",
+          "    pm.expect(pm.response.code).to.not.be.oneOf([500, 502, 503, 504]);",
+          "});",
+          "",
+          "// Log response for debugging",
+          "console.log('Response Status:', pm.response.status);",
+          "console.log('Response Time:', pm.response.responseTime + 'ms');",
+          "",
+          "if (pm.response.json && pm.response.json()) {",
+          "    console.log('Response Body:', JSON.stringify(pm.response.json(), null, 2));",
+          "}"
+        ]
+      }
+    }
+  ]
+}
+
