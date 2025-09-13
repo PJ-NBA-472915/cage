@@ -1,0 +1,144 @@
+{
+  "id": "2025-09-12-fix-rag-reindexing-openai-api-key",
+  "title": "Fix RAG reindexing OpenAI API key authentication issue",
+  "owner": "AI Assistant",
+  "status": "in-progress",
+  "created_at": "2025-09-12 15:00",
+  "updated_at": "2025-09-12 15:10",
+  "progress_percent": 70,
+  "tags": ["rag", "openai", "api", "authentication", "reindexing"],
+  "summary": "RAG reindexing endpoint is functionally working but failing due to invalid OpenAI API key. The system successfully finds and attempts to index files but fails at embedding generation step.",
+  "success_criteria": [
+    {"text": "RAG reindexing endpoint successfully indexes files with valid OpenAI API key", "checked": false},
+    {"text": "Files are properly chunked and embeddings are generated", "checked": false},
+    {"text": "Embeddings are stored in the database with correct metadata", "checked": false},
+    {"text": "Reindexing returns correct count of indexed files and chunks", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "API endpoint returns indexed_files > 0 and total_chunks > 0", "checked": false},
+    {"text": "No 401 authentication errors in logs", "checked": false},
+    {"text": "Database contains embedding records for test files", "checked": false},
+    {"text": "RAG query endpoint can retrieve indexed content", "checked": false}
+  ],
+  "subtasks": [
+    "Replace test OpenAI API key with valid key",
+    "Test reindexing with valid API key",
+    "Verify embeddings are generated and stored",
+    "Test RAG query functionality with indexed content",
+    "Add better error handling for invalid API keys",
+    "Add API key validation on startup"
+  ],
+  "todo": [
+    {
+      "text": "Fix Docker repository path mounting issues",
+      "status": "completed",
+      "date_started": "2025-09-12 15:05",
+      "date_stopped": "2025-09-12 15:05"
+    },
+    {
+      "text": "Fix Docker debug configuration issues",
+      "status": "completed",
+      "date_started": "2025-09-12 15:10",
+      "date_stopped": "2025-09-12 15:10"
+    },
+    {
+      "text": "Identify RAG service initialization issue",
+      "status": "completed",
+      "date_started": "2025-09-12 15:10",
+      "date_stopped": "2025-09-12 15:10"
+    },
+    {
+      "text": "Replace test OpenAI API key with valid key",
+      "status": "blocked",
+      "date_started": "2025-09-12 15:00",
+      "date_stopped": null,
+      "note": "Requires user to provide a valid OPENAI_API_KEY environment variable."
+    },
+    {"text": "Test reindexing with valid API key", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Verify embeddings are generated and stored", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test RAG query functionality with indexed content", "status": "not-started", "date_started": null, "date_stopped": null},
+    {
+      "text": "Add better error handling for invalid API keys",
+      "status": "completed",
+      "date_started": "2025-09-12 15:00",
+      "date_stopped": "2025-09-12 15:00"
+    },
+    {
+      "text": "Add API key validation on startup",
+      "status": "completed",
+      "date_started": "2025-09-12 15:00",
+      "date_stopped": "2025-09-12 15:00"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-12 15:00",
+      "text": "Task created - RAG reindexing issue identified and documented"
+    },
+    {
+      "timestamp": "2025-09-12 15:00",
+      "text": "Implemented API key validation on startup and improved error handling for OpenAI authentication failures."
+    },
+    {
+      "timestamp": "2025-09-12 15:05",
+      "text": "Fixed Docker repository path mounting issues - corrected REPO_PATH environment variable and MCP server path handling"
+    },
+    {
+      "timestamp": "2025-09-12 15:10",
+      "text": "Fixed Docker debug configuration issues - API container now starts successfully"
+    },
+    {
+      "timestamp": "2025-09-12 15:10",
+      "text": "Identified RAG service initialization issue - API key validation prevents RAG service from starting with test key 'sk-test'"
+    }
+  ],
+  "decisions": [
+    "Use test repository /Users/mother/Git/nebula/cage/.scratchpad/repo-1 for testing",
+    "Fix Redis sadd error by adding blob SHAs individually",
+    "Fix SQL WHERE clause error by adding proper WHERE clause structure",
+    "Add debug logging to trace reindexing process"
+  ],
+  "lessons_learned": [
+    "RAG reindexing process is working correctly - files are found and processed",
+    "Issue is specifically with OpenAI API authentication, not with file discovery or processing logic",
+    "Debug logging revealed the actual failure point was embedding generation",
+    "Test API key 'sk-test' is invalid and causes 401 errors"
+  ],
+  "issues_risks": [
+    "Current test API key 'sk-test' is invalid and causes authentication failures",
+    "No validation of API key validity on startup",
+    "Poor error handling for API key issues - errors are logged but process continues",
+    "No fallback mechanism when embeddings fail to generate"
+  ],
+  "next_steps": [
+    "Obtain valid OpenAI API key",
+    "Update environment variable OPENAI_API_KEY with valid key",
+    "Test reindexing endpoint with valid API key",
+    "Verify embeddings are generated and stored in database",
+    "Test RAG query functionality with indexed content"
+  ],
+  "references": [
+    "Terminal output showing 401 authentication errors",
+    "RAG service code in src/cage/rag_service.py",
+    "API endpoint code in src/api/main.py",
+    "Test repository: /Users/mother/Git/nebula/cage/.scratchpad/repo-1"
+  ],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "complexity": "low",
+    "estimated_effort": "1-2 hours",
+    "dependencies": ["valid OpenAI API key"],
+    "test_files": ["file.txt", "test.txt"],
+    "expected_result": {
+      "indexed_files": 2,
+      "total_chunks": 2,
+      "blob_shas": ["blob_sha_0", "blob_sha_1"]
+    }
+  }
+}

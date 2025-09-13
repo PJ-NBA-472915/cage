@@ -9,7 +9,7 @@ typer==0.9.0
 rich==13.7.0
 
 # Database and caching (for new spec)
-asyncpg==0.29.0
+asyncpg>=0.30.0
 redis==5.0.1
 psycopg2-binary==2.9.9
 
@@ -30,3 +30,4 @@ jsonschema>=4.22.0
 # Development and testing
 pytest==7.4.3
 pytest-asyncio==0.21.1
+debugpy==1.8.0

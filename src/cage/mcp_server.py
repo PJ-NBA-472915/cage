@@ -7,6 +7,7 @@ This module exposes the RAG system as an MCP server for external AI tool integra
 import asyncio
 import json
 import logging
+import os
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
@@ -27,6 +28,11 @@ from mcp.types import (
 from .rag_service import RAGService
 
 logger = logging.getLogger(__name__)
+
+class NotificationOptions:
+    """Simple notification options class for MCP server."""
+    def __init__(self):
+        self.tools_changed = False
 
 class RAGMCPServer:
     """MCP Server that exposes RAG functionality to external AI tools."""
@@ -192,8 +198,8 @@ Content:
         scope = arguments.get("scope", "all")
         
         try:
-            # Get repository path (simplified - in real implementation, this would be configurable)
-            repo_path = Path(".")
+            # Get repository path from environment variable
+            repo_path = Path(os.environ.get("REPO_PATH", "/work/repo"))
             result = await self.rag_service.reindex_repository(repo_path, scope)
             
             response_text = f"""
@@ -312,7 +318,7 @@ Recent Events:
                         server_name="cage-rag-server",
                         server_version="1.0.0",
                         capabilities=self.server.get_capabilities(
-                            notification_options=None,
+                            notification_options=NotificationOptions(),
                             experimental_capabilities={}
                         )
                     )

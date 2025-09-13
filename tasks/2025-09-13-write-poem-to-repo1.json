@@ -1,0 +1,177 @@
+{
+  "id": "2025-09-13-write-poem-to-repo1",
+  "title": "Write a Poem to Repository 1",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-13 08:42",
+  "updated_at": "2025-09-13T07:02:31.584964",
+  "progress_percent": 100,
+  "tags": [
+    "cursor",
+    "task",
+    "crewai",
+    "poem",
+    "repository",
+    "git"
+  ],
+  "summary": "Create a beautiful poem and write it to the .scratchpad/repo-1 directory (mounted as /work/repo in Docker) to test repository changes and git operations via CrewAI workflow. Changes should persist on the host machine.",
+  "success_criteria": [
+    {
+      "text": "Create a beautiful, original poem about technology and creativity",
+      "checked": false
+    },
+    {
+      "text": "Write the poem to a file in /work/repo directory (mounted from .scratchpad/repo-1)",
+      "checked": false
+    },
+    {
+      "text": "Successfully commit the poem file to git",
+      "checked": false
+    },
+    {
+      "text": "Successfully push the changes to remote repository",
+      "checked": false
+    },
+    {
+      "text": "Verify the poem file exists and is properly formatted on the host machine",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Poem file is created in .scratchpad/repo-1/poem.txt on host machine",
+      "checked": false
+    },
+    {
+      "text": "Poem contains at least 4 lines and is creative",
+      "checked": false
+    },
+    {
+      "text": "Git commit shows successful commit with proper message",
+      "checked": false
+    },
+    {
+      "text": "Git push completes without errors",
+      "checked": false
+    },
+    {
+      "text": "File can be read back from .scratchpad/repo-1/poem.txt on host machine after push",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Generate a beautiful poem about technology and creativity",
+    "Create poem file in /work/repo directory (mounted from .scratchpad/repo-1)",
+    "Stage and commit the poem file",
+    "Push changes to remote repository",
+    "Verify the file exists and is accessible on host machine at .scratchpad/repo-1/poem.txt"
+  ],
+  "todo": [
+    {
+      "text": "Generate a creative poem about technology and creativity",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create poem.txt file in /work/repo directory (mounted from .scratchpad/repo-1)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Stage the poem file for commit",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Commit the poem with descriptive message",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Push changes to remote repository",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Verify poem file exists and is readable on host machine at .scratchpad/repo-1/poem.txt",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-13 08:42",
+      "text": "Task file created for testing repository changes and git operations with a poem writing task.",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-09-13T07:02:31.572134",
+      "text": "Crew execution completed for run b256c748-9b95-4107-9f67-b09b3bc1d37d"
+    }
+  ],
+  "decisions": [
+    "Use a poem writing task to test repository changes",
+    "Target .scratchpad/repo-1 directory (mounted as /work/repo in Docker) for the poem file",
+    "Test both file creation and git operations",
+    "Verify end-to-end workflow from creation to push",
+    "Ensure changes persist on host machine after Docker container operations"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Git configuration must be properly set up for commits and pushes",
+    "Repository permissions must allow file creation and modification",
+    "Network connectivity required for git push operations",
+    "Volume mounting must be correct to ensure changes persist on host machine",
+    "CrewAI agents must work in the correct directory (/work/repo)"
+  ],
+  "next_steps": [
+    "Submit task to CrewAI /crew/plan endpoint",
+    "Execute the plan via /crew/apply endpoint",
+    "Monitor the execution and verify results"
+  ],
+  "references": [
+    "tasks/2025-09-12-test-crew-implementation.json - Previous CrewAI workflow test",
+    "src/cage/crew_tool.py - CrewAI implementation",
+    "src/api/main.py - API endpoints"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "",
+    "assumptions": [],
+    "steps": [],
+    "commit_message": ""
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "task_type": "creative_writing",
+    "target_directory": ".scratchpad/repo-1",
+    "output_file": "poem.txt",
+    "workflow": "crewai"
+  }
+}

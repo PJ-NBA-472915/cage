@@ -148,14 +148,17 @@ class CrewTool:
             
             result = crew.kickoff()
             
+            # Convert CrewOutput to serializable format
+            plan_content = str(result.raw) if hasattr(result, 'raw') else str(result)
+            
             # Save plan to run directory
-            plan_file = run_dir / "plan.yaml"
+            plan_file = run_dir / "plan.json"
             with open(plan_file, 'w') as f:
                 json.dump({
                     "run_id": run_id,
                     "task_id": task_id,
                     "created_at": datetime.now().isoformat(),
-                    "plan": result,
+                    "plan": plan_content,
                     "raw_plan_data": plan_data
                 }, f, indent=2)
             
@@ -164,7 +167,7 @@ class CrewTool:
             task_data["plan"] = {
                 "run_id": run_id,
                 "created_at": datetime.now().isoformat(),
-                "plan": result
+                "plan": plan_content
             }
             
             self.task_manager.update_task(task_id, task_data)
@@ -175,7 +178,7 @@ class CrewTool:
                 "status": "success",
                 "run_id": run_id,
                 "task_id": task_id,
-                "plan": result
+                "plan": plan_content
             }
             
         except Exception as e:
@@ -202,7 +205,7 @@ class CrewTool:
             
             # Load plan
             run_dir = self.runs_dir / run_id
-            plan_file = run_dir / "plan.yaml"
+            plan_file = run_dir / "plan.json"
             
             if not plan_file.exists():
                 raise ValueError(f"Plan file not found for run {run_id}")
@@ -401,7 +404,17 @@ class EditorToolWrapper(BaseTool):
     """Wrapper for Editor Tool to be used by CrewAI agents."""
     
     name: str = "EditorTool"
-    description: str = "Execute file operations through the Editor Tool"
+    description: str = "Execute file operations through the Editor Tool. Valid operations: GET, INSERT, UPDATE, DELETE. For creating files, use INSERT with full content. Use JSON format: {\"operation\": \"INSERT\", \"path\": \"file.txt\", \"payload\": {\"content\": \"hello world\"}}"
+    
+    class EditorToolArgs(BaseModel):
+        operation: str
+        path: str
+        selector: Optional[Dict] = None
+        payload: Optional[Dict] = None
+        intent: str = ""
+        dry_run: bool = False
+    
+    args_schema = EditorToolArgs
     editor_tool: EditorTool
     
     def __init__(self, editor_tool: EditorTool):
@@ -411,8 +424,25 @@ class EditorToolWrapper(BaseTool):
              payload: Dict = None, intent: str = "", dry_run: bool = False) -> str:
         """Execute a file operation through the Editor Tool."""
         try:
+            # Map common operation names to valid enum values
+            operation_mapping = {
+                "CREATE": "INSERT",
+                "create": "INSERT", 
+                "WRITE": "INSERT",
+                "write": "INSERT",
+                "READ": "GET",
+                "read": "GET",
+                "MODIFY": "UPDATE",
+                "modify": "UPDATE",
+                "REMOVE": "DELETE",
+                "remove": "DELETE"
+            }
+            
+            # Use mapping if available, otherwise use the original operation
+            mapped_operation = operation_mapping.get(operation, operation)
+            
             # Convert operation string to enum
-            operation_type = OperationType(operation)
+            operation_type = OperationType(mapped_operation)
             
             # Create file operation
             file_op = FileOperation(
@@ -442,23 +472,29 @@ class GitToolWrapper(BaseTool):
     """Wrapper for Git Tool to be used by CrewAI agents."""
     
     name: str = "GitTool"
-    description: str = "Execute Git operations through the Git Tool"
+    description: str = "Execute Git operations through the Git Tool. Use JSON format: {\"operation\": \"commit\", \"message\": \"commit message\"} or {\"operation\": \"add\"}"
+    
+    class GitToolArgs(BaseModel):
+        operation: str
+        message: Optional[str] = None
+        remote: Optional[str] = "origin"
+        branch: Optional[str] = None
+    
+    args_schema = GitToolArgs
     git_tool: GitTool
     
     def __init__(self, git_tool: GitTool):
         super().__init__(git_tool=git_tool)
     
-    def _run(self, operation: str, **kwargs) -> str:
+    def _run(self, operation: str, message: str = None, remote: str = "origin", branch: str = None) -> str:
         """Execute a Git operation."""
         try:
             if operation == "add":
                 result = self.git_tool.add_files()
             elif operation == "commit":
-                message = kwargs.get("message", "AI agent commit")
-                result = self.git_tool.commit(message)
+                commit_message = message or "AI agent commit"
+                result = self.git_tool.commit(commit_message)
             elif operation == "push":
-                remote = kwargs.get("remote", "origin")
-                branch = kwargs.get("branch")
                 result = self.git_tool.push(remote, branch)
             else:
                 return f"Unknown Git operation: {operation}"

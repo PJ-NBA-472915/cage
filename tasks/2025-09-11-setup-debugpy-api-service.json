@@ -1,0 +1,92 @@
+{
+  "id": "2025-09-11-setup-debugpy-api-service",
+  "title": "Setup debugpy on API service for container debugging",
+  "owner": "AI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-11 10:30",
+  "updated_at": "2025-09-11 10:41",
+  "progress_percent": 78,
+  "tags": ["debugging", "api", "docker", "development"],
+  "summary": "Configure debugpy debugging for the FastAPI service running in Docker containers, enabling IDE attachment for debugging.",
+  "success_criteria": [
+    {"text": "debugpy is installed in the container", "checked": true},
+    {"text": "Docker compose exposes debug port 5678", "checked": true},
+    {"text": "API service can be started with debugpy enabled", "checked": true},
+    {"text": "VS Code launch configuration is created", "checked": true},
+    {"text": "Debugging works from host IDE to container", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Can attach debugger from VS Code to running container", "checked": false},
+    {"text": "Breakpoints hit correctly in containerized code", "checked": false},
+    {"text": "Path mappings work correctly between host and container", "checked": false},
+    {"text": "Debugging works with both --wait-for-client and embedded approaches", "checked": false}
+  ],
+  "subtasks": [
+    "Add debugpy to requirements.txt",
+    "Update Dockerfile to install debugpy",
+    "Modify docker-compose.yml to expose debug port and add debug command",
+    "Create VS Code launch configuration for debugging",
+    "Add debugpy integration to main.py with environment variable control",
+    "Test debugging setup with both approaches",
+    "Document debugging procedures"
+  ],
+  "todo": [
+    {"text": "Add debugpy to requirements.txt", "status": "done", "date_started": "2025-09-11 10:35", "date_stopped": "2025-09-11 10:36"},
+    {"text": "Update Dockerfile to install debugpy", "status": "done", "date_started": "2025-09-11 10:36", "date_stopped": "2025-09-11 10:37"},
+    {"text": "Modify docker-compose.yml to expose debug port 5678", "status": "done", "date_started": "2025-09-11 10:37", "date_stopped": "2025-09-11 10:38"},
+    {"text": "Add debug command option to docker-compose.yml", "status": "done", "date_started": "2025-09-11 10:38", "date_stopped": "2025-09-11 10:38"},
+    {"text": "Create .vscode/launch.json configuration", "status": "done", "date_started": "2025-09-11 10:38", "date_stopped": "2025-09-11 10:39"},
+    {"text": "Add debugpy integration to main.py with environment control", "status": "done", "date_started": "2025-09-11 10:39", "date_stopped": "2025-09-11 10:40"},
+    {"text": "Test VS Code attachment to container", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test breakpoint functionality", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Document debugging setup and usage", "status": "done", "date_started": "2025-09-11 10:40", "date_stopped": "2025-09-11 10:41"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-11 10:30", "text": "Task created for setting up debugpy debugging on API service"},
+    {"timestamp": "2025-09-11 10:35", "text": "Added debugpy to requirements.txt"},
+    {"timestamp": "2025-09-11 10:37", "text": "Updated docker-compose.yml to expose debug port 5678 and add api-debug service"},
+    {"timestamp": "2025-09-11 10:39", "text": "Created VS Code launch.json and tasks.json configurations"},
+    {"timestamp": "2025-09-11 10:40", "text": "Added debugpy integration to main.py with environment variable control"},
+    {"timestamp": "2025-09-11 10:41", "text": "Created comprehensive DEBUGGING.md documentation"}
+  ],
+  "decisions": [
+    "Use debugpy as the debugging solution (VS Code compatible)",
+    "Expose port 5678 for debugging (standard debugpy port)",
+    "Support both --wait-for-client and embedded approaches",
+    "Use environment variable to control debugging mode",
+    "Maintain compatibility with existing uvicorn setup"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Path mapping must be correct between host and container",
+    "Debug port must be bound to 0.0.0.0 in container, not 127.0.0.1",
+    "Uvicorn reload mode may interfere with debugging",
+    "Need to handle both development and production configurations"
+  ],
+  "next_steps": [
+    "Start with adding debugpy to requirements",
+    "Update Docker configuration",
+    "Create IDE configuration",
+    "Test the complete setup"
+  ],
+  "references": [
+    "https://code.visualstudio.com/docs/python/debugging#_remote-debugging",
+    "https://github.com/microsoft/debugpy",
+    "Current FastAPI setup in src/api/main.py",
+    "Current Docker configuration in docker-compose.yml"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "api_service": "FastAPI with uvicorn",
+    "container_runtime": "Docker",
+    "debug_port": 5678,
+    "ide_target": "VS Code"
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-11 10:30",
+      "text": "Please create a task for setting up debugpy on the api service: Short answer: run a debug server inside the container and attach to it from your host IDE. Two common setups below (VS Code + debugpy, and PyCharm). I'll show the exact Docker, code, and IDE config you need—and the handful of gotchas that usually bite.",
+      "context": "User requesting setup of debugging capabilities for the API service running in Docker containers"
+    }
+  ]
+}

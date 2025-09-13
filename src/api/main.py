@@ -11,6 +11,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 
+# Debugpy integration for container debugging
+if os.getenv("DEBUGPY_ENABLED", "0") == "1":
+    import debugpy
+    try:
+        debugpy.listen(("0.0.0.0", 5678))
+        if os.getenv("DEBUGPY_WAIT_FOR_CLIENT", "0") == "1":
+            debugpy.wait_for_client()
+        print("Debugpy enabled - waiting for debugger to attach on port 5678")
+    except RuntimeError as e:
+        if "Address already in use" in str(e):
+            print("Debugpy port 5678 already in use, skipping debugpy setup")
+        else:
+            raise
+
 # Add src to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
@@ -98,16 +112,24 @@ async def startup_event():
         redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379")
         openai_api_key = os.environ.get("OPENAI_API_KEY")
         
-        if openai_api_key:
-            rag_service = RAGService(
-                db_url=db_url,
-                redis_url=redis_url,
-                openai_api_key=openai_api_key
-            )
-            await rag_service.initialize()
-            logger.info("RAG service initialized successfully")
-        else:
-            logger.warning("OPENAI_API_KEY not set, RAG service disabled")
+        if not openai_api_key:
+            logger.warning("OPENAI_API_KEY not set, RAG service disabled. Please set OPENAI_API_KEY to enable RAG.")
+            logger.info("DEBUG: OPENAI_API_KEY is not set.")
+            return
+        
+        if openai_api_key == "sk-test":
+            logger.error("Invalid OpenAI API key 'sk-test' detected. RAG service disabled. Please provide a valid key.")
+            return
+        
+        logger.info(f"DEBUG: OPENAI_API_KEY is set (masked: {openai_api_key[:5]}...{openai_api_key[-4:]})")
+
+        rag_service = RAGService(
+            db_url=db_url,
+            redis_url=redis_url,
+            openai_api_key=openai_api_key
+        )
+        await rag_service.initialize()
+        logger.info("RAG service initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize RAG service: {e}")
 
@@ -669,12 +691,28 @@ async def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token
 @app.post("/rag/reindex")
 async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_token)):
     """Reindex RAG system."""
+    logger.info(f"RAG reindex request received: scope={request.scope}")
+    
     if not rag_service:
+        logger.error("RAG service not available")
         raise HTTPException(status_code=503, detail="RAG service not available")
     
     try:
         repo_path = get_repository_path()
-        result = await rag_service.reindex_repository(repo_path, request.scope)
+        logger.info(f"Repository path: {repo_path}")
+        logger.info(f"Repository path exists: {repo_path.exists()}")
+        
+        logger.info(f"Calling rag_service.reindex_repository with path={repo_path}, scope={request.scope}")
+        logger.info(f"RAG service object: {rag_service}")
+        logger.info(f"RAG service type: {type(rag_service)}")
+        logger.info(f"RAG service has reindex_repository method: {hasattr(rag_service, 'reindex_repository')}")
+        
+        try:
+            result = await rag_service.reindex_repository(repo_path, request.scope)
+            logger.info(f"Reindex result: {result}")
+        except Exception as e:
+            logger.error(f"Exception in rag_service.reindex_repository: {e}")
+            raise
         
         return {
             "status": "success",

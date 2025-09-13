@@ -19,9 +19,9 @@ from datetime import datetime
 import asyncpg
 import redis.asyncio as redis
 import openai
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, AuthenticationError
 import numpy as np
-from pgvector.asyncpg import register_vector
+from pgvector.asyncpg import register_vector, to_db
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +170,9 @@ class RAGService:
                 input=text
             )
             return response.data[0].embedding
+        except openai.AuthenticationError as e:
+            logger.error(f"OpenAI authentication failed. Please check your API key: {e}")
+            raise
         except Exception as e:
             logger.error(f"Failed to generate embedding: {e}")
             raise
@@ -281,13 +284,25 @@ class RAGService:
                 
                 # Store embedding
                 async with self.db_pool.acquire() as conn:
+                    # Convert embedding to numpy array
+                    import numpy as np
+                    embedding_array = np.array(embedding, dtype=np.float32)
+                    
                     await conn.execute("""
                         INSERT INTO embeddings (blob_sha, chunk_id, vector, meta)
                         VALUES ($1, $2, $3, $4)
                         ON CONFLICT (blob_sha, chunk_id) DO UPDATE SET
                             vector = $3,
                             meta = $4
-                    """, blob_sha, i, embedding, json.dumps(metadata.__dict__))
+                    """, blob_sha, i, embedding_array, json.dumps(metadata.__dict__))
+                
+                # Store chunk content in Redis
+                if self.redis_client:
+                    try:
+                        cache_key = f"chunk:{blob_sha}:{i}"
+                        await self.redis_client.setex(cache_key, 86400, chunk)  # Cache for 24 hours
+                    except Exception as e:
+                        logger.warning(f"Failed to cache chunk content for {cache_key}: {e}")
             
             logger.info(f"Indexed file {file_path} with {len(chunks)} chunks")
             return chunk_shas
@@ -320,6 +335,14 @@ class RAGService:
         try:
             # Generate query embedding
             query_embedding = await self.generate_embedding(query_text)
+            logger.info(f"Generated query embedding with {len(query_embedding)} dimensions")
+            
+            # Convert to database format - convert to list for pgvector
+            import numpy as np
+            query_vector = np.array(query_embedding, dtype=np.float32)
+            query_list = query_vector.tolist()
+            logger.info(f"Converted query vector type: {type(query_list)}")
+            logger.info(f"Query vector length: {len(query_list)}")
             
             # Build SQL query with optional filters
             sql = """
@@ -328,26 +351,30 @@ class RAGService:
                 FROM embeddings e
                 JOIN git_blobs gb ON e.blob_sha = gb.blob_sha
             """
-            params = [query_embedding]
+            params = [query_list]
             param_count = 1
             
             if filters:
+                where_conditions = []
                 if 'path' in filters:
                     param_count += 1
-                    sql += f" AND e.meta->>'path' LIKE ${param_count}"
+                    where_conditions.append(f"e.meta->>'path' LIKE ${param_count}")
                     params.append(f"%{filters['path']}%")
                 
                 if 'language' in filters:
                     param_count += 1
-                    sql += f" AND e.meta->>'language' = ${param_count}"
+                    where_conditions.append(f"e.meta->>'language' = ${param_count}")
                     params.append(filters['language'])
                 
                 if 'branch' in filters:
                     param_count += 1
-                    sql += f" AND e.meta->>'branch' = ${param_count}"
+                    where_conditions.append(f"e.meta->>'branch' = ${param_count}")
                     params.append(filters['branch'])
+                
+                if where_conditions:
+                    sql += " WHERE " + " AND ".join(where_conditions)
             
-            sql += f" ORDER BY e.vector <=> $1::vector LIMIT ${top_k}"
+            sql += f" ORDER BY e.vector <=> $1::vector LIMIT {top_k}"
             
             # Execute query
             async with self.db_pool.acquire() as conn:
@@ -391,34 +418,109 @@ class RAGService:
             except Exception as e:
                 logger.warning(f"Redis cache miss for {cache_key}: {e}")
         
-        # Fallback: regenerate from database (this is a simplified approach)
-        # In a real implementation, you'd store the original content
-        return f"Chunk {chunk_id} of blob {blob_sha[:8]}..."
+        # Get the original content from the repository
+        try:
+            # Get file path from database
+            async with self.db_pool.acquire() as conn:
+                row = await conn.fetchrow("""
+                    SELECT bp.path, e.meta
+                    FROM blob_paths bp
+                    JOIN embeddings e ON bp.blob_sha = e.blob_sha
+                    WHERE bp.blob_sha = $1 AND e.chunk_id = $2
+                """, blob_sha, chunk_id)
+                
+                if row:
+                    file_path = row['path']
+                    metadata = json.loads(row['meta'])
+                    
+                    # Read the file content
+                    repo_path = Path(os.environ.get('REPO_PATH', '/work/repo'))
+                    full_path = repo_path / file_path
+                    
+                    if full_path.exists():
+                        content = full_path.read_text(encoding='utf-8')
+                        
+                        # Chunk the content the same way as during indexing
+                        language = metadata.get('language', 'text')
+                        if language in ['python', 'javascript', 'typescript', 'java', 'cpp', 'c', 'go', 'rust']:
+                            chunk_size = 400
+                        elif language == 'markdown':
+                            chunk_size = 800
+                        else:
+                            chunk_size = 500
+                        
+                        chunks = self._chunk_text(content, chunk_size, 40)
+                        
+                        # Return the specific chunk
+                        if chunk_id < len(chunks):
+                            chunk_content = chunks[chunk_id]
+                            
+                            # Cache the content for future use
+                            if self.redis_client:
+                                try:
+                                    await self.redis_client.setex(cache_key, 3600, chunk_content)  # Cache for 1 hour
+                                except Exception as e:
+                                    logger.warning(f"Failed to cache content for {cache_key}: {e}")
+                            
+                            return chunk_content
+                        else:
+                            logger.warning(f"Chunk {chunk_id} not found in file {file_path}")
+                            return f"Chunk {chunk_id} not found"
+                    else:
+                        logger.warning(f"File not found: {full_path}")
+                        return f"File not found: {file_path}"
+                else:
+                    logger.warning(f"No metadata found for blob {blob_sha} chunk {chunk_id}")
+                    return f"No metadata found for blob {blob_sha[:8]}..."
+                    
+        except Exception as e:
+            logger.error(f"Error retrieving content for {blob_sha}:{chunk_id}: {e}")
+            return f"Error retrieving content: {str(e)}"
     
     async def reindex_repository(self, repo_path: Path, scope: str = "all") -> Dict[str, Any]:
         """Reindex repository content."""
         try:
+            logger.info(f"DEBUG: Starting reindex of repository at {repo_path} with scope {scope}")
+            logger.info(f"DEBUG: Repository path type: {type(repo_path)}")
+            logger.info(f"DEBUG: Repository path exists: {repo_path.exists()}")
+            
             indexed_files = 0
             total_chunks = 0
             blob_shas = []
             
+            logger.info(f"Starting reindex of repository at {repo_path} with scope {scope}")
+            
             if scope in ["all", "repo"]:
                 # Index code files
+                logger.info(f"Scanning for files in {repo_path}")
+                files_found = 0
+                files_skipped = 0
                 for file_path in repo_path.rglob("*"):
-                    if file_path.is_file() and not self._should_skip_file(file_path):
-                        try:
-                            content = file_path.read_text(encoding='utf-8')
-                            chunks = await self.index_file(
-                                str(file_path.relative_to(repo_path)),
-                                content,
-                                "HEAD",  # TODO: Get actual commit SHA
-                                "main"
-                            )
-                            blob_shas.extend(chunks)
-                            indexed_files += 1
-                            total_chunks += len(chunks)
-                        except Exception as e:
-                            logger.warning(f"Failed to index {file_path}: {e}")
+                    if file_path.is_file():
+                        files_found += 1
+                        logger.info(f"Found file: {file_path}")
+                        if not self._should_skip_file(file_path):
+                            logger.info(f"Indexing file: {file_path}")
+                            try:
+                                content = file_path.read_text(encoding='utf-8')
+                                logger.info(f"File content length: {len(content)} characters")
+                                chunks = await self.index_file(
+                                    str(file_path.relative_to(repo_path)),
+                                    content,
+                                    "HEAD",  # TODO: Get actual commit SHA
+                                    "main"
+                                )
+                                blob_shas.extend(chunks)
+                                indexed_files += 1
+                                total_chunks += len(chunks)
+                                logger.info(f"Successfully indexed {file_path} with {len(chunks)} chunks")
+                            except Exception as e:
+                                logger.warning(f"Failed to index {file_path}: {e}")
+                        else:
+                            files_skipped += 1
+                            logger.info(f"Skipped file: {file_path}")
+                
+                logger.info(f"File scan complete: {files_found} files found, {files_skipped} skipped, {indexed_files} indexed")
             
             if scope in ["all", "tasks"]:
                 # Index task files
@@ -440,8 +542,10 @@ class RAGService:
                             logger.warning(f"Failed to index task file {task_file}: {e}")
             
             # Store indexed blobs in Redis for auditability
-            if self.redis_client:
-                await self.redis_client.sadd("rag:pending_blobs", *blob_shas)
+            if self.redis_client and blob_shas:
+                # Add each blob SHA individually to avoid Redis argument issues
+                for blob_sha in blob_shas:
+                    await self.redis_client.sadd("rag:pending_blobs", blob_sha)
             
             logger.info(f"Reindexed {indexed_files} files with {total_chunks} chunks")
             return {

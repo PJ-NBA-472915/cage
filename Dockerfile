@@ -25,12 +25,20 @@ COPY memory-bank/ ./memory-bank/
 # Create logs directory
 RUN mkdir -p logs
 
+# Set build arguments for Git configuration
+ARG GIT_EMAIL=cage-agent@example.com
+ARG GIT_NAME="Cage Agent"
+
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV REPO_PATH=/app
 ENV POD_TOKEN=dev-token
 ENV DATABASE_URL=postgresql://postgres:password@postgres:5432/cage
 ENV REDIS_URL=redis://redis:6379
+
+# Configure Git for the container using build arguments
+RUN git config --global user.email "${GIT_EMAIL}" && \
+    git config --global user.name "${GIT_NAME}"
 
 # Expose port
 EXPOSE 8000
