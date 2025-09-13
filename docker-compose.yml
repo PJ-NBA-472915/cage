@@ -71,7 +71,7 @@ services:
       args:
         GIT_EMAIL: ${GIT_EMAIL:-cage-agent@example.com}
         GIT_NAME: ${GIT_NAME:-"Cage Agent"}
-    command: ["python", "-m", "uvicorn", "src.cage.mcp_server:app", "--host", "0.0.0.0", "--port", "8765"]
+    command: ["python", "-m", "uvicorn", "src.cage.mcp_server:mcp", "--host", "0.0.0.0", "--port", "8765"]
     ports:
       - "${MCP_PORT:-8765}:8765"
       - "5679:5679"  # debugpy debug port
