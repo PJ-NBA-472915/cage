@@ -156,7 +156,7 @@
   "references": [
     "src/cage/rag_service.py - RAG service implementation",
     "src/api/main.py - RAG API endpoints",
-    "src/cage/mcp_server.py - MCP server integration",
+    "src/cage/mcp_network_server.py - MCP network server",
     "scripts/test-rag-system.py - Test script",
     "END_TO_END_GUIDE.md - Usage documentation"
   ],

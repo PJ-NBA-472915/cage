@@ -1,0 +1,89 @@
+{
+  "id": "2025-09-13-move-mcp-to-network-server",
+  "title": "Move MCP from stdio to network-based server with auth + sessions",
+  "owner": "system",
+  "status": "review",
+  "created_at": "2025-09-13 12:00",
+  "updated_at": "2025-09-13 12:30",
+  "progress_percent": 90,
+  "tags": ["mcp", "network", "websocket", "auth", "sessions", "rag"],
+  "summary": "Replace the current stdio-bound MCP server with a network-based MCP server so external agents can connect over the network. Include token-based authentication, per-connection session management, and parity with existing RAG tools (rag_query, rag_reindex, rag_check_blob, rag_get_status). Maintain compatibility with existing API/RAG services and provide dockerized deployment.",
+  "success_criteria": [
+    { "text": "Network MCP server starts and listens on a configurable host/port", "checked": false },
+    { "text": "Authentication enforced (Bearer token or API key) on connect and tool calls", "checked": false },
+    { "text": "Session lifecycle implemented (create, attach metadata, disconnect cleanup)", "checked": false },
+    { "text": "Implements tools: rag_query, rag_reindex, rag_check_blob, rag_get_status", "checked": false },
+    { "text": "Concurrency safe: multiple clients use isolated sessions without cross-talk", "checked": false },
+    { "text": "Basic rate limiting or call quota per session applied", "checked": false },
+    { "text": "Comprehensive logs with connection id, session id, and tool call outcomes", "checked": false },
+    { "text": "Docker Compose includes the new network MCP service and healthcheck", "checked": false },
+    { "text": "Documentation and example client config provided (including auth header)", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Client can connect via WebSocket with Authorization header and list tools", "checked": false },
+    { "text": "Calling rag_query over the network returns results identical to REST endpoint", "checked": false },
+    { "text": "Unauthorized connection is rejected with clear error", "checked": false },
+    { "text": "Two concurrent sessions can query without interfering with each other", "checked": false },
+    { "text": "Session close frees resources; server logs confirm cleanup", "checked": false },
+    { "text": "Docker `make start-mcp` (or compose) exposes the network port and passes healthcheck", "checked": false }
+  ],
+  "subtasks": [
+    "Evaluate MCP library support for network transports (WebSocket/TCP)",
+    "Design auth strategy (reuse POD_TOKEN or dedicated MCP token)",
+    "Define session model (ids, metadata, limits, expiry)",
+    "Implement network transport server (ws) with auth handshake",
+    "Adapt tool handlers to session context and concurrency",
+    "Add rate limiting and structured logging",
+    "Add docker-compose service and healthcheck",
+    "Write example client config + guide",
+    "Add tests for auth, sessions, concurrency"
+  ],
+  "todo": [
+    { "text": "Draft network MCP server design doc (transport, auth, sessions)", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Prototype WebSocket server exposing MCP tool surface", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Integrate RAGService calls and propagate errors", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Implement bearer auth and per-session context store", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Add unit/integration tests for auth and sessions", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Wire into docker-compose with MCP_PORT env", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Write docs and sample MCP client config (network)", "status": "not-started", "date_started": null, "date_stopped": null }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-13 12:00", "text": "Task created to migrate MCP from stdio to network with authentication and session management." },
+    { "timestamp": "2025-09-13 12:25", "text": "Implemented WebSocket MCP server with Redis-backed auth/sessions and rate limiting. Added docker-compose service mcp-net and Makefile targets. Updated integration guide and added feature documentation." }
+  ],
+  "decisions": [
+    "Favor WebSocket transport for bi-directional MCP over raw TCP",
+    "Align auth with existing Bearer token model for consistency",
+    "Maintain stdio server for backward compatibility until clients migrate"
+  ],
+  "lessons_learned": [
+    "Stdio transport limits integration with remote agents and hosted tools",
+    "A network transport with auth improves operational flexibility and security"
+  ],
+  "issues_risks": [
+    "MCP library may have partial network transport support; may require custom adapter",
+    "Auth header handling over WebSocket varies by client; document clearly",
+    "Concurrent session resource usage needs monitoring/limits"
+  ],
+  "next_steps": [
+    "Run end-to-end verification against a sample WS client",
+    "Load test basic concurrency and confirm isolation",
+    "Decide deprecation timeline for stdio server"
+  ],
+  "references": [
+    "src/cage/mcp_network_server.py",
+    "src/cage/rag_service.py",
+    "src/api/main.py",
+    "docker-compose.yml",
+    "memory-bank/docs/guides/rag-service-integration.md"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": { "migrated": false, "source_path": null, "method": null, "migrated_at": null },
+  "metadata": {
+    "mcp_transport": "websocket",
+    "auth": "bearer",
+    "session_management": true,
+    "rate_limit": "basic-per-session"
+  }
+}

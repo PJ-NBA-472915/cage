@@ -64,19 +64,24 @@ services:
       retries: 3
       start_period: 10s
 
-  # MCP Server for RAG functionality
+  # MCP Server (WebSocket)
   mcp:
     build:
       context: .
       args:
         GIT_EMAIL: ${GIT_EMAIL:-cage-agent@example.com}
         GIT_NAME: ${GIT_NAME:-"Cage Agent"}
-    command: ["python", "-m", "src.cage.mcp_server"]
+    command: ["python", "-m", "uvicorn", "src.cage.mcp_network_server:app", "--host", "0.0.0.0", "--port", "8765"]
+    ports:
+      - "8765:8765"
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/cage
       - REDIS_URL=redis://redis:6379
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - REPO_PATH=/work/repo
+      - MCP_TOKENS=${MCP_TOKENS:-}
+      - MCP_SESSION_TTL=${MCP_SESSION_TTL:-3600}
+      - MCP_RATE_MAX_CALLS=${MCP_RATE_MAX_CALLS:-240}
     volumes:
       - .:/app
       - ${REPO_PATH}:/work/repo
@@ -85,8 +90,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      api:
-        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

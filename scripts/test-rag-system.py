@@ -19,7 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from cage.rag_service import RAGService
-from cage.mcp_server import RAGMCPServer
+# Network MCP server is covered via Docker service; no direct import needed.
 
 async def test_rag_service():
     """Test the RAG service functionality."""
@@ -97,8 +97,8 @@ async def test_mcp_server():
     print("\nTesting MCP Server...")
     
     # This is a simplified test - in practice, MCP server testing
-    # would require a proper MCP client
-    print("✓ MCP server test skipped (requires MCP client)")
+    # would require a proper WebSocket client; skip here.
+    print("✓ MCP server test skipped (requires WS client)")
     return True
 
 async def test_docker_integration():
