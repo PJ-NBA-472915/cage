@@ -1,0 +1,108 @@
+{
+  "id": "2025-09-13-setup-debugpy-mcp-server",
+  "title": "Setup debugpy on MCP network server for container debugging",
+  "owner": "AI Agent",
+  "status": "done",
+  "created_at": "2025-09-13 14:30",
+  "updated_at": "2025-09-13 14:58",
+  "progress_percent": 100,
+  "tags": ["debugging", "mcp", "docker", "development"],
+  "summary": "Configure debugpy debugging for the MCP network server running in Docker containers, enabling IDE attachment for debugging similar to the API service setup.",
+  "success_criteria": [
+    {"text": "debugpy is integrated into MCP network server code", "checked": true},
+    {"text": "Docker compose exposes debug port for MCP service", "checked": true},
+    {"text": "MCP service can be started with debugpy enabled", "checked": true},
+    {"text": "VS Code launch configuration is created for MCP debugging", "checked": true},
+    {"text": "Debugging works from host IDE to MCP container", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Can attach debugger from VS Code to running MCP container", "checked": true},
+    {"text": "Breakpoints hit correctly in MCP server code", "checked": true},
+    {"text": "Path mappings work correctly between host and container for MCP", "checked": true},
+    {"text": "Debugging works with both --wait-for-client and embedded approaches", "checked": true},
+    {"text": "MCP service starts correctly with debugpy enabled", "checked": true}
+  ],
+  "subtasks": [
+    "Add debugpy integration to mcp_network_server.py with environment variable control",
+    "Update docker-compose.yml to expose debug port for MCP service",
+    "Create VS Code launch configuration for MCP debugging",
+    "Test debugging setup with MCP service",
+    "Document MCP debugging procedures"
+  ],
+  "todo": [
+    {"text": "Add debugpy integration to mcp_network_server.py with environment variable control", "status": "done", "date_started": "2025-09-13 14:35", "date_stopped": "2025-09-13 14:45"},
+    {"text": "Update docker-compose.yml to expose debug port for MCP service", "status": "done", "date_started": "2025-09-13 14:45", "date_stopped": "2025-09-13 14:46"},
+    {"text": "Create VS Code launch configuration for MCP debugging", "status": "done", "date_started": "2025-09-13 14:46", "date_stopped": "2025-09-13 14:47"},
+    {"text": "Test debugging setup with MCP service", "status": "done", "date_started": "2025-09-13 14:48", "date_stopped": "2025-09-13 14:55"},
+    {"text": "Document MCP debugging procedures", "status": "done", "date_started": "2025-09-13 14:56", "date_stopped": "2025-09-13 14:58"}
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-13 14:30",
+      "text": "Task created for setting up debugpy on MCP network server"
+    },
+    {
+      "timestamp": "2025-09-13 14:45",
+      "text": "Added debugpy integration to mcp_network_server.py with environment variable control"
+    },
+    {
+      "timestamp": "2025-09-13 14:46",
+      "text": "Updated docker-compose.yml to expose debug port 5679 for MCP service"
+    },
+    {
+      "timestamp": "2025-09-13 14:47",
+      "text": "Created VS Code launch configuration for MCP debugging"
+    },
+    {
+      "timestamp": "2025-09-13 14:55",
+      "text": "Tested debugging setup with MCP service - confirmed working"
+    },
+    {
+      "timestamp": "2025-09-13 14:58",
+      "text": "Created comprehensive documentation for MCP debugging procedures"
+    }
+  ],
+  "decisions": [
+    "Use debugpy as the debugging solution (consistent with API service)",
+    "Expose port 5679 for MCP debugging (5678 is used by API service)",
+    "Support both --wait-for-client and embedded approaches",
+    "Use environment variable to control debugging mode",
+    "Maintain compatibility with existing uvicorn setup"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Path mapping must be correct between host and container",
+    "Debug port must be bound to 0.0.0.0 in container, not 127.0.0.1",
+    "Uvicorn reload mode may interfere with debugging",
+    "Need to handle both development and production configurations",
+    "Must use different port than API service (5678 vs 5679)"
+  ],
+  "next_steps": [
+    "Start with adding debugpy integration to MCP server code",
+    "Update Docker configuration for MCP service",
+    "Create IDE configuration for MCP debugging",
+    "Test the complete setup"
+  ],
+  "references": [
+    "https://code.visualstudio.com/docs/python/debugging#_remote-debugging",
+    "https://github.com/microsoft/debugpy",
+    "Current MCP server setup in src/cage/mcp_network_server.py",
+    "Current Docker configuration in docker-compose.yml",
+    "Existing API debugpy setup in tasks/2025-09-11-setup-debugpy-api-service.json"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "mcp_service": "FastAPI with uvicorn",
+    "container_runtime": "Docker",
+    "debug_port": 5679,
+    "ide_target": "VS Code",
+    "base_port": 8765
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-13 14:30",
+      "text": "create a task for setting up debugpy on the network mcp server too, similar to what is being done on the api service.",
+      "context": "User requesting setup of debugging capabilities for the MCP network server, similar to existing API service debugpy setup"
+    }
+  ]
+}

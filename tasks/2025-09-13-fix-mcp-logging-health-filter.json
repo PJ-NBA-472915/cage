@@ -1,0 +1,80 @@
+{
+  "id": "2025-09-13-fix-mcp-logging-health-filter",
+  "title": "Fix MCP Logging to Exclude Health Requests",
+  "owner": "AI Assistant",
+  "status": "done",
+  "created_at": "2025-09-13 16:45",
+  "updated_at": "2025-09-13 13:05",
+  "progress_percent": 100,
+  "tags": ["mcp", "logging", "health", "filtering"],
+  "summary": "Fix the MCP server logging implementation to exclude health check requests while maintaining comprehensive logging for all other endpoints and operations.",
+  "success_criteria": [
+    {"text": "Health check requests to /health endpoint are not logged", "checked": true},
+    {"text": "All other MCP protocol requests continue to be logged with full detail", "checked": true},
+    {"text": "Authentication, session management, and tool execution logging remains intact", "checked": true},
+    {"text": "Logging performance is not impacted by the filtering", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "No log entries appear for GET /health requests", "checked": true},
+    {"text": "MCP protocol requests (POST /mcp) continue to be logged", "checked": true},
+    {"text": "Authentication events are still logged", "checked": true},
+    {"text": "Tool execution and responses are still logged", "checked": true},
+    {"text": "Error conditions are still logged", "checked": true}
+  ],
+  "subtasks": [
+    "Analyze current logging implementation to understand how health requests are being logged",
+    "Implement filtering logic to exclude /health endpoint from logging",
+    "Test that health requests are not logged while other requests continue to be logged",
+    "Verify all other logging functionality remains intact"
+  ],
+  "todo": [
+    {"text": "Analyze current logging implementation to understand how health requests are being logged", "status": "done", "date_started": "2025-09-13 16:45", "date_stopped": "2025-09-13 16:50"},
+    {"text": "Implement filtering logic to exclude /health endpoint from logging", "status": "done", "date_started": "2025-09-13 16:50", "date_stopped": "2025-09-13 16:55"},
+    {"text": "Test that health requests are not logged while other requests continue to be logged", "status": "done", "date_started": "2025-09-13 16:55", "date_stopped": "2025-09-13 13:05"},
+    {"text": "Verify all other logging functionality remains intact", "status": "done", "date_started": "2025-09-13 13:05", "date_stopped": "2025-09-13 13:05"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-13 16:45", "text": "Task created - fix MCP logging to exclude health requests"},
+    {"timestamp": "2025-09-13 16:50", "text": "Analyzed current logging implementation - found that HTTP middleware was missing from current mcp_server.py"},
+    {"timestamp": "2025-09-13 16:55", "text": "Added LoggingMiddleware class with health request filtering logic to mcp_server.py"},
+    {"timestamp": "2025-09-13 13:05", "text": "Tested implementation - confirmed health requests are not logged while MCP requests continue to be logged properly"}
+  ],
+  "decisions": [
+    "Use middleware approach to filter out health requests before they reach the logging system",
+    "Maintain all existing logging functionality for non-health endpoints",
+    "Ensure performance is not impacted by the filtering logic"
+  ],
+  "lessons_learned": [
+    "HTTP middleware approach is effective for filtering specific endpoints from logging",
+    "The LoggingMiddleware pattern from the API service can be reused in other services",
+    "Health check requests can be filtered without impacting other logging functionality",
+    "Testing with multiple requests confirms the filtering works correctly"
+  ],
+  "issues_risks": [
+    "Need to ensure filtering doesn't accidentally exclude important requests",
+    "Performance impact of adding filtering logic to every request"
+  ],
+  "next_steps": [
+    "Examine current HTTP middleware implementation",
+    "Add path-based filtering to exclude /health endpoint",
+    "Test the implementation"
+  ],
+  "references": [
+    "tasks/2025-09-13-add-mcp-server-logging.json - previous logging implementation",
+    "src/cage/mcp_server.py - current MCP server implementation",
+    "logs/mcp.log - current log output showing health requests being logged"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "estimated_effort": "3-5 story points",
+    "complexity": "low",
+    "dependencies": ["existing MCP server logging implementation"]
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-13 16:45",
+      "text": "Fix the mcp logging implementation again to log everything but the health requests. Look at the previous task done on this for more context",
+      "context": "User requested fix for MCP logging to exclude health requests while maintaining other logging"
+    }
+  ]
+}

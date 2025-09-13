@@ -1,0 +1,86 @@
+{
+  "id": "2025-09-13-cleanup-mcp-implementation",
+  "title": "Clean up MCP implementation to single streamable HTTP",
+  "owner": "system",
+  "status": "done",
+  "created_at": "2025-09-13 19:30",
+  "updated_at": "2025-09-13 20:00",
+  "progress_percent": 100,
+  "tags": ["mcp", "cleanup", "streamable-http", "refactor"],
+  "summary": "Consolidate the current MCP implementation into a single, clean streamable HTTP server that matches the official MCP specification example. Remove any unnecessary complexity and ensure it follows the standard MCP streamable HTTP transport pattern.",
+  "success_criteria": [
+    { "text": "Single MCP server implementation using streamable HTTP transport", "checked": true },
+    { "text": "Clean, simplified code structure matching official example", "checked": true },
+    { "text": "Proper MCP protocol compliance with JSON-RPC 2.0", "checked": true },
+    { "text": "Maintains all existing RAG tool functionality", "checked": true },
+    { "text": "Removes any unused stdio/websocket/sse complexity", "checked": true },
+    { "text": "Proper error handling and logging", "checked": true },
+    { "text": "Authentication and session management preserved", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "MCP server starts and responds to health checks", "checked": true },
+    { "text": "Client can initialize MCP connection", "checked": true },
+    { "text": "Client can list available tools", "checked": true },
+    { "text": "Client can call RAG tools successfully", "checked": true },
+    { "text": "Authentication works correctly", "checked": true },
+    { "text": "Code is clean and well-structured", "checked": true }
+  ],
+  "subtasks": [
+    "Analyze current MCP implementation",
+    "Get official MCP streamable HTTP example",
+    "Create clean streamable HTTP implementation",
+    "Remove unnecessary complexity",
+    "Test the new implementation",
+    "Update documentation"
+  ],
+  "todo": [
+    { "text": "Analyze current MCP implementation", "status": "done", "date_started": "2025-09-13 19:35", "date_stopped": "2025-09-13 19:40" },
+    { "text": "Get official MCP streamable HTTP example", "status": "done", "date_started": "2025-09-13 19:40", "date_stopped": "2025-09-13 19:45" },
+    { "text": "Create clean streamable HTTP implementation", "status": "done", "date_started": "2025-09-13 19:45", "date_stopped": "2025-09-13 19:45" },
+    { "text": "Remove unnecessary complexity", "status": "done", "date_started": "2025-09-13 19:45", "date_stopped": "2025-09-13 19:45" },
+    { "text": "Test the new implementation", "status": "done", "date_started": "2025-09-13 19:45", "date_stopped": "2025-09-13 19:50" },
+    { "text": "Update documentation", "status": "done", "date_started": "2025-09-13 19:50", "date_stopped": "2025-09-13 19:50" }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-13 19:30", "text": "Task created to clean up MCP implementation" },
+    { "timestamp": "2025-09-13 19:35", "text": "Started analysis of current implementation" },
+    { "timestamp": "2025-09-13 19:40", "text": "Analyzed current implementation - found it was already mostly streamable HTTP" },
+    { "timestamp": "2025-09-13 19:45", "text": "Created clean, simplified MCP server implementation" },
+    { "timestamp": "2025-09-13 19:45", "text": "Removed old mcp_network_server.py file" },
+    { "timestamp": "2025-09-13 19:50", "text": "Tested new implementation - all MCP protocol endpoints working correctly" },
+    { "timestamp": "2025-09-13 19:50", "text": "Updated docker-compose.yml and Makefile to use new server" },
+    { "timestamp": "2025-09-13 20:00", "text": "Fixed MCP protocol compliance - responses now only include result OR error, not both" }
+  ],
+  "decisions": [
+    "Focus on streamable HTTP transport as the single transport method",
+    "Maintain existing RAG tool functionality",
+    "Simplify code structure while preserving features",
+    "Follow official MCP specification patterns"
+  ],
+  "lessons_learned": [
+    "Current implementation is already mostly streamable HTTP",
+    "Need to remove SSE endpoint and simplify structure",
+    "Should focus on clean JSON-RPC 2.0 implementation"
+  ],
+  "issues_risks": [
+    "Need to ensure backward compatibility with existing clients",
+    "Must preserve authentication and session management",
+    "Should maintain all existing RAG tool functionality"
+  ],
+  "next_steps": [
+    "Complete analysis of current implementation",
+    "Create simplified streamable HTTP version",
+    "Test with MCP clients"
+  ],
+  "references": [
+    "https://github.com/modelcontextprotocol/python-sdk/blob/main/examples/servers/simple-streamablehttp/mcp_simple_streamablehttp/server.py",
+    "https://modelcontextprotocol.io/docs/concepts/transports"
+  ],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {}
+}

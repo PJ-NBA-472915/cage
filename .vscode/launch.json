@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start with Debugpy",
+      "name": "Attach to API (debugpy)",
       "type": "debugpy",
       "request": "attach",
       "connect": {
@@ -17,6 +17,57 @@
       ],
       "justMyCode": true,
       "preLaunchTask": "docker-compose-up"
+    },
+    {
+      "name": "Attach to MCP (debugpy)",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5679
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/app"
+        }
+      ],
+      "justMyCode": true,
+      "preLaunchTask": "docker-compose-up"
+    },
+    {
+      "name": "Attach to API (debugpy) - Wait for Client",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/app"
+        }
+      ],
+      "justMyCode": true,
+      "preLaunchTask": "docker-compose-up-api-debug"
+    },
+    {
+      "name": "Attach to MCP (debugpy) - Wait for Client",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5679
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/app"
+        }
+      ],
+      "justMyCode": true,
+      "preLaunchTask": "docker-compose-up-mcp-debug"
     }
   ]
 }

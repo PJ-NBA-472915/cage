@@ -27,7 +27,7 @@ help:
 	@echo "Service Management:"
 	@echo "  start-api        - Start only Cage API service"
 	@echo "  start-db         - Start only database services"
-	@echo "  start-mcp        - Start only MCP server (WebSocket)"
+	@echo "  start-mcp        - Start only MCP server (Streamable HTTP)"
 	@echo "  restart-api      - Restart Cage API service"
 	@echo "  health-check     - Check health of all services"
 	@echo "  status           - Show service status and resource usage"
