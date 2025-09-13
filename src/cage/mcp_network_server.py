@@ -13,7 +13,22 @@ import logging
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
+def _as_mcp_content(result: Any) -> Dict[str, Any]:
+    """
+    Wrap any Python value as MCP ToolResponse content.
+
+    Returns a dict shaped like:
+    {"content": [{"type": "json", "json": <result>}]}
+    """
+    return {
+        "content": [
+            {
+                "type": "json",
+                "json": result,
+            }
+        ]
+    }
 
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,9 +67,18 @@ logger.addHandler(file_handler)
 
 app = FastAPI(title="Cage MCP Server", version="0.1.0")
 
+# Disable uvicorn access logging to avoid duplicate logs
+import logging
+uvicorn_logger = logging.getLogger("uvicorn.access")
+uvicorn_logger.disabled = True
+
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start_time = datetime.utcnow()
+        
+        # Skip logging for health endpoint
+        if request.url.path == "/health":
+            return await call_next(request)
         
         # Log the incoming request
         logger.info("HTTP request received", 
@@ -116,14 +140,14 @@ RATE_LIMIT_MAX_CALLS = int(os.getenv("MCP_RATE_MAX_CALLS", "120"))
 # MCP Protocol Models
 class MCPRequest(BaseModel):
     jsonrpc: str = "2.0"
-    id: Optional[str] = None
+    id: Optional[Union[str, int]] = None  # Allow both string and int IDs per JSON-RPC spec
     method: str
     params: Optional[Dict[str, Any]] = None
 
 
 class MCPResponse(BaseModel):
     jsonrpc: str = "2.0"
-    id: Optional[str] = None
+    id: Optional[Union[str, int]] = None  # Allow both string and int IDs per JSON-RPC spec
     result: Optional[Dict[str, Any]] = None
     error: Optional[Dict[str, Any]] = None
 
@@ -148,32 +172,32 @@ def _allowed_tokens() -> List[str]:
 async def _get_auth_token(authorization: str = Header(None)) -> str:
     """Extract and validate Bearer token from Authorization header"""
     if not authorization or not authorization.startswith("Bearer "):
-        logger.warning("Authentication failed: Missing or invalid Authorization header", 
+        logger.warning("Authentication failed: Missing or invalid Authorization header",
                       extra={"json_data": {
                           "event": "auth_failure",
                           "reason": "missing_or_invalid_header"
                       }})
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
-    
+
     token = authorization.split(" ", 1)[1].strip()
     allowed = _allowed_tokens()
-    
+
     if not token or (allowed and token not in allowed):
-        logger.warning("Authentication failed: Invalid token", 
+        logger.warning("Authentication failed: Invalid token",
                       extra={"json_data": {
                           "event": "auth_failure",
                           "reason": "invalid_token",
-                          "token_hash": str(hash(token)),
+                          "token_present": bool(token),
                           "allowed_tokens_count": len(allowed)
                       }})
         raise HTTPException(status_code=401, detail="Invalid token")
-    
-    logger.info("Authentication successful", 
+
+    logger.info("Authentication successful",
                 extra={"json_data": {
                     "event": "auth_success",
-                    "token_hash": str(hash(token))
+                    "token_present": bool(token)
                 }})
-    
+
     return token
 
 
@@ -213,7 +237,7 @@ async def _bump_session(session_id: str):
 
 
 async def _check_rate_limit(session_id: str) -> bool:
-    if not redis_client:
+    if not redis_client or not RATE_LIMIT_MAX_CALLS:
         return True
     key = f"mcp:ratelimit:{session_id}"
     cur = await redis_client.incr(key)
@@ -262,7 +286,8 @@ def _get_tools() -> List[Dict[str, Any]]:
                     }
                 },
                 "required": ["query"]
-            }
+            },
+            "metadata": {}
         },
         {
             "name": "rag_reindex",
@@ -277,7 +302,8 @@ def _get_tools() -> List[Dict[str, Any]]:
                         "default": "all"
                     }
                 }
-            }
+            },
+            "metadata": {}
         },
         {
             "name": "rag_check_blob",
@@ -291,7 +317,8 @@ def _get_tools() -> List[Dict[str, Any]]:
                     }
                 },
                 "required": ["blob_sha"]
-            }
+            },
+            "metadata": {}
         },
         {
             "name": "rag_get_status",
@@ -299,7 +326,8 @@ def _get_tools() -> List[Dict[str, Any]]:
             "inputSchema": {
                 "type": "object",
                 "properties": {}
-            }
+            },
+            "metadata": {}
         }
     ]
 
@@ -392,11 +420,12 @@ async def startup_event():
         rag_service = RAGService(db_url=db_url, redis_url=redis_url, openai_api_key=openai_key)
         await rag_service.initialize()
 
-    redis_client = redis.from_url(redis_url, decode_responses=True)
     try:
+        redis_client = redis.from_url(redis_url, decode_responses=True)
         await redis_client.ping()
     except Exception as e:
-        logger.error(f"Redis not reachable: {e}")
+        logger.warning(f"Redis not reachable, continuing without rate limiting/session persistence: {e}")
+        redis_client = None
 
 
 @app.on_event("shutdown")
@@ -410,15 +439,56 @@ async def shutdown_event():
 
 @app.get("/health")
 async def health():
-    return {
+    info = {
         "status": "ok",
         "rag": bool(rag_service is not None),
         "redis": bool(redis_client is not None),
         "time": datetime.utcnow().isoformat() + "Z",
     }
+    if rag_service is not None:
+        info["tools_count"] = len(_get_tools())
+        info["resources_count"] = len(_get_resources())
+    return info
 
 
 # MCP Protocol Endpoints
+@app.get("/mcp")
+async def mcp_get_endpoint(token: str = Depends(_get_auth_token)):
+    """Handle GET requests to MCP endpoint - return server info."""
+    logger.info("MCP GET request received", 
+                extra={"json_data": {
+                    "event": "mcp_get_request"
+                }})
+    
+    if rag_service is None:
+        logger.warning("MCP GET request rejected: RAG service not available", 
+                      extra={"json_data": {
+                          "event": "mcp_get_rejected",
+                          "reason": "rag_service_unavailable"
+                      }})
+        raise HTTPException(status_code=503, detail="RAG service not available")
+    
+    tools_count = len(_get_tools())
+    resources_count = len(_get_resources())
+    
+    logger.info("MCP GET request processed successfully", 
+                extra={"json_data": {
+                    "event": "mcp_get_success",
+                    "tools_count": tools_count,
+                    "resources_count": resources_count
+                }})
+    
+    return {
+        "name": "Cage RAG MCP Server",
+        "version": "0.1.0",
+        "protocol": "mcp",
+        "capabilities": {
+            "tools": tools_count,
+            "resources": resources_count
+        }
+    }
+
+
 @app.post("/mcp")
 async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token)):
     """Main MCP endpoint handling all MCP protocol requests."""
@@ -455,18 +525,30 @@ async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token
     
     try:
         if request.method == "initialize":
-            logger.info("MCP initialize request processed", 
+            logger.info("MCP initialize request processed",
                         extra={"json_data": {
                             "event": "mcp_initialize_success",
                             "request_id": request.id
                         }})
+
+            # Extract client capabilities from request
+            client_capabilities = {}
+            if request.params:
+                client_capabilities = request.params.get("capabilities", {})
+
             return MCPResponse(
                 id=request.id,
                 result={
                     "protocolVersion": "2024-11-05",
                     "capabilities": {
-                        "tools": {},
-                        "resources": {}
+                        "tools": {
+                            "listChanged": True
+                        },
+                        "resources": {
+                            "listChanged": True
+                        },
+                        "prompts": {} if client_capabilities.get("prompts") else None,
+                        "logging": {} if client_capabilities.get("logging") else None
                     },
                     "serverInfo": {
                         "name": "Cage RAG MCP Server",
@@ -474,7 +556,7 @@ async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token
                     }
                 }
             )
-        
+
         elif request.method == "tools/list":
             tools = _get_tools()
             logger.info("MCP tools/list request processed", 
@@ -492,18 +574,18 @@ async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token
             params = request.params or {}
             name = params.get("name", "").strip()
             arguments = params.get("arguments") or {}
-            
-            logger.info("MCP tool call request", 
+
+            logger.info("MCP tool call request",
                         extra={"json_data": {
                             "event": "mcp_tool_call_request",
                             "request_id": request.id,
                             "tool_name": name,
                             "arguments": arguments
                         }})
-            
+
             handler = TOOL_DISPATCH.get(name)
             if not handler:
-                logger.warning("MCP tool call failed: Unknown tool", 
+                logger.warning("MCP tool call failed: Unknown tool",
                               extra={"json_data": {
                                   "event": "mcp_tool_call_failed",
                                   "request_id": request.id,
@@ -514,15 +596,15 @@ async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token
                     id=request.id,
                     error=MCPError(code=-32601, message=f"Unknown tool: {name}").dict()
                 )
-            
+
             result = await handler(arguments)
-            logger.info("MCP tool call completed successfully", 
+            logger.info("MCP tool call completed successfully",
                         extra={"json_data": {
                             "event": "mcp_tool_call_success",
                             "request_id": request.id,
                             "tool_name": name
                         }})
-            return MCPResponse(id=request.id, result=result)
+            return MCPResponse(id=request.id, result=_as_mcp_content(result))
         
         elif request.method == "resources/list":
             resources = _get_resources()
@@ -540,17 +622,17 @@ async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token
         elif request.method == "resources/read":
             params = request.params or {}
             uri = params.get("uri", "")
-            
-            logger.info("MCP resource read request", 
+
+            logger.info("MCP resource read request",
                         extra={"json_data": {
                             "event": "mcp_resource_read_request",
                             "request_id": request.id,
                             "uri": uri
                         }})
-            
+
             if uri == "rag://status":
                 status = await _handle_rag_get_status({})
-                logger.info("MCP resource read completed successfully", 
+                logger.info("MCP resource read completed successfully",
                             extra={"json_data": {
                                 "event": "mcp_resource_read_success",
                                 "request_id": request.id,
@@ -563,13 +645,13 @@ async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token
                             {
                                 "uri": uri,
                                 "mimeType": "application/json",
-                                "text": json.dumps(status, indent=2)
+                                "text": json.dumps(status, separators=(",", ":"))
                             }
                         ]
                     }
                 )
             else:
-                logger.warning("MCP resource read failed: Unknown resource", 
+                logger.warning("MCP resource read failed: Unknown resource",
                               extra={"json_data": {
                                   "event": "mcp_resource_read_failed",
                                   "request_id": request.id,
@@ -580,6 +662,11 @@ async def mcp_endpoint(request: MCPRequest, token: str = Depends(_get_auth_token
                     id=request.id,
                     error=MCPError(code=-32602, message=f"Unknown resource: {uri}").dict()
                 )
+
+        elif request.method in {"ping", "notifications/initialized"}:
+            logger.info("MCP no-op request processed",
+                        extra={"json_data": {"event": "mcp_noop", "method": request.method, "request_id": request.id}})
+            return MCPResponse(id=request.id, result={})
         
         else:
             logger.warning("MCP request failed: Unknown method", 

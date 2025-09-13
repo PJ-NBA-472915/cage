@@ -5,9 +5,10 @@ import os
 import sys
 from pathlib import Path
 from typing import Optional, Dict
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 import uvicorn
 
@@ -47,11 +48,66 @@ def get_pod_token(credentials: HTTPAuthorizationCredentials = Depends(security))
         raise HTTPException(status_code=401, detail="Invalid token")
     return credentials.credentials
 
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        start_time = datetime.datetime.utcnow()
+        
+        # Skip logging for health endpoint
+        if request.url.path == "/health":
+            return await call_next(request)
+        
+        # Log the incoming request
+        logger.info("HTTP request received", 
+                    extra={"json_data": {
+                        "event": "http_request",
+                        "method": request.method,
+                        "url": str(request.url),
+                        "path": request.url.path,
+                        "query_params": dict(request.query_params),
+                        "client_ip": request.client.host if request.client else "unknown"
+                    }})
+        
+        try:
+            response = await call_next(request)
+            
+            # Log the response
+            duration_ms = (datetime.datetime.utcnow() - start_time).total_seconds() * 1000
+            logger.info("HTTP response sent", 
+                        extra={"json_data": {
+                            "event": "http_response",
+                            "method": request.method,
+                            "url": str(request.url),
+                            "status_code": response.status_code,
+                            "duration_ms": round(duration_ms, 2)
+                        }})
+            
+            return response
+            
+        except Exception as e:
+            duration_ms = (datetime.datetime.utcnow() - start_time).total_seconds() * 1000
+            logger.error("HTTP request failed", 
+                        extra={"json_data": {
+                            "event": "http_error",
+                            "method": request.method,
+                            "url": str(request.url),
+                            "error": str(e),
+                            "error_type": type(e).__name__,
+                            "duration_ms": round(duration_ms, 2)
+                        }})
+            raise
+
 app = FastAPI(
     title="Cage Pod API",
     description="Pod-based Multi-Agent Repository Service",
     version="0.1.0"
 )
+
+# Disable uvicorn access logging to avoid duplicate logs
+uvicorn_logger = logging.getLogger("uvicorn.access")
+uvicorn_logger.disabled = True
+
+# Add logging middleware
+app.add_middleware(LoggingMiddleware)
 
 # Add CORS middleware
 app.add_middleware(
