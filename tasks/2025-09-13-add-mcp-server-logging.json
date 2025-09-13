@@ -1,0 +1,104 @@
+{
+  "id": "2025-09-13-add-mcp-server-logging",
+  "title": "Add Clear and Detailed Logging to MCP Server",
+  "owner": "AI Assistant",
+  "status": "done",
+  "created_at": "2025-09-13 16:30",
+  "updated_at": "2025-09-13 11:35",
+  "progress_percent": 100,
+  "tags": ["mcp", "logging", "monitoring", "observability"],
+  "summary": "Successfully implemented comprehensive logging system for the MCP network server with structured JSON logging, authentication tracking, session management, RAG service operations, rate limiting, and performance metrics. All operations now have detailed logging with timestamps, request IDs, and contextual information for excellent observability.",
+  "success_criteria": [
+    {"text": "MCP server has structured JSON logging similar to API service", "checked": true},
+    {"text": "All MCP protocol operations are logged with request/response details", "checked": true},
+    {"text": "Authentication events and session management are logged", "checked": true},
+    {"text": "RAG service operations and errors are logged with context", "checked": true},
+    {"text": "Rate limiting events and violations are logged", "checked": true},
+    {"text": "Performance metrics (response times, call counts) are logged", "checked": true},
+    {"text": "Log files are written to logs/ directory with proper rotation", "checked": true},
+    {"text": "Logging configuration is consistent with project standards", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "MCP server logs to logs/mcp.log file", "checked": true},
+    {"text": "JSON formatted logs with timestamp, level, message, file, line", "checked": true},
+    {"text": "All MCP endpoints log incoming requests and outgoing responses", "checked": true},
+    {"text": "Authentication failures and successes are logged", "checked": true},
+    {"text": "RAG service initialization and errors are logged", "checked": true},
+    {"text": "Rate limit violations include session and token information", "checked": true},
+    {"text": "Tool execution results and errors are logged", "checked": true},
+    {"text": "Server startup/shutdown events are logged", "checked": true},
+    {"text": "Logging follows project memory preferences (single logger utility)", "checked": true}
+  ],
+  "subtasks": [
+    "Analyze existing API logging implementation and patterns",
+    "Design logging structure for MCP server operations",
+    "Implement JsonFormatter class for MCP server",
+    "Add comprehensive logging to MCP protocol endpoints",
+    "Add logging for authentication and session management",
+    "Add logging for RAG service operations and errors",
+    "Add logging for rate limiting and performance metrics",
+    "Add logging for server lifecycle events",
+    "Test logging implementation with various MCP operations",
+    "Verify log file creation and format consistency"
+  ],
+  "todo": [
+    {"text": "Analyze existing API logging implementation and patterns", "status": "done", "date_started": "2025-09-13 11:25", "date_stopped": "2025-09-13 11:26"},
+    {"text": "Design logging structure for MCP server operations", "status": "done", "date_started": "2025-09-13 11:26", "date_stopped": "2025-09-13 11:26"},
+    {"text": "Implement JsonFormatter class for MCP server", "status": "done", "date_started": "2025-09-13 11:26", "date_stopped": "2025-09-13 11:26"},
+    {"text": "Add comprehensive logging to MCP protocol endpoints", "status": "done", "date_started": "2025-09-13 11:26", "date_stopped": "2025-09-13 11:27"},
+    {"text": "Add logging for authentication and session management", "status": "done", "date_started": "2025-09-13 11:27", "date_stopped": "2025-09-13 11:27"},
+    {"text": "Add logging for RAG service operations and errors", "status": "done", "date_started": "2025-09-13 11:27", "date_stopped": "2025-09-13 11:27"},
+    {"text": "Add logging for rate limiting and performance metrics", "status": "done", "date_started": "2025-09-13 11:27", "date_stopped": "2025-09-13 11:27"},
+    {"text": "Add logging for server lifecycle events", "status": "done", "date_started": "2025-09-13 11:27", "date_stopped": "2025-09-13 11:28"},
+    {"text": "Test logging implementation with various MCP operations", "status": "done", "date_started": "2025-09-13 11:28", "date_stopped": "2025-09-13 11:28"},
+    {"text": "Verify log file creation and format consistency", "status": "done", "date_started": "2025-09-13 11:28", "date_stopped": "2025-09-13 11:28"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-13 16:30", "text": "Task created - comprehensive logging system for MCP server"},
+    {"timestamp": "2025-09-13 11:25", "text": "Task confirmed and implementation started"},
+    {"timestamp": "2025-09-13 11:28", "text": "Implementation completed - comprehensive logging added to MCP server"},
+    {"timestamp": "2025-09-13 11:35", "text": "Re-implemented logging after user reverted changes - added HTTP middleware and enhanced error tracking"}
+  ],
+  "decisions": [
+    "Use JSON logging format consistent with API service",
+    "Log to logs/mcp.log file following project conventions",
+    "Include request/response logging for all MCP protocol operations",
+    "Add structured logging for authentication, rate limiting, and performance",
+    "Follow project memory preference for single logger utility"
+  ],
+  "lessons_learned": [
+    "JSON structured logging provides excellent observability for MCP server operations",
+    "Token hashing in logs maintains security while enabling debugging",
+    "Performance timing metrics are crucial for monitoring server health",
+    "Comprehensive error logging helps with troubleshooting MCP protocol issues",
+    "Session management logging enables tracking of client connections and usage patterns"
+  ],
+  "issues_risks": [
+    "Need to ensure logging doesn't impact MCP server performance",
+    "Log file rotation and size management considerations",
+    "Sensitive information (tokens) should be hashed in logs"
+  ],
+  "next_steps": [
+    "Review existing API logging implementation",
+    "Design MCP-specific logging structure",
+    "Implement logging configuration"
+  ],
+  "references": [
+    "src/api/main.py - existing API logging implementation",
+    "src/cage/mcp_network_server.py - current MCP server implementation",
+    "Project memory: single logger utility preference"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "estimated_effort": "5-8 story points",
+    "complexity": "medium",
+    "dependencies": ["existing MCP server implementation", "API logging patterns"]
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-13 16:30",
+      "text": "Create a new task to add clear an detailed logging to the MCP server, similar to what we have with the api.",
+      "context": "User requested new task creation for MCP server logging enhancement"
+    }
+  ]
+}

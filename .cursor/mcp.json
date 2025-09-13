@@ -3,6 +3,13 @@
     "Notion": {
       "url": "https://mcp.notion.com/mcp",
       "headers": {}
+    },
+    "Cage RAG": {
+      "url": "http://localhost:8765/mcp",
+      "headers": {
+        "Authorization": "Bearer test-mcp-token",
+        "Content-Type": "application/json"
+      }
     }
   }
 }
