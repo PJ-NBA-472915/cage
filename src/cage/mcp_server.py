@@ -14,19 +14,17 @@ async def get_tasks(state: str) -> str:
     Args:
         state: Options are: "open", "in-progress", "done"
     """
-    return [
+    tasks = [
         "Task 1",
-        "Task 2",
+        "Task 2", 
         "Task 3"
     ]
+    return f"Tasks with state '{state}': {', '.join(tasks)}"
 
 if __name__ == "__main__":
-    import os
-    
-    parser = argparse.ArgumentParser(description="MCP Server")
-    parser.add_argument("--port", type=int, default=int(os.getenv("MCP_PORT", 8765)), help="Port to run the server on")
-    parser.add_argument("--host", type=str, default=os.getenv("MCP_HOST", "localhost"), help="Host to run the server on")
-
+    parser = argparse.ArgumentParser(description="Run MCP Streamable HTTP based server")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to listen on")
+    parser.add_argument("--port", type=int, default=8765, help="Port to listen on")
     args = parser.parse_args()
 
     # Start the server with Streamable HTTP transport

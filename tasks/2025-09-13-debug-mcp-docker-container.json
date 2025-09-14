@@ -1,0 +1,54 @@
+{
+  "id": "2025-09-13-debug-mcp-docker-container",
+  "title": "Debug MCP Docker Container Startup",
+  "owner": "AI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-13 16:30",
+  "updated_at": "2025-09-13 16:30",
+  "progress_percent": 0,
+  "tags": ["docker", "mcp", "debugging"],
+  "summary": "Debug and fix MCP server startup issues in Docker container.",
+  "success_criteria": [
+    {"text": "MCP Docker container starts successfully", "checked": false},
+    {"text": "MCP server is accessible on port 8765", "checked": false},
+    {"text": "MCP server responds to health checks", "checked": false},
+    {"text": "Container logs show no errors", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "docker compose up mcp runs without errors", "checked": false},
+    {"text": "MCP service shows as healthy in docker compose ps", "checked": false},
+    {"text": "Can curl localhost:8765 and get a response", "checked": false},
+    {"text": "Container logs are clean with no exceptions", "checked": false}
+  ],
+  "subtasks": [
+    "Run docker compose up mcp and capture output",
+    "Analyze any startup errors or issues",
+    "Check MCP server code for potential issues",
+    "Fix identified problems in Dockerfile or server code",
+    "Verify container starts successfully",
+    "Test MCP server functionality"
+  ],
+  "todo": [
+    {"text": "Run docker compose up mcp and capture output", "status": "done", "date_started": "2025-09-13 16:30", "date_stopped": "2025-09-13 16:35"},
+    {"text": "Analyze any startup errors or issues", "status": "done", "date_started": "2025-09-13 16:35", "date_stopped": "2025-09-13 16:35"},
+    {"text": "Check MCP server code for potential issues", "status": "done", "date_started": "2025-09-13 16:35", "date_stopped": "2025-09-13 16:35"},
+    {"text": "Fix identified problems in Dockerfile or server code", "status": "done", "date_started": "2025-09-13 16:35", "date_stopped": "2025-09-13 16:35"},
+    {"text": "Verify container starts successfully", "status": "done", "date_started": "2025-09-13 16:35", "date_stopped": "2025-09-13 16:35"},
+    {"text": "Test MCP server functionality", "status": "in-progress", "date_started": "2025-09-13 16:35", "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-13 16:30", "text": "Task created - starting MCP Docker debugging"},
+    {"timestamp": "2025-09-13 16:30", "text": "Examined docker-compose.yml and MCP server code"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": ["Run docker compose up mcp to see current behavior"],
+  "references": [
+    "docker-compose.yml lines 67-90 (MCP service configuration)",
+    "dockerfiles/mcp (MCP Dockerfile)",
+    "src/cage/mcp_server.py (MCP server implementation)"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}

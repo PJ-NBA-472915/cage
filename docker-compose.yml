@@ -68,19 +68,14 @@ services:
   mcp:
     build:
       context: .
-      args:
-        GIT_EMAIL: ${GIT_EMAIL:-cage-agent@example.com}
-        GIT_NAME: ${GIT_NAME:-"Cage Agent"}
-    command: ["python", "-m", "uvicorn", "src.cage.mcp_server:mcp", "--host", "0.0.0.0", "--port", "8765"]
+      dockerfile: dockerfiles/mcp
+    command: ["python", "-m", "src.cage.mcp_server", "--host", "0.0.0.0", "--port", "8765"]
     ports:
       - "${MCP_PORT:-8765}:8765"
       - "5679:5679"  # debugpy debug port
     environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/cage
-      - REDIS_URL=redis://redis:6379
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - REPO_PATH=/work/repo
-      - MCP_TOKENS=${MCP_TOKENS:-}
+      - POD_TOKEN=${POD_TOKEN:-test-mcp-token}
+      - MCP_TOKENS=${MCP_TOKENS:-test-mcp-token}
       - MCP_SESSION_TTL=${MCP_SESSION_TTL:-3600}
       - MCP_RATE_MAX_CALLS=${MCP_RATE_MAX_CALLS:-240}
       - DEBUGPY_ENABLED=${DEBUGPY_ENABLED:-0}
@@ -93,12 +88,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   postgres_data:
