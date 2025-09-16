@@ -2,11 +2,11 @@
 fastapi>=0.110.0
 uvicorn[standard]==0.24.0
 pydantic>=2.8.0
-python-multipart>=0.0.9
+python-multipart==0.0.6
 
 # CLI dependencies
 typer==0.9.0
-rich>=13.9.4
+rich==13.7.0
 
 # Database and caching (for new spec)
 asyncpg>=0.30.0
@@ -17,8 +17,7 @@ psycopg2-binary==2.9.9
 openai>=1.12.0
 langchain>=0.1.4
 pgvector==0.2.4
-mcp>=1.12.4
-fastmcp>=2.12.0
+mcp==1.0.0
 
 # CrewAI integration (for new spec)
 crewai>=0.28.0
