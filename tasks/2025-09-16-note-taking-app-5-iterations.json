@@ -1,0 +1,87 @@
+{
+  "id": "2025-09-16-note-taking-app-5-iterations",
+  "title": "Note-Taking Application - 5 Iteration Cage Platform Test",
+  "owner": "AI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-16 14:33",
+  "updated_at": "2025-09-16 14:33",
+  "progress_percent": 0,
+  "tags": ["testing", "cage-platform", "crewai", "note-taking", "iterative", "5-iterations"],
+  "summary": "Build a note-taking application through 5 iterative test cycles, evaluating and improving Cage platform performance with each iteration",
+  "success_criteria": [
+    {"text": "Complete 5 full iteration cycles", "checked": false},
+    {"text": "Each iteration demonstrates improved Cage platform performance", "checked": false},
+    {"text": "Note-taking app evolves from basic to advanced features", "checked": false},
+    {"text": "Document lessons learned and platform improvements", "checked": false},
+    {"text": "Measure and track performance metrics across iterations", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Iteration 1: Basic note creation and storage", "checked": false},
+    {"text": "Iteration 2: Note editing and deletion capabilities", "checked": false},
+    {"text": "Iteration 3: Note categorization and search", "checked": false},
+    {"text": "Iteration 4: User interface and interaction", "checked": false},
+    {"text": "Iteration 5: Advanced features and optimization", "checked": false}
+  ],
+  "subtasks": [
+    "Create initial test repository",
+    "Execute Iteration 1: Basic note creation",
+    "Evaluate Iteration 1 results and identify improvements",
+    "Execute Iteration 2: Note editing and deletion",
+    "Evaluate Iteration 2 results and identify improvements",
+    "Execute Iteration 3: Note categorization and search",
+    "Evaluate Iteration 3 results and identify improvements",
+    "Execute Iteration 4: User interface and interaction",
+    "Evaluate Iteration 4 results and identify improvements",
+    "Execute Iteration 5: Advanced features and optimization",
+    "Evaluate Iteration 5 results and final assessment",
+    "Document comprehensive lessons learned"
+  ],
+  "todo": [
+    {"text": "Create initial test repository", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Execute Iteration 1: Basic note creation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Evaluate Iteration 1 results and identify improvements", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Execute Iteration 2: Note editing and deletion", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Evaluate Iteration 2 results and identify improvements", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Execute Iteration 3: Note categorization and search", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Evaluate Iteration 3 results and identify improvements", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Execute Iteration 4: User interface and interaction", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Evaluate Iteration 4 results and identify improvements", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Execute Iteration 5: Advanced features and optimization", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Evaluate Iteration 5 results and final assessment", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Document comprehensive lessons learned", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-16 14:33", "text": "Task created for 5-iteration note-taking app test"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [
+    "Create initial test repository",
+    "Start Iteration 1"
+  ],
+  "references": [],
+  "locks": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "test_type": "iterative_development",
+    "app_type": "note_taking_application",
+    "iterations": 5,
+    "platform_features_to_test": ["crewai", "multi_agent", "file_operations", "git_integration", "error_handling", "quality_control"],
+    "expected_agents": ["Planner", "Implementer", "Reviewer", "Committer"],
+    "iteration_details": {
+      "1": {"theme": "Basic note creation and storage", "features": ["create_note", "save_note", "list_notes"]},
+      "2": {"theme": "Note editing and deletion", "features": ["edit_note", "delete_note", "update_note"]},
+      "3": {"theme": "Note categorization and search", "features": ["categorize_notes", "search_notes", "filter_notes"]},
+      "4": {"theme": "User interface and interaction", "features": ["cli_interface", "user_prompts", "interactive_commands"]},
+      "5": {"theme": "Advanced features and optimization", "features": ["export_notes", "import_notes", "backup_restore", "performance_optimization"]}
+    }
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-16 14:33",
+      "text": "Start a new repository to test with and run through 5 iterations of tests with that repo. Each iteration must start with requested changes to the repo, have the platform make the changes, evaluate the outcome, adjust the cage application for an improved outcome, and then move on to the next iteration. Have the theme be building a note-taking application throughout the 5 iterations.",
+      "context": "User requested comprehensive 5-iteration test plan for note-taking app development"
+    }
+  ]
+}

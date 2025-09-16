@@ -118,14 +118,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize task manager and git tool
-task_manager = TaskManager(Path("tasks"))
-git_tool = GitTool(Path("."))
-crew_tool = CrewTool(Path("."), task_manager)
-
-# Initialize RAG service
-rag_service = None
-
 # Configure logging
 LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "api.log")
@@ -154,6 +146,14 @@ def get_repository_path():
     """Get the repository path from environment variable."""
     repo_path = os.environ.get("REPO_PATH", "/work/repo")
     return Path(repo_path)
+
+# Initialize task manager and git tool
+task_manager = TaskManager(Path("tasks"))
+git_tool = GitTool(get_repository_path())
+crew_tool = CrewTool(get_repository_path(), task_manager)
+
+# Initialize RAG service
+rag_service = None
 
 # Initialize editor tool
 editor_tool = EditorTool(get_repository_path(), task_manager=task_manager)

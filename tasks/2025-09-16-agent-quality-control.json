@@ -1,0 +1,79 @@
+{
+  "id": "2025-09-16-agent-quality-control",
+  "title": "Enhance CrewAI Agent Quality Control",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-16 14:41",
+  "updated_at": "2025-09-16 14:41",
+  "progress_percent": 0,
+  "tags": ["quality-control", "crewai", "validation", "reviewer-agent"],
+  "summary": "Improve CrewAI agent quality control mechanisms to catch implementation issues and ensure code quality",
+  "success_criteria": [
+    {"text": "Reviewer agent catches implementation issues", "checked": false},
+    {"text": "Code quality validation is implemented", "checked": false},
+    {"text": "File operation validation is added", "checked": false},
+    {"text": "Error detection and reporting is improved", "checked": false},
+    {"text": "Agent coordination is enhanced", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Reviewer agent validates file operations", "checked": false},
+    {"text": "Code syntax errors are caught", "checked": false},
+    {"text": "Missing files are detected", "checked": false},
+    {"text": "Implementation completeness is verified", "checked": false},
+    {"text": "Quality issues are reported clearly", "checked": false}
+  ],
+  "subtasks": [
+    "Examine CrewAI agent implementation",
+    "Enhance Reviewer agent validation",
+    "Add code quality checks",
+    "Implement file operation validation",
+    "Add error detection mechanisms",
+    "Improve agent coordination",
+    "Test quality control improvements"
+  ],
+  "todo": [
+    {"text": "Examine CrewAI agent implementation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Enhance Reviewer agent validation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add code quality checks", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement file operation validation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add error detection mechanisms", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Improve agent coordination", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test quality control improvements", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-16 14:41", "text": "Agent quality control task created"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Reviewer agent doesn't catch implementation issues",
+    "No validation of file operation success",
+    "Code quality checks are insufficient",
+    "Agent coordination is weak"
+  ],
+  "next_steps": [
+    "Examine src/cage/crew_tool.py implementation",
+    "Enhance Reviewer agent validation logic",
+    "Add file operation success validation",
+    "Implement code quality checks"
+  ],
+  "references": [],
+  "locks": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "priority": "high",
+    "component": "crew_tool",
+    "files_to_examine": [
+      "src/cage/crew_tool.py",
+      "src/cage/editor_tool.py",
+      "src/cage/git_tool.py"
+    ],
+    "test_scenarios": [
+      "Reviewer catches syntax errors",
+      "Reviewer validates file creation",
+      "Reviewer detects missing files",
+      "Reviewer verifies implementation completeness"
+    ]
+  },
+  "prompts": []
+}
