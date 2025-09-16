@@ -208,8 +208,8 @@ class GitTool:
             )
         
         if files is None:
-            # Add all files
-            result = self._run_git_command(["add", "."])
+            # Stage all tracked, deleted, and untracked changes
+            result = self._run_git_command(["add", "--all"])
         else:
             # Add specific files
             result = self._run_git_command(["add"] + files)
@@ -242,12 +242,46 @@ class GitTool:
         if not status_result.success:
             return status_result
         
-        if not status_result.data.get("staged_files"):
-            return GitOperationResult(
-                success=False,
-                error="No staged changes to commit"
-            )
-        
+        staged_files = status_result.data.get("staged_files", [])
+        if not staged_files:
+            unstaged_files = status_result.data.get("unstaged_files", [])
+            untracked_files = status_result.data.get("untracked_files", [])
+
+            if unstaged_files or untracked_files:
+                # Attempt to stage pending changes automatically
+                add_result = self.add_files()
+                if not add_result.success:
+                    return GitOperationResult(
+                        success=False,
+                        error=f"Failed to stage changes automatically: {add_result.error}",
+                        data={"unstaged_files": unstaged_files, "untracked_files": untracked_files}
+                    )
+
+                status_result = self.get_status()
+                if not status_result.success:
+                    return status_result
+
+                staged_files = status_result.data.get("staged_files", [])
+                if not staged_files:
+                    remaining_unstaged = status_result.data.get("unstaged_files", [])
+                    remaining_untracked = status_result.data.get("untracked_files", [])
+                    details = []
+                    if remaining_unstaged:
+                        details.append(f"unstaged: {', '.join(remaining_unstaged)}")
+                    if remaining_untracked:
+                        details.append(f"untracked: {', '.join(remaining_untracked)}")
+                    detail_msg = f" Remaining {', '.join(details)}" if details else ""
+                    return GitOperationResult(
+                        success=False,
+                        error=f"No staged changes to commit after auto-staging.{detail_msg}",
+                        data=status_result.data
+                    )
+            else:
+                return GitOperationResult(
+                    success=False,
+                    error="No changes detected in the working tree"
+                )
+
         # Set author if provided
         env = None
         if author:
