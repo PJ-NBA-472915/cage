@@ -1,134 +1,103 @@
 # Cage: Pod-based Multi-Agent Repository Service
 
-Cage is a comprehensive system for managing multi-agent collaboration on code repositories. It provides a pod-based architecture with task management, file editing capabilities, Git integration, and AI agent orchestration through CrewAI.
+Cage is a system for managing multi-agent collaboration on code repositories. It provides a pod-based architecture with task management, structured file edits, Git integration, a CrewAI workflow, a RAG service, a REST API, CLI tools, and an MCP server for tool access.
 
-## Key Features:
+## Key Features
 
-- **Task Management System:** Complete task file system with JSON-based storage, validation, and progress tracking
-- **Editor Tool:** Structured file operations (GET/INSERT/UPDATE/DELETE) with locking mechanism
-- **Git Integration:** Comprehensive Git operations with commit trail tracking
-- **CrewAI Integration:** AI agent workflows for planning and execution
-- **RAG System:** Retrieval Augmented Generation with vector search and embeddings
-- **REST API:** Full REST API for programmatic access to all features
-- **CLI Tools:** Command-line interface for interactive management
-- **Multi-Agent Collaboration:** File locking and coordination for concurrent agent work
+- **Task Management:** JSON task files with validation, progress, and provenance
+- **Editor Tool:** Structured file ops (GET/INSERT/UPDATE/DELETE) with locking
+- **Git Integration:** Status/branch/commit/push/merge with provenance
+- **CrewAI Workflow:** Plan → implement → review → commit
+- **RAG (pgvector + Redis):** Semantic search over code/tasks with OpenAI embeddings
+- **REST API:** Endpoints for tasks, files, git, crew, rag
+- **CLI Tools:** Typer-based CLI for tasks/git/serve
+- **MCP Server:** Streamable HTTP MCP server exposing RAG query as a tool
 
-## Current Status:
+## Current Status
 
-### ✅ Phase 1: Task File System (Complete)
-- Task file data models with Pydantic validation
-- REST API endpoints for task management
-- CLI tools for interactive task operations
-- Automatic progress calculation and status tracking
-- JSON schema validation and error handling
+- ✅ Phase 1: Task File System — Complete
+- ✅ Phase 2: Editor Tool — Complete
+- ✅ Phase 3: Git Integration — Complete
+- ✅ Phase 4: CrewAI Integration — Implemented (alpha)
+- ✅ Phase 5: RAG System — Implemented (beta)
+- 📋 Phase 6: Production Features — Planned
 
-### 🚧 Phase 2: Editor Tool (Planned)
-- Internal Python functions for file operations
-- CLI tools for structured file editing
-- Basic locking mechanism for multi-agent collaboration
-
-### 📋 Phase 3: Git Integration (Planned)
-- Git operations as internal Python functions
-- Commit trail tracking in task provenance
-- Integration with Editor Tool functions
-
-### 📋 Phase 4: CrewAI Integration (Planned)
-- AI agent workflows for task planning and execution
-- Integration with Editor Tool and Git functions
-- Automated task management and coordination
-
-### 📋 Phase 5: RAG System (Planned)
-- Vector search and embeddings with Postgres + pgvector
-- Redis for hot indexes and caching
-- Code and documentation indexing
-
-### 📋 Phase 6: Production Features (Planned)
-- Webhooks and event system
-- Advanced security and monitoring
-- Production deployment capabilities
-
-## Directory Structure:
+## Directory Structure
 
 - `src/api/`: FastAPI REST API server
 - `src/cli/`: Typer-based CLI tools
 - `src/cage/`: Core Cage modules and data models
 - `tasks/`: Task file storage and management
-- `memory-bank/`: Project context, specifications, and rules
-- `docs/`: Comprehensive documentation
-- `tests/`: Test suites for all components
+- `memory-bank/docs/`: Feature documentation (API, Editor, Git, RAG, MCP)
+- `tests/`: Test suites
+- `dockerfiles/` and `docker-compose.yml`: Containerization
 
-## Getting Started:
+## Getting Started
 
-### Prerequisites
-- Python 3.10+
-- Virtual environment (recommended)
-- Git repository
+Choose Docker Compose (recommended) or local-only.
 
-### Installation
+### Docker Compose (API + Postgres + Redis + MCP)
+
+Prerequisites
+- Docker and Docker Compose
+- A Git repository to operate on (`REPO_PATH`)
+
+Setup
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd cage
+# From project root
+export REPO_PATH=/absolute/path/to/your/repo
+export POD_TOKEN=dev-token                   # API auth token
+export OPENAI_API_KEY=sk-...                 # Optional; enables RAG
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+docker-compose up -d
 ```
 
-### Quick Start
-
-#### 1. Start the API Server
+Verify
 ```bash
-# Start the API server
-python -m src.api.main
-
-# Server will be available at http://localhost:8000
+curl -H "Authorization: Bearer $POD_TOKEN" http://localhost:8000/health
 ```
 
-#### 2. Use CLI Tools
+Index your repo for RAG (optional)
 ```bash
-# Create a new task
-python -m src.cli.main task-create 2025-09-08-example-task "Example Task" \
-  --summary "A sample task for demonstration" \
-  --tags "example,demo"
-
-# List all tasks
-python -m src.cli.main task-list
-
-# Show task details
-python -m src.cli.main task-show 2025-09-08-example-task
-
-# Update task status
-python -m src.cli.main task-update 2025-09-08-example-task --status in-progress
-```
-
-#### 3. Use the REST API
-```bash
-# Health check
-curl -H "Authorization: Bearer dev-token" http://localhost:8000/health
-
-# Create a task
-curl -X POST -H "Authorization: Bearer dev-token" \
+curl -X POST -H "Authorization: Bearer $POD_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"task_id": "2025-09-08-api-task", "status": "confirmed"}' \
-  http://localhost:8000/tasks/confirm
-
-# Get task details
-curl -H "Authorization: Bearer dev-token" \
-  http://localhost:8000/tasks/2025-09-08-api-task
+  -d '{"scope":"all"}' http://localhost:8000/rag/reindex
 ```
 
-## Documentation:
+Useful make targets
+```bash
+make docker-logs-api     # Stream API logs
+make docker-logs-mcp     # Stream MCP logs
+make rag-reindex         # POST /rag/reindex
+make rag-query           # Example RAG query
+```
 
-- **[Task Manager System](docs/features/task-manager.md)**: Complete documentation for the task management system
-- **[API Design](docs/api-design.md)**: REST API documentation and design
-- **[CLI Reference](docs/cli-reference.md)**: Command-line interface documentation
-- **[Memory Bank](memory-bank/README.md)**: Project context and specifications
+## Documentation
 
-## Development:
+- Task Manager: `memory-bank/docs/features/task-manager.md`
+- Editor Tool: `memory-bank/docs/features/editor-tool.md`
+- Git Integration: `memory-bank/docs/features/git-integration.md`
+- RAG System: `memory-bank/docs/features/rag-system-implementation.md`
+- MCP Service: `memory-bank/docs/features/mcp-service.md`
+- Project Context: `memory-bank/README.md`
+- Postman Collection: `cage-api-complete-postman-collection.json`
+
+## MCP Server
+
+- Runs via Docker Compose (`mcp` service) on port `8765` by default.
+- Exposes MCP tools (e.g., `rag_query`) for MCP-aware clients; it is not a human-facing API.
+- Configuration:
+  - `API_BASE_URL` (default: `http://api:8000` in compose)
+  - `POD_TOKEN` (must match API)
+  - Optional debug ports via env (`DEBUGPY_*`).
+- Logs: `docker-compose logs mcp`.
+
+Run manually (advanced)
+```bash
+python -m src.cage.mcp_server --host 0.0.0.0 --port 8765
+```
+
+## Development
 
 ### Running Tests
 ```bash
@@ -142,13 +111,11 @@ python -m pytest tests/test_api.py
 python -m pytest --cov=src
 ```
 
-### Development Server
-```bash
-# Start development server with auto-reload
-uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
-```
+### Environment notes
+- Authentication: All protected endpoints require `Authorization: Bearer $POD_TOKEN`.
+- RAG: Requires `DATABASE_URL`, `REDIS_URL`, and a valid `OPENAI_API_KEY`. Without these, RAG endpoints will return 503.
 
-## Contributing:
+## Contributing
 
 1. **Fork the repository**
 2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
@@ -158,10 +125,10 @@ uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
 6. **Push to the branch**: `git push origin feature/amazing-feature`
 7. **Open a Pull Request**
 
-## License:
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+See `LICENSE` if present.
 
-## Roadmap:
+## Roadmap
 
-See the [Phase Implementation Plan](tasks/) for detailed roadmap and progress tracking. Each phase builds upon the previous one, creating a comprehensive multi-agent repository service.
+See `tasks/` for phase plans and progress tracking.

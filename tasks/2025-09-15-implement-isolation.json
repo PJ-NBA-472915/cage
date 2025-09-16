@@ -1,0 +1,49 @@
+{
+  "id": "2025-09-15-implement-isolation",
+  "title": "Implement Repository Isolation for CrewAI Agents",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-15T13:59:45.230464",
+  "updated_at": "2025-09-15T13:59:45.230464",
+  "progress_percent": 0,
+  "tags": [],
+  "summary": "Implement proper repository isolation system to ensure CrewAI agents only work within designated test repositories in .scratchpad directory",
+  "success_criteria": [],
+  "acceptance_checks": [],
+  "subtasks": [],
+  "todo": [],
+  "changelog": [],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "",
+    "assumptions": [],
+    "steps": [],
+    "commit_message": ""
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {}
+}

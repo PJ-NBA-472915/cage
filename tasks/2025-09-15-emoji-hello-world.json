@@ -1,0 +1,188 @@
+{
+  "id": "2025-09-15-emoji-hello-world",
+  "title": "Enhance Hello World App with Emojis - CrewAI Test",
+  "owner": "AI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-15 15:36",
+  "updated_at": "2025-09-15T15:41:42.345774",
+  "progress_percent": 75,
+  "tags": [
+    "testing",
+    "crewai",
+    "emoji",
+    "hello-world"
+  ],
+  "summary": "Test CrewAI multi-agent capabilities by having agents enhance a hello world app with emojis.",
+  "success_criteria": [
+    {
+      "text": "CrewAI agents successfully enhance hello world app with emojis",
+      "checked": false
+    },
+    {
+      "text": "Multi-agent coordination works effectively",
+      "checked": false
+    },
+    {
+      "text": "App outputs Hello World with emojis",
+      "checked": false
+    },
+    {
+      "text": "All changes are properly committed",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Agents create enhanced hello_world.py with emoji output",
+      "checked": false
+    },
+    {
+      "text": "App runs successfully and displays emojis",
+      "checked": false
+    },
+    {
+      "text": "Changes are committed to git",
+      "checked": false
+    },
+    {
+      "text": "Multi-agent workflow completes successfully",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Create initial hello world app",
+    "Trigger CrewAI multi-agent workflow",
+    "Monitor agent planning phase",
+    "Monitor agent implementation phase",
+    "Monitor agent review phase",
+    "Monitor agent commit phase",
+    "Verify enhanced app functionality"
+  ],
+  "todo": [
+    {
+      "text": "Create initial hello world app",
+      "status": "done",
+      "date_started": "2025-09-15 15:36",
+      "date_stopped": "2025-09-15 15:36"
+    },
+    {
+      "text": "Trigger CrewAI multi-agent workflow",
+      "status": "not-started",
+      "date_started": "2025-09-15 15:36",
+      "date_stopped": null
+    },
+    {
+      "text": "Monitor agent planning phase",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Monitor agent implementation phase",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Monitor agent review phase",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Monitor agent commit phase",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Verify enhanced app functionality",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-15 15:36",
+      "text": "Task created for CrewAI emoji enhancement test",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-09-15 15:36",
+      "text": "Initial hello world app created",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-09-15 15:36",
+      "text": "Ready for CrewAI multi-agent workflow",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-09-15T15:41:42.313571",
+      "text": "Crew execution completed for run cebbf2b6-2473-4ae0-b48a-eaf7c8b3e0c7"
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [
+    "Trigger CrewAI multi-agent workflow",
+    "Monitor agent execution"
+  ],
+  "references": [],
+  "prompts": [
+    {
+      "timestamp": "2025-09-15 15:36",
+      "text": "Expand on the previous test and adjust the hello_world.py script to include emojis when saying hello world. Remember: the most important metric is that the crewai agents do the work themselves.",
+      "context": "User requested CrewAI multi-agent test with emoji enhancement"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "",
+    "assumptions": [],
+    "steps": [],
+    "commit_message": ""
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "test_type": "crewai_multi_agent",
+    "app_type": "hello_world_python_emoji",
+    "platform_features_to_test": [
+      "crewai",
+      "multi_agent",
+      "planning",
+      "implementation",
+      "review",
+      "commit"
+    ],
+    "expected_agents": [
+      "Planner",
+      "Implementer",
+      "Reviewer",
+      "Committer"
+    ]
+  }
+}

@@ -2,9 +2,9 @@
   "id": "2025-09-13-move-mcp-to-network-server",
   "title": "Move MCP from stdio to network-based server with auth + sessions",
   "owner": "system",
-  "status": "review",
+  "status": "cancelled",
   "created_at": "2025-09-13 12:00",
-  "updated_at": "2025-09-13 12:30",
+  "updated_at": "2025-09-15 07:25",
   "progress_percent": 90,
   "tags": ["mcp", "network", "websocket", "auth", "sessions", "rag"],
   "summary": "Replace the current stdio-bound MCP server with a network-based MCP server so external agents can connect over the network. Include token-based authentication, per-connection session management, and parity with existing RAG tools (rag_query, rag_reindex, rag_check_blob, rag_get_status). Maintain compatibility with existing API/RAG services and provide dockerized deployment.",
@@ -49,7 +49,18 @@
   ],
   "changelog": [
     { "timestamp": "2025-09-13 12:00", "text": "Task created to migrate MCP from stdio to network with authentication and session management." },
-    { "timestamp": "2025-09-13 12:25", "text": "Implemented WebSocket MCP server with Redis-backed auth/sessions and rate limiting. Added docker-compose service mcp-net and Makefile targets. Updated integration guide and added feature documentation." }
+    {
+      "timestamp": "2025-09-13 12:25",
+      "text": "Implemented WebSocket MCP server with Redis-backed auth/sessions and rate limiting. Added docker-compose service mcp-net and Makefile targets. Updated integration guide and added feature documentation."
+    },
+    {
+      "timestamp": "2025-09-15 07:20",
+      "text": "Discovered that network MCP server implementation (mcp_network_server.py) does not actually exist despite documentation. Need to implement the actual server code."
+    },
+    {
+      "timestamp": "2025-09-15 07:25",
+      "text": "Task cancelled - part of previous iteration, moved away from network-based MCP server approach."
+    }
   ],
   "decisions": [
     "Favor WebSocket transport for bi-directional MCP over raw TCP",

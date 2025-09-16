@@ -21,7 +21,7 @@ import redis.asyncio as redis
 import openai
 from openai import AsyncOpenAI, AuthenticationError
 import numpy as np
-from pgvector.asyncpg import register_vector, to_db
+from pgvector.asyncpg import register_vector
 
 logger = logging.getLogger(__name__)
 
@@ -284,7 +284,7 @@ class RAGService:
                 
                 # Store embedding
                 async with self.db_pool.acquire() as conn:
-                    # Convert embedding to numpy array
+                    # Convert embedding to numpy array for pgvector
                     import numpy as np
                     embedding_array = np.array(embedding, dtype=np.float32)
                     
@@ -337,12 +337,11 @@ class RAGService:
             query_embedding = await self.generate_embedding(query_text)
             logger.info(f"Generated query embedding with {len(query_embedding)} dimensions")
             
-            # Convert to database format - convert to list for pgvector
+            # Convert to database format - convert numpy array to list for pgvector
             import numpy as np
-            query_vector = np.array(query_embedding, dtype=np.float32)
-            query_list = query_vector.tolist()
-            logger.info(f"Converted query vector type: {type(query_list)}")
-            logger.info(f"Query vector length: {len(query_list)}")
+            query_vector = np.array(query_embedding, dtype=np.float32).tolist()
+            logger.info(f"Converted query vector type: {type(query_vector)}")
+            logger.info(f"Query vector length: {len(query_vector)}")
             
             # Build SQL query with optional filters
             sql = """
@@ -351,7 +350,7 @@ class RAGService:
                 FROM embeddings e
                 JOIN git_blobs gb ON e.blob_sha = gb.blob_sha
             """
-            params = [query_list]
+            params = [query_vector]
             param_count = 1
             
             if filters:

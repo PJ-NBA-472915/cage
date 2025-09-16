@@ -1,0 +1,59 @@
+{
+  "id": "2025-09-15-test-platform-note-app",
+  "title": "Test Platform with Note-Taking Application",
+  "owner": "AI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-15 10:30",
+  "updated_at": "2025-09-15 10:30",
+  "progress_percent": 20,
+  "tags": ["testing", "platform", "note-app"],
+  "summary": "Test the current platform capabilities by creating a simple note-taking application with the platform tools to validate the system's functionality. During this test, it is important to use the platform tools to create the note-taking application and not write any code yourself.",
+  "success_criteria": [
+    {"text": "Successfully create a working note-taking application", "checked": false},
+    {"text": "Demonstrate platform's ability to handle CRUD operations", "checked": false},
+    {"text": "Validate the platform's tool integration capabilities", "checked": false},
+    {"text": "Test the platform's persistence and retrieval mechanisms", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Note-taking app can create new notes", "checked": false},
+    {"text": "Note-taking app can read/retrieve existing notes", "checked": false},
+    {"text": "Note-taking app can update existing notes", "checked": false},
+    {"text": "Note-taking app can delete notes", "checked": false},
+    {"text": "Platform tools work correctly for the application", "checked": false}
+  ],
+  "subtasks": [
+    "Understand current platform architecture and capabilities",
+    "Create specification for the note-taking application",
+    "Implement the note-taking application using platform tools",
+    "Test the note-taking application functionality",
+    "Document findings and platform capabilities"
+  ],
+  "todo": [
+    {"text": "Understand platform architecture and capabilities", "status": "in_progress", "date_started": "2025-09-15 10:30", "date_stopped": null},
+    {"text": "Create specification for note-taking application", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement note-taking application using platform tools", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test note-taking application functionality", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Document findings and platform capabilities", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-15 10:30", "text": "Task created and started - beginning platform analysis"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [
+    "Analyze current platform architecture",
+    "Identify available tools and capabilities",
+    "Design note-taking application specification"
+  ],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {},
+  "prompts": [
+    {
+      "timestamp": "2025-09-15 10:30",
+      "text": "Test the current platform and see if you can create a simple note taking application.",
+      "context": "Initial request to test platform capabilities"
+    }
+  ]
+}

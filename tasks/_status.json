@@ -1,6 +1,117 @@
 {
-  "active_tasks": [],
+  "active_tasks": [
+    {
+      "title": "Add RAG Query Function to MCP Service",
+      "status": "in-progress",
+      "progress_percent": 83,
+      "updated_at": "2025-09-14 10:30",
+      "latest_work": "2025-09-14 11:00 — Identified issue: FastMCP endpoint configuration needs adjustment",
+      "remaining_todo": [
+        {
+          "text": "Design RAG query function with HTTP client",
+          "status": "in-progress",
+          "date_started": "2025-09-14 10:40",
+          "date_stopped": null
+        },
+        {
+          "text": "Implement the function in mcp_server.py",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Add proper error handling and authentication",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Test the implementation",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        }
+      ]
+    },
+    {
+      "title": "Update MCP Service Documentation and Create Feature Document",
+      "status": "in-progress",
+      "progress_percent": 75,
+      "updated_at": "2025-09-14 10:30",
+      "latest_work": "2025-09-14 12:00 — Working on API usage examples and patterns",
+      "remaining_todo": [
+        {
+          "text": "Add API usage examples and patterns",
+          "status": "in-progress",
+          "date_started": "2025-09-14 12:00",
+          "date_stopped": null
+        },
+        {
+          "text": "Update any existing documentation references",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        }
+      ]
+    },
+    {
+      "title": "Move MCP from stdio to network-based server with auth + sessions",
+      "status": "review",
+      "progress_percent": 90,
+      "updated_at": "2025-09-13 12:30",
+      "latest_work": "2025-09-13 12:25 — Implemented WebSocket MCP server with Redis-backed auth/sessions and rate limiting",
+      "remaining_todo": [
+        {
+          "text": "Draft network MCP server design doc (transport, auth, sessions)",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Prototype WebSocket server exposing MCP tool surface",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Integrate RAGService calls and propagate errors",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Implement bearer auth and per-session context store",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Add unit/integration tests for auth and sessions",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Wire into docker-compose with MCP_PORT env",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Write docs and sample MCP client config (network)",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        }
+      ]
+    }
+  ],
   "recently_completed": [
+    {
+      "title": "Fix MCP Protocol Compliance Issues",
+      "done_on": "2025-09-13 11:40",
+      "summary": "2025-09-13 11:40 — Fixed critical MCP protocol compliance issues causing 422 and 405 errors when Cursor tries to connect to the MCP server. Updated ID field handling, protocol version, and added missing GET endpoint."
+    },
     {
       "title": "Fix Git Configuration Issue in CrewAI",
       "done_on": "2025-09-12 17:53",

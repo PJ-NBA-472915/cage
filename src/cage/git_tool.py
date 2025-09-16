@@ -473,3 +473,63 @@ class GitTool:
             success=True,
             data={"commits": commits}
         )
+
+    def get_diff(self, branch1: str, branch2: str = None) -> GitOperationResult:
+        """Get diff between two branches or commits."""
+        try:
+            if not self.is_git_repo():
+                return GitOperationResult(
+                    success=False,
+                    error="Not a Git repository"
+                )
+            
+            if branch2:
+                command = ["git", "diff", branch1, branch2]
+            else:
+                command = ["git", "diff", branch1]
+            
+            result = self._run_git_command(command)
+            
+            if result.success:
+                result.data = {
+                    "diff": result.output,
+                    "branch1": branch1,
+                    "branch2": branch2
+                }
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Error getting diff between {branch1} and {branch2}: {e}")
+            return GitOperationResult(False, error=str(e))
+
+    def revert_commits(self, branch: str, to: str = "HEAD~1") -> GitOperationResult:
+        """Revert commits on a branch."""
+        try:
+            if not self.is_git_repo():
+                return GitOperationResult(
+                    success=False,
+                    error="Not a Git repository"
+                )
+            
+            # First switch to the branch
+            switch_result = self.switch_branch(branch)
+            if not switch_result.success:
+                return switch_result
+            
+            # Reset to the specified commit
+            command = ["git", "reset", "--hard", to]
+            result = self._run_git_command(command)
+            
+            if result.success:
+                result.data = {
+                    "branch": branch,
+                    "reverted_to": to,
+                    "output": result.output
+                }
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Error reverting commits on {branch} to {to}: {e}")
+            return GitOperationResult(False, error=str(e))

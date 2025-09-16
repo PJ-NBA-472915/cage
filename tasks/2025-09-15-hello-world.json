@@ -1,0 +1,54 @@
+{
+  "id": "2025-09-15-hello-world",
+  "title": "Build Hello World Python App",
+  "owner": "CrewAI Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-15T14:11:59.646165",
+  "updated_at": "2025-09-15T14:14:57.732415",
+  "progress_percent": 75,
+  "tags": [],
+  "summary": "Build a simple Hello World Python application using the Cage platform tools. The app should be a basic Python script that prints 'Hello, World!' and demonstrates basic functionality.",
+  "success_criteria": [],
+  "acceptance_checks": [],
+  "subtasks": [],
+  "todo": [],
+  "changelog": [
+    {
+      "timestamp": "2025-09-15T14:14:57.723682",
+      "text": "Crew execution completed for run 58acda9d-93ed-414e-83c9-3215842d9181"
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "",
+    "assumptions": [],
+    "steps": [],
+    "commit_message": ""
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {}
+}

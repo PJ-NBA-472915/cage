@@ -796,6 +796,200 @@ async def get_rag_blob(sha: str, token: str = Depends(get_pod_token)):
         logger.error(f"Error checking blob metadata: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Additional endpoints for Cage-native planner
+
+@app.get("/files/sha")
+def get_file_sha(path: str, token: str = Depends(get_pod_token)):
+    """Get SHA hash of a file for validation."""
+    try:
+        repo_path = get_repository_path()
+        file_path = repo_path / path
+        
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail=f"File not found: {path}")
+        
+        # Calculate SHA256 hash
+        import hashlib
+        with open(file_path, 'rb') as f:
+            content = f.read()
+            sha = hashlib.sha256(content).hexdigest()
+        
+        return {
+            "status": "success",
+            "path": path,
+            "sha": sha,
+            "size": len(content)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting file SHA for {path}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/diff")
+def get_diff(branch: str = None, token: str = Depends(get_pod_token)):
+    """Get diff for a branch or current changes."""
+    try:
+        if branch:
+            # Get diff between branch and main
+            result = git_tool.get_diff(branch, "main")
+        else:
+            # Get diff for current working directory
+            result = git_tool.get_status()
+            if not result.success:
+                raise HTTPException(status_code=400, detail=result.error)
+            # For now, return status as diff - this could be enhanced
+            return {
+                "status": "success",
+                "diff": result.data.get("status", "No changes"),
+                "branch": result.data.get("current_branch", "unknown")
+            }
+        
+        if result.success:
+            return {
+                "status": "success",
+                "diff": result.data,
+                "branch": branch
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting diff: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/git/revert")
+def git_revert(branch: str, to: str = "HEAD~1", token: str = Depends(get_pod_token)):
+    """Revert commits on a branch for rollback."""
+    try:
+        result = git_tool.revert_commits(branch, to)
+        
+        if result.success:
+            return {
+                "status": "success",
+                "message": f"Reverted {branch} to {to}",
+                "data": result.data
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result.error)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error reverting branch {branch}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/runner/exec")
+def runner_exec(workdir: str, cmd: list[str], timeout_sec: int = 30, token: str = Depends(get_pod_token)):
+    """Execute a command in a working directory."""
+    try:
+        import subprocess
+        import os
+        
+        repo_path = get_repository_path()
+        full_workdir = repo_path / workdir
+        
+        if not full_workdir.exists():
+            raise HTTPException(status_code=404, detail=f"Working directory not found: {workdir}")
+        
+        # Execute command
+        result = subprocess.run(
+            cmd,
+            cwd=str(full_workdir),
+            capture_output=True,
+            text=True,
+            timeout=timeout_sec
+        )
+        
+        return {
+            "status": "success",
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "returncode": result.returncode,
+            "workdir": workdir,
+            "cmd": cmd
+        }
+        
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=408, detail=f"Command timed out after {timeout_sec} seconds")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error executing command {cmd} in {workdir}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/git/open_pr")
+def open_pr(from_branch: str, to: str = "main", title: str = "", body: str = "", token: str = Depends(get_pod_token)):
+    """Open a pull request (placeholder implementation)."""
+    try:
+        # This is a placeholder - in a real implementation, this would integrate with GitHub/GitLab API
+        # For now, we'll just return a mock response
+        pr_id = f"pr-{from_branch}-{int(datetime.datetime.now().timestamp())}"
+        
+        return {
+            "status": "success",
+            "pr_id": pr_id,
+            "from_branch": from_branch,
+            "to_branch": to,
+            "title": title,
+            "body": body,
+            "state": "OPEN",
+            "message": "Pull request created (mock implementation)"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error opening PR from {from_branch} to {to}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/tasks/update")
+def update_task_comprehensive(request: dict, token: str = Depends(get_pod_token)):
+    """Update task with comprehensive fields including changelog and lessons."""
+    try:
+        task_id = request.get("task_id")
+        if not task_id:
+            raise HTTPException(status_code=400, detail="task_id is required")
+        
+        # Extract update fields
+        updates = {}
+        for field in ["status", "progress_percent", "changelog_append", "lessons_append"]:
+            if field in request:
+                updates[field] = request[field]
+        
+        # Handle changelog and lessons appending
+        if "changelog_append" in updates:
+            task = task_manager.load_task(task_id)
+            if task:
+                current_changelog = task.changelog or []
+                updates["changelog"] = current_changelog + [{"timestamp": datetime.datetime.now().isoformat(), "text": item} for item in updates["changelog_append"]]
+                del updates["changelog_append"]
+        
+        if "lessons_append" in updates:
+            task = task_manager.load_task(task_id)
+            if task:
+                current_lessons = task.lessons_learned or []
+                updates["lessons_learned"] = current_lessons + updates["lessons_append"]
+                del updates["lessons_append"]
+        
+        task = task_manager.update_task(task_id, updates)
+        if task:
+            logger.info(f"Updated task {task_id} with comprehensive fields")
+            return {
+                "status": "success",
+                "task_id": task_id,
+                "updated_fields": list(updates.keys())
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Task not found")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating task {task_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Webhooks endpoint
 @app.post("/webhooks")
 def register_webhook(token: str = Depends(get_pod_token)):

@@ -1,0 +1,54 @@
+{
+  "id": "2025-09-15-planner-note-app",
+  "title": "Build Note-Taking App via Planner",
+  "owner": "Planner Agent",
+  "status": "in-progress",
+  "created_at": "2025-09-15T13:40:46.504123",
+  "updated_at": "2025-09-15T11:44:18.608159",
+  "progress_percent": 75,
+  "tags": [],
+  "summary": "Use CrewAI planner to build a complete note-taking application using Cage platform tools. Must use /files/edit API for all operations and Git integration for commits.",
+  "success_criteria": [],
+  "acceptance_checks": [],
+  "subtasks": [],
+  "todo": [],
+  "changelog": [
+    {
+      "timestamp": "2025-09-15T11:44:18.596681",
+      "text": "Crew execution completed for run e4cc813b-b758-40f0-a546-f5daec17f9c4"
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "",
+    "assumptions": [],
+    "steps": [],
+    "commit_message": ""
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {}
+}
