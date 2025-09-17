@@ -255,6 +255,23 @@ class RAGQueryRequest(BaseModel):
 class RAGReindexRequest(BaseModel):
     scope: str  # repo, tasks, chat, all
 
+# Note-taking API models
+class NoteCreateRequest(BaseModel):
+    title: str
+    content: str
+
+class NoteUpdateRequest(BaseModel):
+    title: str | None = None
+    content: str | None = None
+
+class NoteResponse(BaseModel):
+    id: str
+    title: str
+    content: str
+    created_at: str
+    updated_at: str
+    file_path: str
+
 # API Endpoints according to new Cage specification
 
 @app.get("/health")

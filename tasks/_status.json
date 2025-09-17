@@ -1,126 +1,162 @@
 {
   "active_tasks": [
     {
-      "title": "Add RAG Query Function to MCP Service",
-      "status": "in-progress",
-      "progress_percent": 83,
-      "updated_at": "2025-09-14 10:30",
-      "latest_work": "2025-09-14 11:00 — Identified issue: FastMCP endpoint configuration needs adjustment",
-      "remaining_todo": [
-        {
-          "text": "Design RAG query function with HTTP client",
-          "status": "in-progress",
-          "date_started": "2025-09-14 10:40",
-          "date_stopped": null
-        },
-        {
-          "text": "Implement the function in mcp_server.py",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Add proper error handling and authentication",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Test the implementation",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        }
-      ]
-    },
-    {
-      "title": "Update MCP Service Documentation and Create Feature Document",
+      "id": "2025-09-15-emoji-hello-world",
+      "title": "Enhance Hello World App with Emojis - CrewAI Test",
       "status": "in-progress",
       "progress_percent": 75,
-      "updated_at": "2025-09-14 10:30",
-      "latest_work": "2025-09-14 12:00 — Working on API usage examples and patterns",
-      "remaining_todo": [
-        {
-          "text": "Add API usage examples and patterns",
-          "status": "in-progress",
-          "date_started": "2025-09-14 12:00",
-          "date_stopped": null
-        },
-        {
-          "text": "Update any existing documentation references",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        }
-      ]
+      "updated_at": "2025-09-16T14:20:29.949982",
+      "summary": "Test CrewAI multi-agent capabilities by having agents enhance a hello world app with emojis.",
+      "latest_work": "Crew execution completed for run a5dbfa5b-7b9e-4df6-ac8d-96d4fcb5ab19"
     },
     {
-      "title": "Move MCP from stdio to network-based server with auth + sessions",
-      "status": "review",
+      "id": "2025-09-16-note-taking-app-build",
+      "title": "Build Basic Note-Taking Application",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-16 18:12",
+      "summary": "Create a simple note-taking application with CRUD functionality in the .scratchpad repository using CrewAI agents.",
+      "latest_work": "Task created for note-taking app build"
+    },
+    {
+      "id": "2025-09-16-file-operations-reliability",
+      "title": "Improve File Operations Reliability and Validation",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-16 14:41",
+      "summary": "Enhance file operation reliability and add validation to ensure consistent file creation and modification",
+      "latest_work": "File operations reliability task created"
+    },
+    {
+      "id": "2025-09-16-agent-quality-control",
+      "title": "Enhance CrewAI Agent Quality Control",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-16 14:41",
+      "summary": "Improve CrewAI agent quality control mechanisms to catch implementation issues and ensure code quality",
+      "latest_work": "Agent quality control task created"
+    },
+    {
+      "id": "2025-09-15-test-improved-agents",
+      "title": "Test Improved CrewAI Agents File Creation",
+      "status": "in-progress",
+      "progress_percent": 75,
+      "updated_at": "2025-09-15T14:27:49.099724",
+      "summary": "Test that the improved CrewAI agents can create files using the EditorTool",
+      "latest_work": "Crew execution completed for run c7d1ad65-86d2-43db-b310-b80a2344c464"
+    },
+    {
+      "id": "2025-09-15-hello-world",
+      "title": "Build Hello World Python App",
+      "status": "in-progress",
+      "progress_percent": 75,
+      "updated_at": "2025-09-15T14:14:57.732415",
+      "summary": "Build a simple Hello World Python application using the Cage platform tools. The app should be a basic Python script that prints 'Hello, World!' and demonstrates basic functionality.",
+      "latest_work": "Crew execution completed for run 58acda9d-93ed-414e-83c9-3215842d9181"
+    },
+    {
+      "id": "2025-09-15-implement-isolation",
+      "title": "Implement Repository Isolation for CrewAI Agents",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-15T13:59:45.230464",
+      "summary": "Implement proper repository isolation system to ensure CrewAI agents only work within designated test repositories in .scratchpad directory",
+      "latest_work": ""
+    },
+    {
+      "id": "2025-09-15-planner-note-app",
+      "title": "Build Note-Taking App via Planner",
+      "status": "in-progress",
+      "progress_percent": 75,
+      "updated_at": "2025-09-15T11:44:18.608159",
+      "summary": "Use CrewAI planner to build a complete note-taking application using Cage platform tools. Must use /files/edit API for all operations and Git integration for commits.",
+      "latest_work": "Crew execution completed for run e4cc813b-b758-40f0-a546-f5daec17f9c4"
+    },
+    {
+      "id": "2025-09-12-e2e-workflow-test",
+      "title": "End-to-End Workflow Test",
+      "status": "in-progress",
+      "progress_percent": 25,
+      "updated_at": "2025-09-12T12:55:23.455153",
+      "summary": "Testing complete development workflow from task creation to completion",
+      "latest_work": ""
+    },
+    {
+      "id": "2025-09-12-end-to-end-verification",
+      "title": "End-to-End System Verification",
+      "status": "in-progress",
       "progress_percent": 90,
-      "updated_at": "2025-09-13 12:30",
-      "latest_work": "2025-09-13 12:25 — Implemented WebSocket MCP server with Redis-backed auth/sessions and rate limiting",
-      "remaining_todo": [
-        {
-          "text": "Draft network MCP server design doc (transport, auth, sessions)",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Prototype WebSocket server exposing MCP tool surface",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Integrate RAGService calls and propagate errors",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Implement bearer auth and per-session context store",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Add unit/integration tests for auth and sessions",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Wire into docker-compose with MCP_PORT env",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        },
-        {
-          "text": "Write docs and sample MCP client config (network)",
-          "status": "not-started",
-          "date_started": null,
-          "date_stopped": null
-        }
-      ]
+      "updated_at": "2025-09-12 10:00",
+      "summary": "Comprehensive verification of all Cage system components and workflows",
+      "latest_work": "COMPLETE END-TO-END VERIFICATION SUCCESSFUL! All core components working: API (fixed), CLI, Git integration, CrewAI, RAG service, task management, and complete development workflow. Platform is fully functional."
+    },
+    {
+      "id": "2025-09-10-cli-api-test",
+      "title": "CLI API Test Task",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-10T16:09:47.570577",
+      "summary": "Test CLI API consistency",
+      "latest_work": ""
+    },
+    {
+      "id": "2025-09-08-workflow-test",
+      "title": "Workflow Test Task",
+      "status": "in-progress",
+      "progress_percent": 50,
+      "updated_at": "2025-09-10T16:09:47.325581",
+      "summary": "Test complete workflow",
+      "latest_work": ""
+    },
+    {
+      "id": "2025-09-08-cli-api-test",
+      "title": "CLI API Test Task",
+      "status": "planned",
+      "progress_percent": 0,
+      "updated_at": "2025-09-10T14:27:34.099976",
+      "summary": "Test CLI API consistency",
+      "latest_work": ""
+    },
+    {
+      "id": "2025-09-10-complete-testing-run",
+      "title": "Complete Testing Run for Phases 1, 2, and 3",
+      "status": "in-progress",
+      "progress_percent": 100,
+      "updated_at": "2025-09-10 12:30",
+      "summary": "Execute a comprehensive testing suite to validate all functionality implemented in Phase 1 (Task File System), Phase 2 (Editor Tool), and Phase 3 (Git Integration). This includes unit tests, integration tests, API tests, CLI tests, and coverage reporting.",
+      "latest_work": "Completed comprehensive testing run - identified key issues requiring fixes"
     }
   ],
   "recently_completed": [
     {
-      "title": "Fix MCP Protocol Compliance Issues",
-      "done_on": "2025-09-13 11:40",
-      "summary": "2025-09-13 11:40 — Fixed critical MCP protocol compliance issues causing 422 and 405 errors when Cursor tries to connect to the MCP server. Updated ID field handling, protocol version, and added missing GET endpoint."
+      "id": "2025-09-16-git-tool-test",
+      "title": "Git Tool Performance Test",
+      "status": "done",
+      "progress_percent": 80,
+      "updated_at": "2025-09-16T15:17:11.685933",
+      "summary": "COMPLETED: Git tool performance test achieved 80% success rate. Direct API operations work perfectly (100% success), but CrewAI integration still has staging issues requiring separate investigation.",
+      "latest_work": "Git tool test completed - 80% success rate achieved (CrewAI integration needs separate fix)",
+      "done_on": "2025-09-16T15:17:11.685933"
     },
     {
-      "title": "Fix Git Configuration Issue in CrewAI",
-      "done_on": "2025-09-12 17:53",
-      "summary": "2025-09-12 17:53 — Successfully fixed Git configuration issue! Added user.email and user.name to Dockerfile for persistent setup. CrewAI agents can now perform Git commits without configuration errors. Complete CrewAI workflow is fully functional."
+      "id": "2025-09-16-cage-platform-critical-fixes",
+      "title": "Stabilize GitTool Staging Workflow",
+      "status": "done",
+      "progress_percent": 100,
+      "updated_at": "2025-09-16 15:20",
+      "summary": "COMPLETED: Successfully isolated and resolved GitTool staging failures. Direct API operations now work with 100% success rate. CrewAI integration issues identified as separate concern requiring additional work.",
+      "latest_work": "All success criteria and acceptance checks verified and completed",
+      "done_on": "2025-09-16 15:20"
     },
     {
-      "title": "Test End-to-End CrewAI Workflow with Real Task",
-      "done_on": "2025-09-12 17:47",
-      "summary": "2025-09-12 17:47 — Successfully tested and FIXED CrewAI workflow! Fixed tool wrappers by adding proper Pydantic schemas and operation mapping. All agents now execute tools correctly. CrewAI integration is fully functional."
+      "id": "2025-09-15-improve-planner-cage-native",
+      "title": "Make Planner Cage-Native, Idempotent, and Rollback-Safe",
+      "status": "done",
+      "progress_percent": 100,
+      "updated_at": "2025-09-15 15:10",
+      "summary": "Revise the planning agent so its output is Cage-native: use /files/edit for all edits, avoid local shell ops, add strong validation (content hashes, diff checks, and execution), include rollback via /git/revert, and enforce git hygiene (branch convention, task-linked commit messages, optional signing).",
+      "latest_work": "Task completed: All Cage-native API endpoints implemented and tested, planner updated to use new format",
+      "done_on": "2025-09-15 15:10"
     }
   ]
 }

@@ -198,10 +198,11 @@ class CrewTool:
             CRITICAL RULES:
             1. NEVER use terminal commands like 'touch', 'mkdir', 'echo', 'cat', etc.
             2. ALWAYS use the EditorTool for file operations
-            3. For creating new files, use INSERT operation with full content
-            4. For directories, create files with paths like 'subdir/file.txt'
-            5. Always provide meaningful intent descriptions
-            6. Use proper file extensions (.py, .md, .txt, etc.)
+            3. If a file you need to modify does not exist, create it with INSERT (include full content)
+            4. For creating new files, use INSERT operation with full content
+            5. For directories, create files with paths like 'subdir/file.txt'
+            6. Always provide meaningful intent descriptions
+            7. Use proper file extensions (.py, .md, .txt, etc.)
             
             You carefully execute file operations, making precise changes while maintaining 
             code quality and following established patterns.""",
@@ -501,6 +502,8 @@ class CrewTool:
                 description=f"""Commit the changes for task: {task.title}
                 
                 Stage all changes and create a proper commit with a meaningful message.
+                Check the working tree status first; if there are no changes, respond with a
+                summary indicating nothing needed to be committed instead of forcing a commit.
                 Update task provenance with commit information.""",
                 agent=self.committer_agent,
                 expected_output="Confirmation of successful commit with commit SHA"
@@ -789,10 +792,28 @@ class EditorToolWrapper(BaseTool):
             
             # Execute operation
             result = self.editor_tool.execute_operation(file_op)
-            
+
+            # If update failed because the file is missing, retry as insert to create it.
+            if (
+                not result.ok
+                and operation_type == OperationType.UPDATE
+                and result.error
+                and "File not found" in result.error
+            ):
+                crew_tool_logger.info(
+                    f"Update failed due to missing file {path}; retrying as INSERT"
+                )
+                file_op.operation = OperationType.INSERT
+                result = self.editor_tool.execute_operation(file_op)
+
             if result.ok:
-                success_msg = f"✅ Successfully executed {operation} on {path}\nDiff: {result.diff}"
-                crew_tool_logger.info(f"File operation successful: {operation} on {path}")
+                executed_operation = file_op.operation.value if file_op else operation_type.value
+                success_msg = (
+                    f"✅ Successfully executed {executed_operation} on {path}\nDiff: {result.diff}"
+                )
+                crew_tool_logger.info(
+                    f"File operation successful: {executed_operation} on {path}"
+                )
                 return success_msg
             else:
                 error_msg = f"❌ Failed to execute {operation} on {path}: {result.error}"
@@ -836,16 +857,33 @@ class GitToolWrapper(BaseTool):
                 result = self.git_tool.add_files()
             elif operation == "commit":
                 commit_message = message or "AI agent commit"
+                status_check = self.git_tool.get_status()
+                if status_check.success and status_check.data.get("is_clean", False):
+                    crew_tool_logger.info("Working tree clean - skipping commit request")
+                    return "No changes detected. Skipping git commit."
+
                 crew_tool_logger.info(f"Executing Git commit operation with message: {commit_message}")
                 result = self.git_tool.commit(commit_message)
             elif operation == "push":
                 crew_tool_logger.info(f"Executing Git push operation to {remote}/{branch}")
                 result = self.git_tool.push(remote, branch)
+            elif operation == "status":
+                crew_tool_logger.info("Retrieving Git status")
+                result = self.git_tool.get_status()
+                if result.success:
+                    status_data = result.data
+                    return json.dumps({
+                        "current_branch": status_data.get("current_branch"),
+                        "staged_files": status_data.get("staged_files", []),
+                        "unstaged_files": status_data.get("unstaged_files", []),
+                        "untracked_files": status_data.get("untracked_files", []),
+                        "is_clean": status_data.get("is_clean", False)
+                    })
             else:
                 error_msg = f"Unknown Git operation: {operation}"
                 crew_tool_logger.error(error_msg)
                 return error_msg
-            
+
             if result.success:
                 success_msg = f"Successfully executed Git {operation}: {result.data}"
                 crew_tool_logger.info(f"Git operation successful: {operation}")
