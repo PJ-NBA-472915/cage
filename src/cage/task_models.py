@@ -161,6 +161,33 @@ class TaskManager:
         self.tasks_dir.mkdir(exist_ok=True)
         self.schema_path = self.tasks_dir / "_schema.json"
         self.status_path = self.tasks_dir / "_status.json"
+        
+        # Copy schema file from main cage repository if it doesn't exist
+        self._ensure_schema_file()
+    
+    def _ensure_schema_file(self):
+        """Ensure schema file exists by copying from main cage repository if needed."""
+        if not self.schema_path.exists():
+            # Try to find the main cage repository schema file
+            # Look for it relative to the current working directory or in common locations
+            possible_schema_paths = [
+                Path("tasks/_schema.json"),  # Main cage repository
+                Path("/app/tasks/_schema.json"),  # Docker container path
+                Path.cwd() / "tasks" / "_schema.json",  # Current working directory
+            ]
+            
+            for schema_path in possible_schema_paths:
+                if schema_path.exists():
+                    try:
+                        import shutil
+                        shutil.copy2(schema_path, self.schema_path)
+                        print(f"Copied schema file from {schema_path} to {self.schema_path}")
+                        return
+                    except Exception as e:
+                        print(f"Failed to copy schema file from {schema_path}: {e}")
+                        continue
+            
+            print(f"Warning: Could not find schema file to copy. Task validation may fail.")
     
     def load_schema(self) -> Dict[str, Any]:
         """Load the JSON schema for validation."""

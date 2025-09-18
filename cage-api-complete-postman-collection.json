@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "Cage Pod API - Complete Collection",
-    "description": "Comprehensive Postman collection for the Cage Pod-based Multi-Agent Repository Service API. This collection includes all endpoints for task management, crew operations, file editing, git operations, and RAG services.",
-    "version": "1.0.0",
+    "name": "Cage Pod API - Complete Collection v2",
+    "description": "Comprehensive Postman collection for the Cage Pod-based Multi-Agent Repository Service API. This collection includes all endpoints for task management, crew operations, file editing, git operations, RAG services, and additional utility endpoints.",
+    "version": "2.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -14,13 +14,13 @@
     },
     {
       "key": "pod_token",
-      "value": "your-pod-token-here",
+      "value": "EQmjYQJJRRF4TQo3QgXn8CyQMAYrEhbz",
       "type": "string",
       "description": "POD_TOKEN for API authentication"
     },
     {
       "key": "task_id",
-      "value": "example-task-123",
+      "value": "2025-09-17-example-task",
       "type": "string",
       "description": "Example task ID for testing"
     },
@@ -29,6 +29,18 @@
       "value": "example-run-456",
       "type": "string",
       "description": "Example crew run ID for testing"
+    },
+    {
+      "key": "branch_name",
+      "value": "feature/example",
+      "type": "string",
+      "description": "Example branch name for testing"
+    },
+    {
+      "key": "file_path",
+      "value": "src/example.py",
+      "type": "string",
+      "description": "Example file path for testing"
     }
   ],
   "auth": {
@@ -81,7 +93,35 @@
       "description": "Task creation, updates, and management endpoints",
       "item": [
         {
-          "name": "Confirm Task",
+          "name": "Create Task (Full Data)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{task_id}}\",\n  \"title\": \"Example Task Title\",\n  \"owner\": \"Developer\",\n  \"status\": \"planned\",\n  \"progress_percent\": 0,\n  \"tags\": [\"example\", \"test\"],\n  \"summary\": \"This is an example task created via the API\",\n  \"success_criteria\": [\n    {\n      \"text\": \"Task is created successfully\",\n      \"checked\": false\n    }\n  ],\n  \"acceptance_checks\": [\n    {\n      \"text\": \"All requirements are met\",\n      \"checked\": false\n    }\n  ],\n  \"subtasks\": [\n    \"Create the task\",\n    \"Verify creation\"\n  ],\n  \"decisions\": [\n    \"Use API for task creation\"\n  ],\n  \"next_steps\": [\n    \"Test the endpoint\"\n  ],\n  \"references\": [\n    \"API documentation\"\n  ],\n  \"metadata\": {\n    \"project_type\": \"example\",\n    \"complexity\": \"simple\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/create",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "create"]
+            },
+            "description": "Create a new task with complete data from request body. This endpoint allows you to create a task with all fields populated instead of creating a file first."
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Task (Simple)",
           "request": {
             "method": "POST",
             "header": [
@@ -109,7 +149,7 @@
           "response": []
         },
         {
-          "name": "Update Task",
+          "name": "Update Task (Basic)",
           "request": {
             "method": "PATCH",
             "header": [
@@ -120,7 +160,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"in-progress\",\n  \"progress_percent\": 50,\n  \"logs\": [\"Task started\", \"Working on implementation\"]\n}",
+              "raw": "{\n  \"status\": \"in-progress\",\n  \"progress_percent\": 50,\n  \"logs\": [\"Updated task status\", \"Made progress\"]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -133,6 +173,34 @@
               "path": ["tasks", "{{task_id}}"]
             },
             "description": "Update specific task fields. Supports updating status, progress_percent, and logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task (Comprehensive)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task_id\": \"{{task_id}}\",\n  \"status\": \"in-progress\",\n  \"progress_percent\": 75,\n  \"changelog\": [\n    {\n      \"timestamp\": \"2025-09-17 10:00\",\n      \"text\": \"Updated task with comprehensive data\"\n    }\n  ],\n  \"lessons_learned\": [\n    \"API endpoint works well\",\n    \"Comprehensive updates are useful\"\n  ],\n  \"issues_risks\": [\n    \"None identified\"\n  ],\n  \"next_steps\": [\n    \"Continue development\",\n    \"Test final implementation\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/update",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "update"]
+            },
+            "description": "Update task with comprehensive fields including changelog, lessons learned, issues/risks, and next steps."
           },
           "response": []
         },
@@ -174,7 +242,7 @@
               "host": ["{{base_url}}"],
               "path": ["tracker", "rebuild"]
             },
-            "description": "Rebuild the task tracker from task files. Useful for refreshing status after external changes."
+            "description": "Rebuild the task tracker by scanning all task files and creating/updating the _status.json file."
           },
           "response": []
         }
@@ -196,7 +264,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"task_id\": \"{{task_id}}\",\n  \"plan\": {\n    \"steps\": [\n      {\n        \"action\": \"analyze_code\",\n        \"description\": \"Review existing codebase\",\n        \"expected_output\": \"Code analysis report\"\n      },\n      {\n        \"action\": \"implement_feature\",\n        \"description\": \"Add new functionality\",\n        \"expected_output\": \"Working feature implementation\"\n      }\n    ],\n    \"agents\": [\"analyst\", \"developer\"],\n    \"timeline\": \"2 hours\"\n  }\n}",
+              "raw": "{\n  \"task_id\": \"{{task_id}}\",\n  \"plan\": {\n    \"title\": \"Example Plan\",\n    \"assumptions\": [\"API is working\", \"Database is available\"],\n    \"steps\": [\n      {\n        \"step\": 1,\n        \"action\": \"Create API endpoint\",\n        \"description\": \"Implement the new endpoint\"\n      },\n      {\n        \"step\": 2,\n        \"action\": \"Test endpoint\",\n        \"description\": \"Verify functionality\"\n      }\n    ],\n    \"commit_message\": \"Add new API endpoint\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -208,7 +276,7 @@
               "host": ["{{base_url}}"],
               "path": ["crew", "plan"]
             },
-            "description": "Create or update a task plan for crew execution. Defines steps, agents, and timeline for task completion."
+            "description": "Write or merge a task plan into the task file. The plan includes assumptions, steps, and commit message."
           },
           "response": []
         },
@@ -236,7 +304,7 @@
               "host": ["{{base_url}}"],
               "path": ["crew", "apply"]
             },
-            "description": "Execute a crew plan through the Editor Tool. Applies the planned changes to the codebase."
+            "description": "Apply crew changes through the Editor Tool. This executes the planned changes and updates the task file."
           },
           "response": []
         },
@@ -250,7 +318,7 @@
               "host": ["{{base_url}}"],
               "path": ["crew", "runs", "{{run_id}}"]
             },
-            "description": "Get status, logs, and summary for a specific crew run execution."
+            "description": "Get crew run status, logs, and summary information."
           },
           "response": []
         },
@@ -266,7 +334,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"file1.txt\": \"Content of file 1\",\n  \"file2.py\": \"def hello():\n    print('Hello World')\",\n  \"report.md\": \"# Analysis Report\\n\\nFindings...\"\n}",
+              "raw": "{\n  \"files\": {\n    \"report.md\": \"# Test Report\\n\\nThis is a test report.\",\n    \"output.txt\": \"Test output content\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -278,7 +346,7 @@
               "host": ["{{base_url}}"],
               "path": ["crew", "runs", "{{run_id}}", "artefacts"]
             },
-            "description": "Upload files into .cage/runs/<run_id>/ directory for crew run artefacts."
+            "description": "Upload files into .cage/runs/<run_id>/* directory for crew run artefacts."
           },
           "response": []
         }
@@ -300,7 +368,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"operation\": \"UPDATE\",\n  \"path\": \"src/main.py\",\n  \"selector\": {\n    \"type\": \"line_range\",\n    \"start_line\": 10,\n    \"end_line\": 15\n  },\n  \"payload\": {\n    \"content\": \"# Updated code section\\nprint('Hello World')\"\n  },\n  \"intent\": \"Add new functionality\",\n  \"dry_run\": false,\n  \"author\": \"developer\",\n  \"correlation_id\": \"{{task_id}}\"\n}",
+              "raw": "{\n  \"operation\": \"INSERT\",\n  \"path\": \"{{file_path}}\",\n  \"selector\": {\n    \"line\": 1,\n    \"column\": 0\n  },\n  \"payload\": {\n    \"content\": \"# Example File\\n\\nThis is an example file created via API.\\n\"\n  },\n  \"intent\": \"Create example file for testing\",\n  \"dry_run\": false,\n  \"author\": \"API User\",\n  \"correlation_id\": \"test-123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -312,7 +380,7 @@
               "host": ["{{base_url}}"],
               "path": ["files", "edit"]
             },
-            "description": "Perform structured file operations with locking. Supports GET, INSERT, UPDATE, DELETE operations with selectors and payloads."
+            "description": "Structured file operations with locking. Supports INSERT, UPDATE, DELETE operations with proper conflict resolution."
           },
           "response": []
         },
@@ -328,7 +396,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"message\": \"Add new feature implementation\",\n  \"task_id\": \"{{task_id}}\",\n  \"author\": \"developer\"\n}",
+              "raw": "{\n  \"message\": \"Add example file\",\n  \"files\": [\"{{file_path}}\"],\n  \"author\": \"API User\",\n  \"email\": \"api@example.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -340,7 +408,27 @@
               "host": ["{{base_url}}"],
               "path": ["files", "commit"]
             },
-            "description": "Commit all file changes using Editor Tool integration. Automatically stages and commits all modified files."
+            "description": "Commit file changes with a message. This stages and commits the specified files."
+          },
+          "response": []
+        },
+        {
+          "name": "Get File SHA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/files/sha?path={{file_path}}",
+              "host": ["{{base_url}}"],
+              "path": ["files", "sha"],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "{{file_path}}"
+                }
+              ]
+            },
+            "description": "Get SHA hash of a file for validation purposes."
           },
           "response": []
         }
@@ -360,7 +448,7 @@
               "host": ["{{base_url}}"],
               "path": ["git", "status"]
             },
-            "description": "Get current Git repository status including working directory state, staged changes, and branch information."
+            "description": "Get Git repository status including current branch, working directory status, and staged changes."
           },
           "response": []
         },
@@ -374,7 +462,7 @@
               "host": ["{{base_url}}"],
               "path": ["git", "branch"]
             },
-            "description": "List all Git branches (local and remote) with their current status."
+            "description": "Get list of all Git branches (local and remote)."
           },
           "response": []
         },
@@ -390,7 +478,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"feature/new-feature\",\n  \"from_branch\": \"main\"\n}",
+              "raw": "{\n  \"name\": \"{{branch_name}}\",\n  \"from\": \"main\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -418,7 +506,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"message\": \"Implement new feature\",\n  \"include_audits\": [\"task-123\"],\n  \"coauthors\": [\"developer@example.com\"]\n}",
+              "raw": "{\n  \"message\": \"Add new feature\",\n  \"files\": [\"{{file_path}}\"],\n  \"author\": \"API User\",\n  \"email\": \"api@example.com\",\n  \"sign\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -426,11 +514,17 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/git/commit",
+              "raw": "{{base_url}}/git/commit?task_id={{task_id}}",
               "host": ["{{base_url}}"],
-              "path": ["git", "commit"]
+              "path": ["git", "commit"],
+              "query": [
+                {
+                  "key": "task_id",
+                  "value": "{{task_id}}"
+                }
+              ]
             },
-            "description": "Create a Git commit with the specified message. Automatically stages all changes before committing."
+            "description": "Create a Git commit with the specified message and files. Optionally link to a task ID."
           },
           "response": []
         },
@@ -446,7 +540,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"remote\": \"origin\",\n  \"branch\": \"main\"\n}",
+              "raw": "{\n  \"branch\": \"{{branch_name}}\",\n  \"remote\": \"origin\",\n  \"force\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -458,7 +552,7 @@
               "host": ["{{base_url}}"],
               "path": ["git", "push"]
             },
-            "description": "Push changes to the remote repository. If no branch specified, pushes current branch."
+            "description": "Push changes to remote repository. Supports force push option."
           },
           "response": []
         },
@@ -474,7 +568,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"remote\": \"origin\",\n  \"branch\": \"main\"\n}",
+              "raw": "{\n  \"branch\": \"main\",\n  \"remote\": \"origin\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -486,7 +580,7 @@
               "host": ["{{base_url}}"],
               "path": ["git", "pull"]
             },
-            "description": "Pull changes from the remote repository. If no branch specified, pulls current branch."
+            "description": "Pull changes from remote repository."
           },
           "response": []
         },
@@ -502,7 +596,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"source\": \"feature/new-feature\",\n  \"target\": \"main\"\n}",
+              "raw": "{\n  \"source_branch\": \"{{branch_name}}\",\n  \"target_branch\": \"main\",\n  \"message\": \"Merge feature branch\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -514,7 +608,7 @@
               "host": ["{{base_url}}"],
               "path": ["git", "merge"]
             },
-            "description": "Merge a source branch into the target branch (or current branch if target not specified)."
+            "description": "Merge a source branch into target branch."
           },
           "response": []
         },
@@ -530,12 +624,67 @@
               "query": [
                 {
                   "key": "limit",
-                  "value": "10",
-                  "description": "Number of commits to return"
+                  "value": "10"
                 }
               ]
             },
-            "description": "Get Git commit history with optional limit on number of commits returned."
+            "description": "Get Git commit history with optional limit on number of commits."
+          },
+          "response": []
+        },
+        {
+          "name": "Revert Commits",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branch\": \"{{branch_name}}\",\n  \"to\": \"HEAD~1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/git/revert",
+              "host": ["{{base_url}}"],
+              "path": ["git", "revert"]
+            },
+            "description": "Revert commits on a branch for rollback purposes."
+          },
+          "response": []
+        },
+        {
+          "name": "Open Pull Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from_branch\": \"{{branch_name}}\",\n  \"to\": \"main\",\n  \"title\": \"Add new feature\",\n  \"body\": \"This PR adds a new feature to the application.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/git/open_pr",
+              "host": ["{{base_url}}"],
+              "path": ["git", "open_pr"]
+            },
+            "description": "Open a pull request (placeholder implementation)."
           },
           "response": []
         }
@@ -557,7 +706,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"query\": \"How does authentication work in this codebase?\",\n  \"filters\": {\n    \"language\": \"python\",\n    \"path_pattern\": \"src/**/*.py\"\n  },\n  \"top_k\": 8\n}",
+              "raw": "{\n  \"query\": \"How to create a new API endpoint?\",\n  \"top_k\": 10,\n  \"filters\": {\n    \"language\": \"python\",\n    \"path_pattern\": \"*.py\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -569,7 +718,7 @@
               "host": ["{{base_url}}"],
               "path": ["rag", "query"]
             },
-            "description": "Query the RAG system for code search. Returns relevant code snippets with metadata and similarity scores. Requires OPENAI_API_KEY to be configured."
+            "description": "Query the RAG system for relevant code snippets and documentation. Supports filtering by language, path patterns, and other metadata."
           },
           "response": []
         },
@@ -585,7 +734,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"scope\": \"all\"\n}",
+              "raw": "{\n  \"paths\": [\"src/\", \"docs/\"],\n  \"force\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -597,7 +746,7 @@
               "host": ["{{base_url}}"],
               "path": ["rag", "reindex"]
             },
-            "description": "Reindex the RAG system. Scope can be 'repo', 'tasks', 'chat', or 'all'. Requires OPENAI_API_KEY to be configured."
+            "description": "Reindex the RAG system with specified paths. Use force=true to reindex even if already indexed."
           },
           "response": []
         },
@@ -611,7 +760,61 @@
               "host": ["{{base_url}}"],
               "path": ["rag", "blobs", "abc123def456"]
             },
-            "description": "Check if blob metadata is present in the RAG system for a specific SHA hash."
+            "description": "Check if blob metadata is present in the RAG system for a specific SHA."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Utility Endpoints",
+      "description": "Utility and helper endpoints for various operations",
+      "item": [
+        {
+          "name": "Get Diff",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/diff?branch={{branch_name}}",
+              "host": ["{{base_url}}"],
+              "path": ["diff"],
+              "query": [
+                {
+                  "key": "branch",
+                  "value": "{{branch_name}}"
+                }
+              ]
+            },
+            "description": "Get diff for a specific branch or current changes."
+          },
+          "response": []
+        },
+        {
+          "name": "Execute Command",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workdir\": \"/work/repo\",\n  \"cmd\": [\"ls\", \"-la\"],\n  \"timeout_sec\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/runner/exec",
+              "host": ["{{base_url}}"],
+              "path": ["runner", "exec"]
+            },
+            "description": "Execute a command in a working directory with optional timeout."
           },
           "response": []
         }
@@ -631,68 +834,11 @@
               "host": ["{{base_url}}"],
               "path": ["webhooks"]
             },
-            "description": "Register webhook (placeholder implementation - not yet implemented)."
+            "description": "Register a webhook (placeholder implementation)."
           },
           "response": []
         }
       ]
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// Set default values if not already configured",
-          "if (!pm.collectionVariables.get('pod_token')) {",
-          "    pm.collectionVariables.set('pod_token', 'your-pod-token-here');",
-          "}",
-          "",
-          "if (!pm.collectionVariables.get('task_id')) {",
-          "    pm.collectionVariables.set('task_id', 'example-task-' + Date.now());",
-          "}",
-          "",
-          "if (!pm.collectionVariables.get('run_id')) {",
-          "    pm.collectionVariables.set('run_id', 'example-run-' + Date.now());",
-          "}",
-          "",
-          "// Log current configuration",
-          "console.log('Using base URL:', pm.collectionVariables.get('base_url'));",
-          "console.log('Using task ID:', pm.collectionVariables.get('task_id'));"
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "// Basic response validation",
-          "pm.test('Response time is less than 10000ms', function () {",
-          "    pm.expect(pm.response.responseTime).to.be.below(10000);",
-          "});",
-          "",
-          "pm.test('Response has valid JSON', function () {",
-          "    if (pm.response.headers.get('Content-Type') && pm.response.headers.get('Content-Type').includes('application/json')) {",
-          "        pm.response.to.have.jsonBody();",
-          "    }",
-          "});",
-          "",
-          "// Check for common error patterns",
-          "pm.test('No server errors', function () {",
-          "    pm.expect(pm.response.code).to.not.be.oneOf([500, 502, 503, 504]);",
-          "});",
-          "",
-          "// Log response for debugging",
-          "console.log('Response Status:', pm.response.status);",
-          "console.log('Response Time:', pm.response.responseTime + 'ms');",
-          "",
-          "if (pm.response.json && pm.response.json()) {",
-          "    console.log('Response Body:', JSON.stringify(pm.response.json(), null, 2));",
-          "}"
-        ]
-      }
     }
   ]
 }

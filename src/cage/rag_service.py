@@ -337,21 +337,24 @@ class RAGService:
             query_embedding = await self.generate_embedding(query_text)
             logger.info(f"Generated query embedding with {len(query_embedding)} dimensions")
             
-            # Convert to database format - convert numpy array to list for pgvector
+            # Convert to database format - use string for pgvector
             import numpy as np
-            query_vector = np.array(query_embedding, dtype=np.float32).tolist()
+            query_vector = np.array(query_embedding, dtype=np.float32)
             logger.info(f"Converted query vector type: {type(query_vector)}")
             logger.info(f"Query vector length: {len(query_vector)}")
             
-            # Build SQL query with optional filters
-            sql = """
+            # Format vector as string for PostgreSQL pgvector
+            vector_str = '[' + ','.join(map(str, query_vector)) + ']'
+            
+            # Build SQL query with optional filters - use string interpolation for vector
+            sql = f"""
                 SELECT e.blob_sha, e.chunk_id, e.meta, e.vector,
-                       1 - (e.vector <=> $1::vector) as score
+                       1 - (e.vector <=> '{vector_str}'::vector) as score
                 FROM embeddings e
                 JOIN git_blobs gb ON e.blob_sha = gb.blob_sha
             """
-            params = [query_vector]
-            param_count = 1
+            params = []
+            param_count = 0
             
             if filters:
                 where_conditions = []
@@ -373,7 +376,7 @@ class RAGService:
                 if where_conditions:
                     sql += " WHERE " + " AND ".join(where_conditions)
             
-            sql += f" ORDER BY e.vector <=> $1::vector LIMIT {top_k}"
+            sql += f" ORDER BY e.vector <=> '{vector_str}'::vector LIMIT {top_k}"
             
             # Execute query
             async with self.db_pool.acquire() as conn:

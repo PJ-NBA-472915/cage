@@ -148,15 +148,19 @@ def get_repository_path():
     return Path(repo_path)
 
 # Initialize task manager and git tool
-task_manager = TaskManager(Path("tasks"))
-git_tool = GitTool(get_repository_path())
-crew_tool = CrewTool(get_repository_path(), task_manager)
+repo_path = get_repository_path()
+tasks_dir = repo_path / ".cage" / "tasks"
+# Ensure .cage directory exists
+(repo_path / ".cage").mkdir(exist_ok=True)
+task_manager = TaskManager(tasks_dir)
+git_tool = GitTool(repo_path)
+crew_tool = CrewTool(repo_path, task_manager)
 
 # Initialize RAG service
 rag_service = None
 
 # Initialize editor tool
-editor_tool = EditorTool(get_repository_path(), task_manager=task_manager)
+editor_tool = EditorTool(repo_path, task_manager=task_manager)
 
 # Initialize RAG service on startup
 @app.on_event("startup")
@@ -202,6 +206,26 @@ async def shutdown_event():
 class TaskConfirmRequest(BaseModel):
     task_id: str
     status: str = "confirmed"
+
+class TaskCreateRequest(BaseModel):
+    """Request model for creating a complete task."""
+    id: str
+    title: str
+    owner: str
+    status: str = "planned"
+    progress_percent: int = 0
+    tags: list[str] = []
+    summary: str = ""
+    success_criteria: list[dict] = []
+    acceptance_checks: list[dict] = []
+    subtasks: list[str] = []
+    todo: list[dict] = []
+    decisions: list[str] = []
+    lessons_learned: list[str] = []
+    issues_risks: list[str] = []
+    next_steps: list[str] = []
+    references: list[str] = []
+    metadata: dict = {}
 
 class TaskUpdateRequest(BaseModel):
     status: str | None = None
@@ -308,6 +332,56 @@ def about():
     }
 
 # Tasks & Status endpoints
+@app.post("/tasks/create")
+def create_task(request: TaskCreateRequest, token: str = Depends(get_pod_token)):
+    """Create a new task with full data from request body."""
+    try:
+        # Check if task already exists
+        existing_task = task_manager.load_task(request.id)
+        
+        if existing_task:
+            raise HTTPException(status_code=409, detail=f"Task {request.id} already exists")
+        
+        # Convert request data to task data
+        task_data = {
+            "id": request.id,
+            "title": request.title,
+            "owner": request.owner,
+            "status": request.status,
+            "progress_percent": request.progress_percent,
+            "tags": request.tags,
+            "summary": request.summary,
+            "success_criteria": request.success_criteria,
+            "acceptance_checks": request.acceptance_checks,
+            "subtasks": request.subtasks,
+            "todo": request.todo,
+            "decisions": request.decisions,
+            "lessons_learned": request.lessons_learned,
+            "issues_risks": request.issues_risks,
+            "next_steps": request.next_steps,
+            "references": request.references,
+            "metadata": request.metadata
+        }
+        
+        # Create the task
+        task = task_manager.create_task(task_data)
+        if task:
+            logger.info(f"Created new task {request.id} with full data")
+            return {
+                "status": "success", 
+                "task_id": request.id, 
+                "action": "created",
+                "task": task.model_dump()
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create task")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in create_task: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/tasks/confirm")
 def confirm_task(request: TaskConfirmRequest, token: str = Depends(get_pod_token)):
     """Create/update task file."""
@@ -326,11 +400,14 @@ def confirm_task(request: TaskConfirmRequest, token: str = Depends(get_pod_token
                 raise HTTPException(status_code=500, detail="Failed to update task")
         else:
             # Create new task with basic structure
+            # Map "confirmed" status to "planned" since "confirmed" is not in the allowed pattern
+            mapped_status = "planned" if request.status == "confirmed" else request.status
             task_data = {
                 "id": request.task_id,
                 "title": f"Task {request.task_id}",
                 "owner": "system",
-                "status": request.status,
+                "status": mapped_status,
+                "progress_percent": 0,
                 "summary": "Auto-created task",
                 "tags": [],
                 "success_criteria": [],
@@ -338,9 +415,12 @@ def confirm_task(request: TaskConfirmRequest, token: str = Depends(get_pod_token
                 "subtasks": [],
                 "todo": [],
                 "decisions": [],
+                "lessons_learned": [],
                 "issues_risks": [],
                 "next_steps": [],
                 "references": [],
+                "prompts": [],
+                "locks": [],
                 "metadata": {}
             }
             
