@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "Cage Pod API - Complete Collection v2",
-    "description": "Comprehensive Postman collection for the Cage Pod-based Multi-Agent Repository Service API. This collection includes all endpoints for task management, crew operations, file editing, git operations, RAG services, and additional utility endpoints.",
-    "version": "2.0.0",
+    "name": "Cage Pod API - Complete Collection v3",
+    "description": "Comprehensive Postman collection for the Cage Pod-based Multi-Agent Repository Service API. This collection includes all endpoints for task management, crew operations, individual agent testing, file editing, git operations, RAG services, and additional utility endpoints. Features automatic task_id and run_id variable setting.",
+    "version": "3.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -94,6 +94,29 @@
       "item": [
         {
           "name": "Create Task (Full Data)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-set task_id from response",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.task_id) {",
+                  "        pm.collectionVariables.set('task_id', response.task_id);",
+                  "        console.log('Set task_id to:', response.task_id);",
+                  "    }",
+                  "    // Also check if task_id is in the task object",
+                  "    if (response.task && response.task.id) {",
+                  "        pm.collectionVariables.set('task_id', response.task.id);",
+                  "        console.log('Set task_id from task object to:', response.task.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -122,6 +145,24 @@
         },
         {
           "name": "Confirm Task (Simple)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-set task_id from response",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.task_id) {",
+                  "        pm.collectionVariables.set('task_id', response.task_id);",
+                  "        console.log('Set task_id to:', response.task_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -254,6 +295,28 @@
       "item": [
         {
           "name": "Create Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-set task_id and run_id from response",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.task_id) {",
+                  "        pm.collectionVariables.set('task_id', response.task_id);",
+                  "        console.log('Set task_id to:', response.task_id);",
+                  "    }",
+                  "    if (response.run_id) {",
+                  "        pm.collectionVariables.set('run_id', response.run_id);",
+                  "        console.log('Set run_id to:', response.run_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -282,6 +345,28 @@
         },
         {
           "name": "Apply Plan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-set task_id and run_id from response",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.task_id) {",
+                  "        pm.collectionVariables.set('task_id', response.task_id);",
+                  "        console.log('Set task_id to:', response.task_id);",
+                  "    }",
+                  "    if (response.run_id) {",
+                  "        pm.collectionVariables.set('run_id', response.run_id);",
+                  "        console.log('Set run_id to:', response.run_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -347,6 +432,210 @@
               "path": ["crew", "runs", "{{run_id}}", "artefacts"]
             },
             "description": "Upload files into .cage/runs/<run_id>/* directory for crew run artefacts."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Individual Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent\": \"implementer\",\n  \"request\": \"Please add a readme file\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/request",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crew",
+                "request"
+              ]
+            },
+            "description": "Test an individual agent with a specific request. Supports planner, implementer, reviewer, and committer agents."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Planner Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent\": \"planner\",\n  \"request\": \"Create a detailed plan for building a note-taking web application\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/request",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crew",
+                "request"
+              ]
+            },
+            "description": "Test the planner agent with a planning request."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Implementer Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent\": \"implementer\",\n  \"request\": \"Create an HTML file for a note-taking app with modern styling\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/request",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crew",
+                "request"
+              ]
+            },
+            "description": "Test the implementer agent with a file creation request."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Reviewer Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent\": \"reviewer\",\n  \"request\": \"Review the HTML structure for accessibility and best practices\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/request",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crew",
+                "request"
+              ]
+            },
+            "description": "Test the reviewer agent with a code review request."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Committer Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent\": \"committer\",\n  \"request\": \"Commit the note-taking app files with a descriptive message\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/crew/request",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crew",
+                "request"
+              ]
+            },
+            "description": "Test the committer agent with a Git commit request."
+          },
+          "response": []
+        },
+        {
+          "name": "List Available Agents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/crew/agents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crew",
+                "agents"
+              ]
+            },
+            "description": "List all available agents and their information."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Agent Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/crew/agents/implementer",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crew",
+                "agents",
+                "implementer"
+              ]
+            },
+            "description": "Get detailed information about a specific agent."
           },
           "response": []
         }

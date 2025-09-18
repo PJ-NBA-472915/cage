@@ -112,26 +112,41 @@ class BaseAgent(ABC):
         # Get tools from subclass implementation
         tools = self._get_tools()
         
-        # Create CrewAI agent
-        self.crewai_agent = Agent(
-            role=self.config.role,
-            goal=self.config.goal,
-            backstory=self.config.backstory,
-            verbose=self.config.verbose,
-            allow_delegation=self.config.allow_delegation,
-            tools=tools,
-            max_iter=self.config.max_iter,
-            max_execution_time=self.config.max_execution_time,
-            memory=self.config.memory,
-            step_callback=self.config.step_callback,
-            max_rpm=self.config.max_rpm,
-            max_prompt_tokens=self.config.max_prompt_tokens,
-            max_completion_tokens=self.config.max_completion_tokens,
-            temperature=self.config.temperature,
-            top_p=self.config.top_p,
-            frequency_penalty=self.config.frequency_penalty,
-            presence_penalty=self.config.presence_penalty,
-        )
+        # Create CrewAI agent with only non-None parameters
+        agent_kwargs = {
+            "role": self.config.role,
+            "goal": self.config.goal,
+            "backstory": self.config.backstory,
+            "verbose": self.config.verbose,
+            "allow_delegation": self.config.allow_delegation,
+            "tools": tools,
+        }
+        
+        # Add optional parameters only if they are not None
+        if self.config.max_iter is not None:
+            agent_kwargs["max_iter"] = self.config.max_iter
+        if self.config.max_execution_time is not None:
+            agent_kwargs["max_execution_time"] = self.config.max_execution_time
+        if self.config.memory is not None:
+            agent_kwargs["memory"] = self.config.memory
+        if self.config.step_callback is not None:
+            agent_kwargs["step_callback"] = self.config.step_callback
+        if self.config.max_rpm is not None:
+            agent_kwargs["max_rpm"] = self.config.max_rpm
+        if self.config.max_prompt_tokens is not None:
+            agent_kwargs["max_prompt_tokens"] = self.config.max_prompt_tokens
+        if self.config.max_completion_tokens is not None:
+            agent_kwargs["max_completion_tokens"] = self.config.max_completion_tokens
+        if self.config.temperature is not None:
+            agent_kwargs["temperature"] = self.config.temperature
+        if self.config.top_p is not None:
+            agent_kwargs["top_p"] = self.config.top_p
+        if self.config.frequency_penalty is not None:
+            agent_kwargs["frequency_penalty"] = self.config.frequency_penalty
+        if self.config.presence_penalty is not None:
+            agent_kwargs["presence_penalty"] = self.config.presence_penalty
+        
+        self.crewai_agent = Agent(**agent_kwargs)
         
         self._initialized = True
         self.logger.info(f"Successfully initialized {self.agent_type.value} agent")

@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 from crewai import Task, Crew, Process
 from crewai.tools import BaseTool
+from pydantic import BaseModel
 
 from .editor_tool import EditorTool, FileOperation, OperationType
 from .git_tool import GitTool

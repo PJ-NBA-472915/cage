@@ -7,9 +7,9 @@ Cage is a system for managing multi-agent collaboration on code repositories. It
 - **Task Management:** JSON task files with validation, progress, and provenance
 - **Editor Tool:** Structured file ops (GET/INSERT/UPDATE/DELETE) with locking
 - **Git Integration:** Status/branch/commit/push/merge with provenance
-- **CrewAI Workflow:** Plan → implement → review → commit
+- **CrewAI Workflow:** Modular agent system with individual testing and dynamic crew construction
 - **RAG (pgvector + Redis):** Semantic search over code/tasks with OpenAI embeddings
-- **REST API:** Endpoints for tasks, files, git, crew, rag
+- **REST API:** Endpoints for tasks, files, git, crew, rag, and individual agent testing
 - **CLI Tools:** Typer-based CLI for tasks/git/serve
 - **MCP Server:** Streamable HTTP MCP server exposing RAG query as a tool
 
@@ -18,7 +18,7 @@ Cage is a system for managing multi-agent collaboration on code repositories. It
 - ✅ Phase 1: Task File System — Complete
 - ✅ Phase 2: Editor Tool — Complete
 - ✅ Phase 3: Git Integration — Complete
-- ✅ Phase 4: CrewAI Integration — Implemented (alpha)
+- ✅ Phase 4: CrewAI Integration — Complete (modular agents with individual testing)
 - ✅ Phase 5: RAG System — Implemented (beta)
 - 📋 Phase 6: Production Features — Planned
 
@@ -27,6 +27,7 @@ Cage is a system for managing multi-agent collaboration on code repositories. It
 - `src/api/`: FastAPI REST API server
 - `src/cli/`: Typer-based CLI tools
 - `src/cage/`: Core Cage modules and data models
+  - `src/cage/agents/`: Modular agent system with individual testing capabilities
 - `tasks/`: Task file storage and management
 - `memory-bank/docs/`: Feature documentation (API, Editor, Git, RAG, MCP)
 - `tests/`: Test suites
@@ -79,6 +80,8 @@ make rag-query           # Example RAG query
 - Git Integration: `memory-bank/docs/features/git-integration.md`
 - RAG System: `memory-bank/docs/features/rag-system-implementation.md`
 - MCP Service: `memory-bank/docs/features/mcp-service.md`
+- Modular Agents: `src/cage/agents/README.md`
+- Individual Agent API: `INDIVIDUAL_AGENT_API.md`
 - Project Context: `memory-bank/README.md`
 - Postman Collection: `cage-api-complete-postman-collection.json`
 

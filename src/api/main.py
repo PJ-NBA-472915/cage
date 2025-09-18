@@ -34,6 +34,7 @@ from src.cage.task_models import TaskManager, TaskFile
 from src.cage.editor_tool import EditorTool, FileOperation, OperationType
 from src.cage.git_tool import GitTool
 from src.cage.crew_tool import CrewTool
+from src.cage.crew_tool_modular import ModularCrewTool
 from src.cage.rag_service import RAGService
 
 # Security
@@ -155,6 +156,7 @@ tasks_dir = repo_path / ".cage" / "tasks"
 task_manager = TaskManager(tasks_dir)
 git_tool = GitTool(repo_path)
 crew_tool = CrewTool(repo_path, task_manager)
+modular_crew_tool = ModularCrewTool(repo_path, task_manager)
 
 # Initialize RAG service
 rag_service = None
@@ -278,6 +280,10 @@ class RAGQueryRequest(BaseModel):
 
 class RAGReindexRequest(BaseModel):
     scope: str  # repo, tasks, chat, all
+
+class AgentRequest(BaseModel):
+    agent: str
+    request: str
 
 # Note-taking API models
 class NoteCreateRequest(BaseModel):
@@ -1085,6 +1091,80 @@ def update_task_comprehensive(request: dict, token: str = Depends(get_pod_token)
         raise
     except Exception as e:
         logger.error(f"Error updating task {task_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Individual Agent endpoints
+@app.post("/crew/request")
+def test_individual_agent(request: AgentRequest, token: str = Depends(get_pod_token)):
+    """Test an individual agent with a specific request."""
+    try:
+        # Validate agent name
+        valid_agents = ["planner", "implementer", "reviewer", "committer"]
+        if request.agent not in valid_agents:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid agent name. Must be one of: {', '.join(valid_agents)}"
+            )
+        
+        # Test the agent
+        result = modular_crew_tool.test_agent(request.agent, request.request)
+        
+        if result["success"]:
+            logger.info(f"Agent {request.agent} executed successfully")
+            return {
+                "status": "success",
+                "agent": request.agent,
+                "request": request.request,
+                "output": result["output"],
+                "execution_time": result.get("execution_time", "unknown")
+            }
+        else:
+            logger.error(f"Agent {request.agent} execution failed: {result.get('error', 'Unknown error')}")
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Agent execution failed: {result.get('error', 'Unknown error')}"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error testing agent {request.agent}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/crew/agents")
+def list_available_agents(token: str = Depends(get_pod_token)):
+    """List all available agents and their information."""
+    try:
+        agents_info = modular_crew_tool.list_available_agents()
+        
+        return {
+            "status": "success",
+            "agents": agents_info,
+            "count": len(agents_info)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing agents: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/crew/agents/{agent_name}")
+def get_agent_info(agent_name: str, token: str = Depends(get_pod_token)):
+    """Get information about a specific agent."""
+    try:
+        agent_info = modular_crew_tool.get_agent_info(agent_name)
+        
+        if agent_info:
+            return {
+                "status": "success",
+                "agent": agent_info
+            }
+        else:
+            raise HTTPException(status_code=404, detail=f"Agent {agent_name} not found")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting agent info for {agent_name}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Webhooks endpoint
