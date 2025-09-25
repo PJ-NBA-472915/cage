@@ -192,7 +192,7 @@ class BaseAgent(ABC):
             )
             
             # Execute the task
-            result = test_task.execute()
+            result = test_task.execute_sync()
             
             return {
                 "success": True,

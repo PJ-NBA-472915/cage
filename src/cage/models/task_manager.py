@@ -1,7 +1,7 @@
 """
-Task file data models and validation for Cage.
+Task manager for Cage.
 
-This module provides Pydantic models for task file validation and manipulation.
+This module provides the TaskManager class for task file management operations.
 """
 
 import json
@@ -9,147 +9,11 @@ import jsonschema
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
-from pydantic import BaseModel, Field, field_validator, model_validator
 
-
-class TaskCriteria(BaseModel):
-    """Success criteria or acceptance check item."""
-    text: str
-    checked: bool = False
-
-
-class TaskTodoItem(BaseModel):
-    """Todo item with status and timing."""
-    text: str
-    status: str = Field(..., pattern="^(not-started|done|blocked|failed)$")
-    date_started: Optional[str] = None
-    date_stopped: Optional[str] = None
-
-
-class TaskChangelogEntry(BaseModel):
-    """Changelog entry with optional lock information."""
-    timestamp: str
-    text: str
-    lock_id: Optional[str] = None
-    file_path: Optional[str] = None
-
-
-class TaskPrompt(BaseModel):
-    """User prompt entry for audit trail."""
-    timestamp: str
-    text: str
-    context: str
-
-
-class TaskLock(BaseModel):
-    """File lock for multi-agent collaboration."""
-    id: str
-    file_path: str
-    ranges: List[Dict[str, int]] = Field(..., min_items=1)
-    description: str
-    agent: str
-    started_at: str
-    completed_at: Optional[str] = None
-    status: str = Field(..., pattern="^(active|released|aborted|stale)$")
-
-
-class TaskMigration(BaseModel):
-    """Migration tracking information."""
-    migrated: bool
-    source_path: Optional[str] = None
-    method: Optional[str] = Field(None, pattern="^(script|manual)$")
-    migrated_at: Optional[str] = None
-
-
-class TaskPlan(BaseModel):
-    """Task execution plan."""
-    title: str = ""
-    assumptions: List[str] = []
-    steps: List[Dict[str, Any]] = []
-    commit_message: str = ""
-
-
-class TaskCommit(BaseModel):
-    """Git commit information."""
-    sha: str
-    title: str
-    files_changed: int = 0
-    insertions: int = 0
-    deletions: int = 0
-
-
-class TaskProvenance(BaseModel):
-    """Task provenance tracking."""
-    branch_from: str = ""
-    work_branch: str = ""
-    commits: List[TaskCommit] = []
-    blobs_indexed: List[str] = []
-
-
-class TaskArtefacts(BaseModel):
-    """Task artefacts and outputs."""
-    run_id: str = ""
-    logs: List[str] = []
-    reports: List[str] = []
-    diff_bundles: List[str] = []
-    external: List[Dict[str, Any]] = []
-
-
-class TaskFile(BaseModel):
-    """Complete task file model."""
-    id: str = Field(..., pattern="^\\d{4}-\\d{2}-\\d{2}-[a-z0-9-]+$")
-    title: str = Field(..., min_length=1)
-    owner: str = Field(..., min_length=1)
-    status: str = Field(..., pattern="^(planned|in-progress|blocked|review|done|abandoned)$")
-    created_at: str
-    updated_at: str
-    progress_percent: int = Field(..., ge=0, le=100)
-    tags: List[str] = []
-    summary: str = ""
-    success_criteria: List[TaskCriteria] = []
-    acceptance_checks: List[TaskCriteria] = []
-    subtasks: List[str] = []
-    todo: List[TaskTodoItem] = []
-    changelog: List[TaskChangelogEntry] = []
-    decisions: List[str] = []
-    lessons_learned: List[str] = []
-    issues_risks: List[str] = []
-    next_steps: List[str] = []
-    references: List[str] = []
-    prompts: List[TaskPrompt] = []
-    locks: List[TaskLock] = []
-    migration: TaskMigration = TaskMigration(migrated=False)
-    plan: TaskPlan = TaskPlan()
-    provenance: TaskProvenance = TaskProvenance()
-    artefacts: TaskArtefacts = TaskArtefacts()
-    metadata: Dict[str, Any] = {}
-
-    @field_validator('progress_percent')
-    @classmethod
-    def calculate_progress(cls, v, info):
-        """Calculate progress from todo items if not explicitly set."""
-        if info.data and 'todo' in info.data and info.data['todo']:
-            todo_items = info.data['todo']
-            if todo_items:
-                completed = sum(1 for item in todo_items if item.status == 'done')
-                total = len(todo_items)
-                return int((completed / total) * 100) if total > 0 else 0
-        return v
-
-    @model_validator(mode='after')
-    def validate_timestamps(self):
-        """Validate timestamp formats."""
-        for field in ['created_at', 'updated_at']:
-            value = getattr(self, field)
-            if value:
-                try:
-                    datetime.fromisoformat(value)
-                except ValueError:
-                    raise ValueError(f"Invalid timestamp format for {field}")
-        return self
-
-    class Config:
-        extra = "forbid"
+from .task_file import TaskFile
+from .task_commit import TaskCommit
+from .task_provenance import TaskProvenance
+from .task_todo_item import TaskTodoItem
 
 
 class TaskManager:

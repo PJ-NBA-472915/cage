@@ -278,6 +278,10 @@ class AgentRegistry:
         """Return the number of registered agents."""
         return len(self._agents)
     
+    def __bool__(self) -> bool:
+        """Return True if the registry exists (always True for instantiated registries)."""
+        return True
+    
     def __contains__(self, name: str) -> bool:
         """Check if an agent is registered."""
         return name in self._agents

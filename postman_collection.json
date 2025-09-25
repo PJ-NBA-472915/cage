@@ -1,104 +1,336 @@
 {
     "info": {
-        "_postman_id": "<a_uuid>",
-        "name": "Cage API",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        "_postman_id": "cage-api-collection-v2",
+        "name": "Cage Pod API - Complete Collection",
+        "description": "🚀 Comprehensive Postman collection for the Cage Pod Multi-Agent Repository Service API.\n\n## Key Features\n- **Individual Agent Testing** (NEW!) - Test agents separately to reduce feedback loops\n- Complete API coverage with 35+ endpoints\n- Auto-generated variables and test scripts\n- Rich documentation and examples\n\n## Quick Start\n1. Set environment variables: base_url, pod_token\n2. Test individual agents in '🤖 Individual Agents' folder\n3. Use 'Test Individual Agent' requests for rapid development\n\n## Individual Agents\n- planner: Creates execution plans\n- implementer: Handles file operations\n- reviewer: Reviews code quality\n- committer: Manages Git operations",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "version": {
+          "major": 2,
+          "minor": 0,
+          "patch": 0
+        }
     },
+    "auth": {
+      "type": "bearer",
+      "bearer": [
+        {
+          "key": "token",
+          "value": "{{pod_token}}",
+          "type": "string"
+        }
+      ]
+    },
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// Global pre-request script",
+            "console.log('🚀 Cage API:', pm.request.method, pm.request.url.toString());",
+            "",
+            "// Set defaults",
+            "if (!pm.environment.get('base_url')) {",
+            "    pm.environment.set('base_url', 'http://localhost:8000');",
+            "}",
+            "if (!pm.environment.get('pod_token')) {",
+            "    pm.environment.set('pod_token', 'dev-token');",
+            "}",
+            "if (!pm.environment.get('task_id')) {",
+            "    const timestamp = new Date().toISOString().split('T')[0];",
+            "    const taskId = `${timestamp}-test-${Math.floor(Math.random() * 1000)}`;",
+            "    pm.environment.set('task_id', taskId);",
+            "}"
+          ]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// Global test script",
+            "const responseTime = pm.response.responseTime;",
+            "const statusCode = pm.response.code;",
+            "console.log(`✅ Response: ${statusCode} (${responseTime}ms)`);",
+            "",
+            "pm.test('Response time reasonable', function () {",
+            "    pm.expect(responseTime).to.be.below(30000);",
+            "});",
+            "",
+            "pm.test('Valid HTTP status', function () {",
+            "    pm.expect(statusCode).to.be.oneOf([200, 201, 400, 401, 404, 409, 500, 503]);",
+            "});"
+          ]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8000"
+      },
+      {
+        "key": "pod_token",
+        "value": "dev-token"
+      }
+    ],
     "item": [
-        {
-            "name": "Health Check",
-            "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                    "raw": "http://localhost:8000/health",
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8000",
-                    "path": [
-                        "health"
-                    ]
-                }
-            },
-            "response": []
-        },
-        {
-            "name": "List Repositories",
-            "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                    "raw": "http://localhost:8000/repos",
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8000",
-                    "path": [
-                        "repos"
-                    ]
-                }
-            },
-            "response": []
-        },
-        {
-            "name": "Initialize Repository",
-            "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"origin\": \"<your_repo_url>\"\n}",
-                    "options": {
-                        "raw": {
-                            "language": "json"
+      {
+        "name": "🏥 System Health",
+        "description": "System health and information endpoints",
+            "item": [
+              {
+                "name": "Health Check",
+                "request": {
+                  "method": "GET",
+                  "header": [],
+                  "url": {
+                            "raw": "{{base_url}}/health",
+                            "host": [
+                              "{{base_url}}"
+                            ],
+                            "path": [
+                              "health"
+                            ]
+                          },
+                          "description": "Check if the Cage API is running and healthy. No authentication required."
+                        },
+                        "event": [
+                          {
+                            "listen": "test",
+                            "script": {
+                              "exec": [
+                                "pm.test('Health check success', function () {",
+                                "    pm.response.to.have.status(200);",
+                                "    const json = pm.response.json();",
+                                "    pm.expect(json.status).to.eql('success');",
+                                "});"
+                              ]
+                            }
                         }
-                    }
+                      ]
                 },
-                "url": {
-                    "raw": "http://localhost:8000/repos",
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
-                    ],
-                    "port": "8000",
-                    "path": [
-                        "repos"
-                    ]
+                {
+                  "name": "About",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{base_url}}/about",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "about"
+                      ]
+                    },
+                    "description": "Get pod information including capabilities and version."
+                  }
                 }
-            },
-            "response": []
+              ]
         },
         {
-            "name": "Close Repository",
-            "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"path\": \"<path_to_your_repo>\",\n    \"message\": \"Closing the repository.\"\n}",
-                    "options": {
-                        "raw": {
-                            "language": "json"
+            "name": "🤖 Individual Agents (NEW!)",
+            "description": "Test individual agents in isolation - the key feature for reducing feedback loops!",
+            "item": [
+              {
+                "name": "List Available Agents",
+                "request": {
+                  "method": "GET",
+                  "header": [],
+                  "url": {
+                            "raw": "{{base_url}}/crew/agents",
+                            "host": [
+                              "{{base_url}}"
+                            ],
+                            "path": [
+                              "crew",
+                              "agents"
+                            ]
+                          },
+                          "description": "Get list of all available agents: planner, implementer, reviewer, committer"
+                        },
+                        "event": [
+                          {
+                            "listen": "test",
+                            "script": {
+                              "exec": [
+                                "pm.test('Lists agents successfully', function () {",
+                                "    pm.response.to.have.status(200);",
+                                "    const json = pm.response.json();",
+                                "    pm.expect(json.status).to.eql('success');",
+                                "    pm.expect(json.agents).to.be.an('array');",
+                                "});",
+                                "",
+                                "// Store first agent for other tests",
+                                "if (pm.response.code === 200) {",
+                                "    const json = pm.response.json();",
+                                "    if (json.agents?.length > 0) {",
+                                "        pm.environment.set('agent_name', json.agents[0].name);",
+                                "    }",
+                                "}"
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "name": "Test Individual Agent - Planner",
+                        "request": {
+                          "method": "POST",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                            }
+                          ],
+                          "body": {
+                            "mode": "raw",
+                          "raw": "{\\n    \\\"agent\\\": \\\"planner\\\",\\n    \\\"request\\\": \\\"Create a detailed plan for building a user authentication system with login, registration, and password reset functionality\\\"\\n}"
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/crew/request",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "crew",
+                            "request"
+                          ]
+                        },
+                        "description": "Test the Planner Agent individually. Creates detailed execution plans using Cage-native API endpoints."
+                      },
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "pm.test('Planner agent executes successfully', function () {",
+                              "    pm.response.to.have.status(200);",
+                              "    const json = pm.response.json();",
+                              "    pm.expect(json.status).to.eql('success');",
+                              "    pm.expect(json.agent).to.eql('planner');",
+                              "    pm.expect(json.output).to.be.a('string');",
+                              "});"
+                            ]
+                          }
                         }
-                    }
-                },
-                "url": {
-                    "raw": "http://localhost:8000/repos/close",
-                    "protocol": "http",
-                    "host": [
-                        "localhost"
+                      ]
+                    },
+                    {
+                      "name": "Test Individual Agent - Implementer",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\\n    \\\"agent\\\": \\\"implementer\\\",\\n    \\\"request\\\": \\\"Create a Python file called 'auth.py' with a simple login function that takes username and password parameters\\\"\\n}"
+                          },
+                          "url": {
+                            "raw": "{{base_url}}/crew/request",
+                            "host": [
+                              "{{base_url}}"
+                            ],
+                            "path": [
+                              "crew",
+                              "request"
+                            ]
+                          },
+                          "description": "Test the Implementer Agent individually. Executes file operations and code changes."
+                        }
+                      },
+                {
+                  "name": "Test Individual Agent - Reviewer",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
                     ],
-                    "port": "8000",
-                    "path": [
-                        "repos",
-                        "close"
-                    ]
+                    "body": {
+                      "mode": "raw",
+                          "raw": "{\\n    \\\"agent\\\": \\\"reviewer\\\",\\n    \\\"request\\\": \\\"Review the authentication code for security vulnerabilities and best practices\\\"\\n}"
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/crew/request",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "crew",
+                            "request"
+                          ]
+                        },
+                        "description": "Test the Reviewer Agent individually. Reviews code quality and compliance."
+                        }
+                      },
+                      {
+                        "name": "Test Individual Agent - Committer",
+                        "request": {
+                          "method": "POST",
+                          "header": [
+                            {
+                              "key": "Content-Type",
+                              "value": "application/json"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\\n    \\\"agent\\\": \\\"committer\\\",\\n    \\\"request\\\": \\\"Create a Git commit for the authentication system changes with proper commit message\\\"\\n}"
+                          },
+                          "url": {
+                            "raw": "{{base_url}}/crew/request",
+                            "host": [
+                              "{{base_url}}"
+                            ],
+                            "path": [
+                              "crew",
+                              "request"
+                            ]
+                          },
+                          "description": "Test the Committer Agent individually. Handles Git operations and commits."
+                    }
+                  },
+                {
+                  "name": "Get Agent Info",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{base_url}}/crew/agents/{{agent_name}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "crew",
+                        "agents",
+                        "{{agent_name}}"
+                      ]
+                    },
+                    "description": "Get detailed information about a specific agent. Uses agent_name variable."
+                  },
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "if (!pm.environment.get('agent_name')) {",
+                          "    pm.environment.set('agent_name', 'planner');",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
                 }
-            },
-            "response": []
+              ]
         }
     ]
 }

@@ -54,7 +54,7 @@ services:
       - .:/app
       - ${REPO_PATH}:/work/repo
     depends_on:
-      postgres:
+      postgres: 
         condition: service_healthy
       redis:
         condition: service_healthy

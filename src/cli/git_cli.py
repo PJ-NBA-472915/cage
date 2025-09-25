@@ -13,7 +13,7 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.cage.git_tool import GitTool
-from src.cage.task_models import TaskManager
+from src.cage.models import TaskManager
 
 
 def create_git_tool(repo_path: Path = None) -> GitTool:

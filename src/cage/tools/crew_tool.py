@@ -1,8 +1,8 @@
 """
-CrewAI Integration Tool for Cage Pod
+Modular CrewAI Integration Tool for Cage Pod
 
-This module implements the CrewAI integration for AI agent workflows,
-including planning, execution, and run management.
+This module implements the CrewAI integration using the new modular agent system,
+providing dynamic crew construction and individual agent testing capabilities.
 """
 
 import json
@@ -14,13 +14,21 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 
-from crewai import Agent, Task, Crew, Process
+from crewai import Task, Crew, Process
 from crewai.tools import BaseTool
 from pydantic import BaseModel
 
 from .editor_tool import EditorTool, FileOperation, OperationType
 from .git_tool import GitTool
-from .task_models import TaskManager
+from ..models import TaskManager
+from ..agents import (
+    AgentRegistry, AgentFactory, CrewBuilder, AgentType
+)
+from ..agents.planner import PlannerAgent, planner_config
+from ..agents.implementer import ImplementerAgent, implementer_config
+from ..agents.reviewer import ReviewerAgent, reviewer_config
+from ..agents.committer import CommitterAgent, committer_config
+from ..agents.config import AgentConfigManager
 
 
 @dataclass
@@ -36,8 +44,13 @@ class RunStatus:
     artefacts: List[str] = None
 
 
-class CrewTool:
-    """CrewAI integration tool for Cage Pod."""
+class ModularCrewTool:
+    """
+    Modular CrewAI integration tool for Cage Pod.
+    
+    This class provides a modular approach to CrewAI integration, allowing
+    for dynamic crew construction and individual agent testing.
+    """
     
     def __init__(self, repo_path: Path, task_manager: TaskManager):
         self.repo_path = repo_path
@@ -51,8 +64,8 @@ class CrewTool:
         self.logger = logging.getLogger(__name__)
         self._setup_crewai_logging()
         
-        # Initialize CrewAI agents
-        self._setup_agents()
+        # Initialize modular agent system
+        self._setup_modular_agents()
     
     def _setup_crewai_logging(self):
         """Set up comprehensive logging for CrewAI operations."""
@@ -83,6 +96,37 @@ class CrewTool:
         
         self.logger.info(f"CrewAI logging initialized. Log file: {crewai_log_file}")
     
+    def _setup_modular_agents(self):
+        """Set up the modular agent system."""
+        self.logger.info("Setting up modular agent system...")
+        
+        # Initialize agent registry
+        self.agent_registry = AgentRegistry(logger=self.logger)
+        
+        # Initialize agent factory
+        self.agent_factory = AgentFactory(self.agent_registry, logger=self.logger)
+        
+        # Initialize crew builder
+        self.crew_builder = CrewBuilder(self.agent_factory, logger=self.logger)
+        
+        # Initialize configuration manager
+        self.config_manager = AgentConfigManager(logger=self.logger)
+        
+        # Register default agents
+        self._register_default_agents()
+        
+        self.logger.info("Modular agent system initialized successfully")
+    
+    def _register_default_agents(self):
+        """Register the default agents in the registry."""
+        # Register all default agents
+        self.agent_registry.register_agent(PlannerAgent, planner_config, "planner")
+        self.agent_registry.register_agent(ImplementerAgent, implementer_config, "implementer")
+        self.agent_registry.register_agent(ReviewerAgent, reviewer_config, "reviewer")
+        self.agent_registry.register_agent(CommitterAgent, committer_config, "committer")
+        
+        self.logger.info(f"Registered {len(self.agent_registry)} default agents")
+    
     def _log_agent_activity(self, agent_name: str, activity: str, details: Dict[str, Any] = None):
         """Log agent activity with structured details."""
         log_data = {
@@ -92,18 +136,6 @@ class CrewTool:
             "details": details or {}
         }
         self.crewai_logger.info(f"Agent Activity: {json.dumps(log_data)}")
-    
-    def _log_tool_usage(self, agent_name: str, tool_name: str, operation: str, result: str, success: bool):
-        """Log tool usage with detailed information."""
-        log_data = {
-            "agent": agent_name,
-            "tool": tool_name,
-            "operation": operation,
-            "success": success,
-            "result": result,
-            "timestamp": datetime.now().isoformat()
-        }
-        self.crewai_logger.info(f"Tool Usage: {json.dumps(log_data)}")
     
     def _log_crew_execution(self, crew_name: str, task_name: str, status: str, details: Dict[str, Any] = None):
         """Log crew execution details."""
@@ -116,143 +148,63 @@ class CrewTool:
         }
         self.crewai_logger.info(f"Crew Execution: {json.dumps(log_data)}")
     
-    def _setup_agents(self):
-        """Set up CrewAI agents for different roles."""
-        self.logger.info("Setting up CrewAI agents...")
+    def test_agent(self, agent_name: str, test_input: str) -> Dict[str, Any]:
+        """
+        Test an individual agent in isolation.
         
-        # Planner Agent - Creates detailed plans for task execution
-        self.planner_agent = Agent(
-            role="Planner",
-            goal="Create detailed, actionable plans for task execution using Cage-native API endpoints",
-            backstory="""You are an expert software architect and project planner. 
-            You analyze tasks and create comprehensive, step-by-step plans that break down 
-            complex work into manageable, executable steps. You consider dependencies, 
-            risks, and best practices in your planning.
+        Args:
+            agent_name: Name of the agent to test
+            test_input: Input to test the agent with
             
-            CRITICAL: All plans MUST use Cage-native API endpoints only:
-            - Use POST /files/edit for all file operations (INSERT, UPDATE, DELETE)
-            - Use GET /files/sha for content validation
-            - Use GET /diff for change validation
-            - Use POST /git/revert for rollback operations
-            - Use POST /runner/exec for optional execution checks
-            - Use POST /git/open_pr for pull request creation
-            - Use POST /tasks/update for task updates
-            
-            NEVER include terminal commands like 'touch', 'mkdir', 'echo', etc.
-            Always include validation steps and rollback paths.
-            Include branch names and task-linked commit messages.
-            
-            Output format must be EXACTLY this JSON structure (no markdown, no code blocks):
-            {
-              "taskName": "Task Title",
-              "taskId": "task-id",
-              "goal": "Clear goal description",
-              "branch": "chore/task-name-YYYY-MM-DD",
-              "steps": [
-                {
-                  "name": "Step description",
-                  "request": {
-                    "method": "POST",
-                    "path": "/files/edit",
-                    "body": {
-                      "operation": "INSERT",
-                      "path": "file.py",
-                      "payload": {"content": "file content"},
-                      "intent": "Create file",
-                      "author": "planner",
-                      "correlation_id": "task-id"
-                    }
-                  },
-                  "validate": [
-                    "GET /files/sha?path=file.py -> returns non-empty sha",
-                    "GET /diff?branch=chore/task-name-YYYY-MM-DD -> shows added file"
-                  ],
-                  "onFailure": {
-                    "action": "abort",
-                    "rollback": {
-                      "method": "POST",
-                      "path": "/git/revert",
-                      "body": {"branch": "chore/task-name-YYYY-MM-DD", "to": "HEAD~1"}
-                    }
-                  }
+        Returns:
+            Test results dictionary
+        """
+        self.logger.info(f"Testing individual agent: {agent_name}")
+        
+        try:
+            # Create agent instance
+            agent = self.agent_factory.create_agent(agent_name)
+            if not agent:
+                return {
+                    "success": False,
+                    "error": f"Agent '{agent_name}' not found",
+                    "agent_name": agent_name
                 }
-              ]
+            
+            # Inject appropriate tools based on agent type
+            if agent_name == "implementer" or agent_name == "reviewer":
+                agent.config.tools = [EditorToolWrapper(self.editor_tool)]
+                self.logger.info(f"Injected EditorTool into {agent_name} agent")
+            elif agent_name == "committer":
+                agent.config.tools = [GitToolWrapper(self.git_tool)]
+                self.logger.info(f"Injected GitTool into {agent_name} agent")
+            else:
+                self.logger.info(f"No tools needed for {agent_name} agent")
+            
+            # Reinitialize agent with tools
+            agent.initialize()
+            
+            # Test the agent
+            result = agent.test_agent(test_input)
+            
+            self._log_agent_activity(agent_name, "Individual Test", {
+                "test_input": test_input,
+                "success": result["success"]
+            })
+            
+            return result
+            
+        except Exception as e:
+            error_msg = f"Error testing agent {agent_name}: {e}"
+            self.logger.error(error_msg)
+            return {
+                "success": False,
+                "error": error_msg,
+                "agent_name": agent_name
             }
-            
-            CRITICAL: Return ONLY the JSON object, no markdown formatting, no code blocks, no additional text.
-            """,
-            verbose=True,
-            allow_delegation=False,
-            tools=[]
-        )
-        self._log_agent_activity("Planner", "Agent Created", {"role": "Planner", "tools": []})
-        
-        # Implementer Agent - Executes file operations and code changes
-        self.implementer_agent = Agent(
-            role="Implementer", 
-            goal="Execute file operations and implement code changes using the Cage Editor Tool",
-            backstory="""You are an expert software developer with deep knowledge of 
-            code structure, best practices, and implementation patterns. You MUST use the 
-            EditorTool for ALL file operations - creating, reading, updating, and deleting files.
-            
-            CRITICAL RULES:
-            1. NEVER use terminal commands like 'touch', 'mkdir', 'echo', 'cat', etc.
-            2. ALWAYS use the EditorTool for file operations
-            3. If a file you need to modify does not exist, create it with INSERT (include full content)
-            4. For creating new files, use INSERT operation with full content
-            5. For directories, create files with paths like 'subdir/file.txt'
-            6. Always provide meaningful intent descriptions
-            7. Use proper file extensions (.py, .md, .txt, etc.)
-            
-            You carefully execute file operations, making precise changes while maintaining 
-            code quality and following established patterns.""",
-            verbose=True,
-            allow_delegation=False,
-            tools=[EditorToolWrapper(self.editor_tool)]
-        )
-        self._log_agent_activity("Implementer", "Agent Created", {"role": "Implementer", "tools": ["EditorToolWrapper"]})
-        
-        # Reviewer Agent - Reviews changes and enforces policies
-        self.reviewer_agent = Agent(
-            role="Reviewer",
-            goal="Review changes for quality, compliance, and proper tool usage",
-            backstory="""You are an expert code reviewer and quality assurance specialist. 
-            You carefully review all changes for correctness, adherence to coding standards, 
-            security best practices, and policy compliance. You also verify that the 
-            Implementer used the EditorTool correctly for all file operations.
-            
-            CRITICAL RULES:
-            1. Verify that EditorTool was used for all file operations
-            2. Check that no terminal commands were used inappropriately
-            3. Ensure file content is correct and complete
-            4. Validate that file paths and extensions are appropriate
-            5. Confirm that intent descriptions are meaningful
-            
-            You ensure that all changes meet the required quality standards before they are committed.""",
-            verbose=True,
-            allow_delegation=False,
-            tools=[EditorToolWrapper(self.editor_tool)]
-        )
-        self._log_agent_activity("Reviewer", "Agent Created", {"role": "Reviewer", "tools": ["EditorToolWrapper"]})
-        
-        # Committer Agent - Handles Git operations and final commits
-        self.committer_agent = Agent(
-            role="Committer",
-            goal="Handle Git operations and create proper commits with meaningful messages",
-            backstory="""You are an expert in version control and Git workflows. You handle 
-            all Git operations including staging, committing, and pushing changes. You create 
-            clear, descriptive commit messages that follow best practices and provide good 
-            audit trails.""",
-            verbose=True,
-            allow_delegation=False,
-            tools=[GitToolWrapper(self.git_tool)]
-        )
-        self._log_agent_activity("Committer", "Agent Created", {"role": "Committer", "tools": ["GitToolWrapper"]})
-        
-        self.logger.info("All CrewAI agents created successfully")
     
     def create_plan(self, task_id: str, plan_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create a detailed plan for task execution."""
+        """Create a detailed plan for task execution using the modular system."""
         self.logger.info(f"Starting plan creation for task {task_id}")
         self._log_agent_activity("Planner", "Plan Creation Started", {
             "task_id": task_id,
@@ -281,52 +233,34 @@ class CrewTool:
             run_dir.mkdir(parents=True, exist_ok=True)
             self.logger.debug(f"Created run directory: {run_dir}")
             
-            # Create plan using planner agent
-            self.logger.info("Creating plan task for planner agent")
+            # Create planner agent
+            planner_agent = self.agent_factory.create_agent("planner")
+            if not planner_agent:
+                raise ValueError("Failed to create planner agent")
+            
+            # Create plan task
             plan_task = Task(
-                description=f"""Create a detailed execution plan for task: {task.title}
-                
-                Task Summary: {task.summary}
-                Success Criteria: {[c.text for c in task.success_criteria]}
-                Acceptance Checks: {[c.text for c in task.acceptance_checks]}
-                
-                Create a Cage-native execution plan that uses only API endpoints:
-                - Use POST /files/edit for all file operations (INSERT, UPDATE, DELETE)
-                - Use GET /files/sha for content validation
-                - Use GET /diff for change validation
-                - Use POST /git/revert for rollback operations
-                - Use POST /runner/exec for optional execution checks
-                - Use POST /git/open_pr for pull request creation
-                - Use POST /tasks/update for task updates
-                
-                Include:
-                1. Branch name following convention: chore/task-name-YYYY-MM-DD
-                2. Task-linked commit messages with format: "type: description (links: task {task_id})"
-                3. Validation steps for each operation
-                4. Rollback paths for failure scenarios
-                5. Idempotent operations that can be re-run safely
-                
-                Output must be valid JSON following the Cage-native plan schema.""",
-                agent=self.planner_agent,
+                description=planner_agent.create_plan_task(
+                    task_title=task.title,
+                    task_summary=task.summary,
+                    success_criteria=[c.text for c in task.success_criteria],
+                    acceptance_checks=[c.text for c in task.acceptance_checks]
+                ),
+                agent=planner_agent.get_agent(),
                 expected_output="A detailed JSON plan with Cage-native API calls, validation steps, and rollback paths"
             )
             
-            # Execute planning
+            # Execute planning crew
             self.logger.info("Executing planning crew with planner agent")
             self._log_crew_execution("Planning Crew", task.title, "Started", {
                 "run_id": run_id,
                 "task_id": task_id,
-                "agents": ["Planner"]
+                "agents": ["planner"]
             })
             
-            crew = Crew(
-                agents=[self.planner_agent],
-                tasks=[plan_task],
-                process=Process.sequential,
-                verbose=True
-            )
+            planning_crew = self.crew_builder.reset().add_agent(planner_agent).build()
+            result = planning_crew.kickoff()
             
-            result = crew.kickoff()
             self.logger.info("Planning crew execution completed")
             self._log_crew_execution("Planning Crew", task.title, "Completed", {
                 "run_id": run_id,
@@ -393,7 +327,7 @@ class CrewTool:
             }
     
     def apply_plan(self, task_id: str, run_id: Optional[str] = None) -> Dict[str, Any]:
-        """Execute a plan using the crew of agents."""
+        """Execute a plan using the modular crew system."""
         self.logger.info(f"Starting plan application for task {task_id}, run {run_id}")
         self._log_agent_activity("Crew", "Plan Application Started", {
             "task_id": task_id,
@@ -460,52 +394,40 @@ class CrewTool:
             self._save_run_status(run_status)
             self.logger.info(f"Run status created and saved for run {run_id}")
             
+            # Create execution agents with tools
+            implementer_agent = self.agent_factory.create_agent("implementer")
+            reviewer_agent = self.agent_factory.create_agent("reviewer")
+            committer_agent = self.agent_factory.create_agent("committer")
+            
+            # Inject tools into agents
+            implementer_agent.config.tools = [EditorToolWrapper(self.editor_tool)]
+            reviewer_agent.config.tools = [EditorToolWrapper(self.editor_tool)]
+            committer_agent.config.tools = [GitToolWrapper(self.git_tool)]
+            
+            # Reinitialize agents with tools
+            implementer_agent.initialize()
+            reviewer_agent.initialize()
+            committer_agent.initialize()
+            
             # Create execution tasks
             implement_task = Task(
-                description=f"""Execute the implementation plan for task: {task.title}
-                
-                Plan: {plan_data.get('plan', '')}
-                
-                CRITICAL INSTRUCTIONS:
-                1. Use ONLY the EditorTool for all file operations
-                2. Do NOT use terminal commands like 'touch', 'mkdir', 'echo', etc.
-                3. For creating files, use INSERT operation with full content
-                4. For reading files, use GET operation
-                5. For updating files, use UPDATE operation
-                6. For deleting files, use DELETE operation
-                7. Always provide meaningful intent descriptions
-                8. Use proper file extensions (.py, .md, .txt, etc.)
-                
-                Be precise and follow the plan exactly using the EditorTool.""",
-                agent=self.implementer_agent,
+                description=implementer_agent.create_implementation_task(
+                    task_title=task.title,
+                    plan_content=plan_data.get('plan', '')
+                ),
+                agent=implementer_agent.get_agent(),
                 expected_output="Confirmation of successful file operations using EditorTool and changes made"
             )
             
             review_task = Task(
-                description=f"""Review the changes made for task: {task.title}
-                
-                CRITICAL REVIEW CHECKLIST:
-                1. Verify that EditorTool was used for ALL file operations
-                2. Check that no terminal commands were used inappropriately
-                3. Ensure file content is correct and complete
-                4. Validate that file paths and extensions are appropriate
-                5. Confirm that intent descriptions are meaningful
-                6. Verify that all changes follow coding standards
-                7. Check that task requirements are met
-                
-                Use the EditorTool to read and verify the created/modified files.""",
-                agent=self.reviewer_agent,
+                description=reviewer_agent.create_review_task(task.title),
+                agent=reviewer_agent.get_agent(),
                 expected_output="Review report confirming EditorTool usage and file quality, with approval or specific issues found"
             )
             
             commit_task = Task(
-                description=f"""Commit the changes for task: {task.title}
-                
-                Stage all changes and create a proper commit with a meaningful message.
-                Check the working tree status first; if there are no changes, respond with a
-                summary indicating nothing needed to be committed instead of forcing a commit.
-                Update task provenance with commit information.""",
-                agent=self.committer_agent,
+                description=committer_agent.create_commit_task(task.title),
+                agent=committer_agent.get_agent(),
                 expected_output="Confirmation of successful commit with commit SHA"
             )
             
@@ -514,20 +436,25 @@ class CrewTool:
             self._log_crew_execution("Execution Crew", task.title, "Started", {
                 "run_id": run_id,
                 "task_id": task_id,
-                "agents": ["Implementer", "Reviewer", "Committer"],
+                "agents": ["implementer", "reviewer", "committer"],
                 "tasks": ["implement_task", "review_task", "commit_task"]
             })
             
-            crew = Crew(
-                agents=[self.implementer_agent, self.reviewer_agent, self.committer_agent],
-                tasks=[implement_task, review_task, commit_task],
-                process=Process.sequential,
-                verbose=True
-            )
+            execution_crew = (self.crew_builder
+                            .reset()
+                            .add_agent(implementer_agent)
+                            .add_agent(reviewer_agent)
+                            .add_agent(committer_agent)
+                            .add_task(implement_task)
+                            .add_task(review_task)
+                            .add_task(commit_task)
+                            .set_process(Process.sequential)
+                            .set_verbose(True)
+                            .build())
             
             # Execute the crew
             self.logger.info("Starting crew execution...")
-            result = crew.kickoff()
+            result = execution_crew.kickoff()
             self.logger.info("Crew execution completed")
             self._log_crew_execution("Execution Crew", task.title, "Completed", {
                 "run_id": run_id,
@@ -594,6 +521,74 @@ class CrewTool:
                 "status": "error",
                 "error": str(e)
             }
+    
+    def create_custom_crew(self, agent_names: List[str], tasks: List[Task], 
+                          process: Process = Process.sequential) -> Crew:
+        """
+        Create a custom crew with specified agents and tasks.
+        
+        Args:
+            agent_names: List of agent names to include
+            tasks: List of tasks for the crew
+            process: Crew process type
+            
+        Returns:
+            Built CrewAI crew
+        """
+        self.logger.info(f"Creating custom crew with agents: {agent_names}")
+        
+        # Create crew builder
+        builder = self.crew_builder.reset()
+        
+        # Add agents
+        for agent_name in agent_names:
+            agent = self.agent_factory.create_agent(agent_name)
+            if agent:
+                # Inject appropriate tools
+                if agent_name == "implementer" or agent_name == "reviewer":
+                    agent.config.tools = [EditorToolWrapper(self.editor_tool)]
+                elif agent_name == "committer":
+                    agent.config.tools = [GitToolWrapper(self.git_tool)]
+                
+                # Reinitialize with tools
+                agent.initialize()
+                builder.add_agent(agent)
+            else:
+                self.logger.warning(f"Failed to create agent: {agent_name}")
+        
+        # Add tasks
+        for task in tasks:
+            builder.add_task(task)
+        
+        # Set process and build
+        crew = (builder
+               .set_process(process)
+               .set_verbose(True)
+               .build())
+        
+        self.logger.info(f"Custom crew created with {len(crew.agents)} agents and {len(crew.tasks)} tasks")
+        return crew
+    
+    def list_available_agents(self) -> List[Dict[str, Any]]:
+        """
+        List all available agents and their information.
+        
+        Returns:
+            List of agent information dictionaries
+        """
+        return self.agent_registry.list_all_agent_info()
+    
+    def get_agent_info(self, agent_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get information about a specific agent.
+        
+        Args:
+            agent_name: Name of the agent
+            
+        Returns:
+            Agent information dictionary or None if not found
+        """
+        return self.agent_registry.get_agent_info(agent_name)
     
     def get_run_status(self, run_id: str) -> Dict[str, Any]:
         """Get the status of a crew run."""
@@ -897,3 +892,7 @@ class GitToolWrapper(BaseTool):
             error_msg = f"Error executing Git {operation}: {str(e)}"
             crew_tool_logger.error(f"Git operation exception: {operation} - {str(e)}")
             return error_msg
+
+
+# Backward compatibility alias
+CrewTool = ModularCrewTool

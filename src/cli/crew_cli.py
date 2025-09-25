@@ -11,7 +11,7 @@ from rich.table import Table
 from rich.panel import Panel
 
 from ..cage.crew_tool import CrewTool
-from ..cage.task_models import TaskManager
+from ..cage.models import TaskManager
 
 app = typer.Typer(name="crew", help="CrewAI workflow commands")
 console = Console()

@@ -30,11 +30,11 @@ if os.getenv("DEBUGPY_ENABLED", "0") == "1":
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Import task management
-from src.cage.task_models import TaskManager, TaskFile
-from src.cage.editor_tool import EditorTool, FileOperation, OperationType
-from src.cage.git_tool import GitTool
-from src.cage.crew_tool import CrewTool
-from src.cage.crew_tool_modular import ModularCrewTool
+from src.cage.models import TaskManager, TaskFile
+from src.cage.tools.editor_tool import EditorTool, FileOperation, OperationType
+from src.cage.tools.git_tool import GitTool
+from src.cage.tools.crew_tool import CrewTool
+from src.cage.tools.crew_tool import ModularCrewTool
 from src.cage.rag_service import RAGService
 
 # Security
