@@ -284,6 +284,7 @@ class RAGReindexRequest(BaseModel):
 class AgentRequest(BaseModel):
     agent: str
     request: str
+    task_id: Optional[str] = None
 
 # Note-taking API models
 class NoteCreateRequest(BaseModel):
@@ -1107,7 +1108,7 @@ def test_individual_agent(request: AgentRequest, token: str = Depends(get_pod_to
             )
         
         # Test the agent
-        result = modular_crew_tool.test_agent(request.agent, request.request)
+        result = modular_crew_tool.test_agent(request.agent, request.request, request.task_id)
         
         if result["success"]:
             logger.info(f"Agent {request.agent} executed successfully")

@@ -148,13 +148,14 @@ class ModularCrewTool:
         }
         self.crewai_logger.info(f"Crew Execution: {json.dumps(log_data)}")
     
-    def test_agent(self, agent_name: str, test_input: str) -> Dict[str, Any]:
+    def test_agent(self, agent_name: str, test_input: str, task_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Test an individual agent in isolation.
         
         Args:
             agent_name: Name of the agent to test
             test_input: Input to test the agent with
+            task_id: Optional task ID to reference in the plan
             
         Returns:
             Test results dictionary
@@ -162,8 +163,8 @@ class ModularCrewTool:
         self.logger.info(f"Testing individual agent: {agent_name}")
         
         try:
-            # Create agent instance
-            agent = self.agent_factory.create_agent(agent_name)
+            # Create agent instance with repo_path
+            agent = self.agent_factory.create_agent(agent_name, repo_path=self.repo_path)
             if not agent:
                 return {
                     "success": False,
@@ -178,6 +179,9 @@ class ModularCrewTool:
             elif agent_name == "committer":
                 agent.config.tools = [GitToolWrapper(self.git_tool)]
                 self.logger.info(f"Injected GitTool into {agent_name} agent")
+            elif agent_name == "planner":
+                agent.config.tools = [EditorToolWrapper(self.editor_tool)]
+                self.logger.info(f"Injected EditorTool into {agent_name} agent")
             else:
                 self.logger.info(f"No tools needed for {agent_name} agent")
             
@@ -185,7 +189,7 @@ class ModularCrewTool:
             agent.initialize()
             
             # Test the agent
-            result = agent.test_agent(test_input)
+            result = agent.test_agent(test_input, task_id)
             
             self._log_agent_activity(agent_name, "Individual Test", {
                 "test_input": test_input,

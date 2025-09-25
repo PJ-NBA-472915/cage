@@ -77,6 +77,9 @@ class BaseAgent(ABC):
         self.crewai_agent: Optional[Agent] = None
         self._initialized = False
         
+        # Store repo_path if provided
+        self.repo_path = kwargs.get('repo_path')
+        
         # Merge additional kwargs into config
         for key, value in kwargs.items():
             if hasattr(self.config, key):
@@ -164,7 +167,7 @@ class BaseAgent(ABC):
             return self.initialize()
         return self.crewai_agent
     
-    def test_agent(self, test_input: str) -> Dict[str, Any]:
+    def test_agent(self, test_input: str, task_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Test the agent with a given input.
         
@@ -172,6 +175,7 @@ class BaseAgent(ABC):
         
         Args:
             test_input: Input to test the agent with
+            task_id: Optional task ID to reference in the plan
             
         Returns:
             Dictionary containing test results
