@@ -119,29 +119,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
-LOG_DIR = "logs"
-LOG_FILE = os.path.join(LOG_DIR, "api.log")
-os.makedirs(LOG_DIR, exist_ok=True)
+# Configure daily logging
+from src.cage.utils.daily_logger import setup_daily_logger
 
-class JsonFormatter(logging.Formatter):
-    def format(self, record):
-        log_record = {
-            "timestamp": self.formatTime(record, self.datefmt),
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "file": record.filename,
-            "line": record.lineno,
-        }
-        if hasattr(record, 'json_data'):
-            log_record.update(record.json_data)
-        return json.dumps(log_record)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-file_handler = logging.FileHandler(LOG_FILE)
-file_handler.setFormatter(JsonFormatter())
-logger.addHandler(file_handler)
+logger = setup_daily_logger("api", level=logging.INFO)
 
 def get_repository_path():
     """Get the repository path from environment variable."""

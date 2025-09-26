@@ -1,0 +1,114 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Cage Application Logs",
+    "tags": ["cage", "logs"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Log Volume by Component",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum by (component) (count_over_time({job=\"cage-logs\"}[5m]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "vis": false
+              }
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Error Logs",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"cage-logs\"} |= \"ERROR\"",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "All Logs",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"cage-logs\"}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "API Requests",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"cage-logs\", component=\"api\"} |= \"http_request\"",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 5,
+        "title": "CrewAI Activities",
+        "type": "logs",
+        "targets": [
+          {
+            "expr": "{job=\"cage-logs\", component=\"crewai\"} |= \"Agent Activity\"",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }
+}

@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -96,6 +96,67 @@ services:
       retries: 3
       start_period: 15s
 
+  # Logging Stack - Loki (Log Aggregation)
+  loki:
+    image: grafana/loki:2.9.6
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./logging-stack/loki/config.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    ports:
+      - '3100:3100'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3100/ready']
+      interval: 15s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Logging Stack - Promtail (Log Collection)
+  promtail:
+    image: grafana/promtail:2.9.6
+    volumes:
+      - ./logging-stack/promtail/config.yml:/etc/promtail/config.yml:ro
+      - ./logs:/var/log/cage:ro
+      - promtail-positions:/tmp
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Logging Stack - Grafana (Log Visualization)
+  grafana:
+    image: grafana/grafana:11.1.3
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Logging Stack - Logrotate (Log Rotation)
+  logrotate:
+    build:
+      context: ./logging-stack/logrotate
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs:/var/log/cage
+      - logrotate-status:/var/lib/logrotate
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
+  # Logging stack volumes
+  loki-data:
+  promtail-positions:
+  grafana-data:
+  logrotate-status:

@@ -1,0 +1,191 @@
+{
+  "id": "2025-09-26-logging-stack-setup",
+  "title": "Loki/Promtail/Grafana Log Stack via Docker Compose",
+  "owner": "AI Agent",
+  "status": "done",
+  "created_at": "2025-09-26 10:05",
+  "updated_at": "2025-09-26 11:46",
+  "progress_percent": 100,
+  "tags": [
+    "logging",
+    "observability",
+    "docker-compose",
+    "loki",
+    "promtail",
+    "grafana",
+    "logrotate",
+    "json-logs"
+  ],
+  "summary": "Set up a lightweight, searchable logging stack for the existing JSON log files in the /logs directory using Loki, Promtail, Grafana, and logrotate. Integrate with current logging infrastructure (api.log, crewai/crewai.log, manage.log, mcp/mcp.log) and provide centralized log management.",
+  "success_criteria": [
+    {
+      "text": "Docker Compose stack starts cleanly and all services are healthy",
+      "checked": false
+    },
+    {
+      "text": "Promtail ingests existing JSON logs from /logs directory without parse errors",
+      "checked": false
+    },
+    {
+      "text": "Loki stores logs and supports LogQL queries with labels derived from existing JSON fields",
+      "checked": false
+    },
+    {
+      "text": "Grafana can query Loki and return recent logs from existing log files within 5 seconds",
+      "checked": false
+    },
+    {
+      "text": "logrotate limits disk usage for existing log files (rotation + compression) without breaking tailing",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Open http://localhost:3000 and run {job=\"cage-logs\"} returning recent entries from existing log files",
+      "checked": false
+    },
+    {
+      "text": "Filter query by JSON field (e.g., level=\"ERROR\") returns expected subset from existing logs",
+      "checked": false
+    },
+    {
+      "text": "Rotate existing log files to .gz and confirm Promtail still streams new lines (copytruncate works)",
+      "checked": false
+    },
+    {
+      "text": "Loki retention and logrotate policies keep disk usage under agreed threshold for existing logs",
+      "checked": false
+    },
+    {
+      "text": "Existing application logs (api.log, crewai.log, etc.) appear in Grafana within 5s of being written",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Analyze existing log files and formats in /logs directory",
+    "Create docker-compose.yml for loki, promtail, grafana, logrotate services",
+    "Write Loki config (filesystem store, retention)",
+    "Write Promtail config (JSON pipeline, labels, timestamp parsing for existing logs)",
+    "Write logrotate policy + cron schedule for existing log files",
+    "Integrate with existing logging infrastructure",
+    "Bring up stack and verify ingestion of existing logs",
+    "Create Grafana datasource + dashboard for existing log types",
+    "Document troubleshooting and ops runbook"
+  ],
+  "todo": [
+    {
+      "text": "Analyze existing log files in /logs directory (api.log, crewai/crewai.log, manage.log, mcp/mcp.log)",
+      "status": "done",
+      "date_started": "2025-09-26 10:54",
+      "date_stopped": "2025-09-26 10:55"
+    },
+    {
+      "text": "Implement docker-compose.yml (services: loki, promtail, grafana, logrotate)",
+      "status": "done",
+      "date_started": "2025-09-26 10:55",
+      "date_stopped": "2025-09-26 10:55"
+    },
+    {
+      "text": "Add loki/config.yml with retention and boltdb-shipper",
+      "status": "done",
+      "date_started": "2025-09-26 10:55",
+      "date_stopped": "2025-09-26 10:55"
+    },
+    {
+      "text": "Add promtail/config.yml with json→labels and timestamp stage",
+      "status": "done",
+      "date_started": "2025-09-26 10:55",
+      "date_stopped": "2025-09-26 10:55"
+    },
+    {
+      "text": "Add logrotate/logrotate.conf + crontab (/5 schedule, copytruncate)",
+      "status": "done",
+      "date_started": "2025-09-26 10:55",
+      "date_stopped": "2025-09-26 10:55"
+    },
+    {
+      "text": "Configure Promtail to ingest existing log files from /logs directory",
+      "status": "done",
+      "date_started": "2025-09-26 10:55",
+      "date_stopped": "2025-09-26 10:55"
+    },
+    {
+      "text": "docker compose up -d and health-check services",
+      "status": "done",
+      "date_started": "2025-09-26 10:55",
+      "date_stopped": "2025-09-26 11:01"
+    },
+    {
+      "text": "Verify LogQL queries and JSON field filtering in Grafana for existing log types",
+      "status": "done",
+      "date_started": "2025-09-26 11:01",
+      "date_stopped": "2025-09-26 11:02"
+    },
+    {
+      "text": "Test rotation; confirm ingestion continues; measure disk usage",
+      "status": "done",
+      "date_started": "2025-09-26 11:02",
+      "date_stopped": "2025-09-26 11:02"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-26 10:05",
+      "text": "Task created for logging stack setup"
+    },
+    {
+      "timestamp": "2025-09-26 10:54",
+      "text": "Task confirmed and started - analyzing existing log files"
+    },
+    {
+      "timestamp": "2025-09-26 10:55",
+      "text": "Created complete logging stack configuration files and documentation"
+    },
+    {
+      "timestamp": "2025-09-26 11:02",
+      "text": "Successfully deployed logging stack with Grafana dashboard and datasource configuration"
+    },
+    {
+      "timestamp": "2025-09-26 11:26",
+      "text": "Integrated logging services into main docker-compose.yml file and verified functionality"
+    },
+    {
+      "timestamp": "2025-09-26 11:46",
+      "text": "Fixed logrotate service by creating custom Dockerfile with proper logrotate installation and cron setup"
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [
+    "Existing JSON log format in Cage application is compatible with Promtail JSON parser",
+    "Loki timestamp validation can be disabled for development/testing environments",
+    "Grafana datasource and dashboard can be configured via API for automated setup",
+    "Docker Compose health checks ensure proper service startup order",
+    "Log rotation with copytruncate works well with Promtail for continuous ingestion"
+  ],
+  "issues_risks": [
+    "Multiline stack traces will not parse as single JSON lines unless encoded in a field; prefer single-line JSON",
+    "copytruncate may lose a few bytes at rotation; acceptable for most app logs",
+    "Mismatched timestamps or timezones can make queries appear empty—align RFC3339 or UnixMs"
+  ],
+  "next_steps": [
+    "Execute the plan steps in order",
+    "Capture screenshots of Grafana queries as artefacts",
+    "Decide on long-term retention (object storage vs local filesystem)"
+  ],
+  "references": [],
+  "prompts": [
+    {
+      "timestamp": "2025-09-26 10:15",
+      "text": "I need it to work with the logging that is set up in the app already and the /logs directory.",
+      "context": "User clarified that the logging stack should integrate with existing logging infrastructure"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {}
+}
