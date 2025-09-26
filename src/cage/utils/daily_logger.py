@@ -8,6 +8,7 @@ each day while maintaining the existing JSON format and structure.
 import os
 import logging
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
@@ -67,6 +68,34 @@ class DailyLogHandler(TimedRotatingFileHandler):
         formatter = DailyJsonFormatter(component=component)
         self.setFormatter(formatter)
         self.setLevel(level)
+    
+    def doRollover(self):
+        """Override doRollover to use [area]-[date].log format."""
+        if self.stream:
+            self.stream.close()
+            self.stream = None
+        
+        # Get current time for date formatting
+        current_time = int(time.time())
+        dfn = self.rotation_filename(self.baseFilename)
+        
+        # Create the new filename with [area]-[date].log format
+        if self.backupCount > 0:
+            # Get the component name from the base filename
+            base_path = Path(self.baseFilename)
+            component = base_path.stem  # This should be the component name
+            
+            # Format date as YYYY-MM-DD
+            date_str = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d')
+            new_filename = base_path.parent / f"{component}-{date_str}.log"
+            
+            # Rename the current file to the new format
+            if os.path.exists(self.baseFilename):
+                os.rename(self.baseFilename, str(new_filename))
+        
+        # Open new file
+        if not self.delay:
+            self.stream = self._open()
 
 
 def setup_daily_logger(component: str, log_dir: str = "logs", level: int = logging.INFO) -> logging.Logger:

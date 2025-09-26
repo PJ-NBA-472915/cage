@@ -9,14 +9,14 @@ positions:
   filename: /tmp/positions.yaml
 
 scrape_configs:
-  # API logs
+  # API logs (daily files)
   - job_name: cage-api-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
           component: api
-          __path__: /var/log/cage/api.log
+          __path__: /var/log/cage/api/*.log
     pipeline_stages:
       - json:
           expressions:
@@ -45,14 +45,14 @@ scrape_configs:
       - output:
           source: message
 
-  # CrewAI logs
+  # CrewAI logs (daily files)
   - job_name: cage-crewai-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
           component: crewai
-          __path__: /var/log/cage/crewai/crewai.log
+          __path__: /var/log/cage/crewai/*.log
     pipeline_stages:
       - json:
           expressions:
@@ -73,14 +73,14 @@ scrape_configs:
       - output:
           source: message
 
-  # Management logs
+  # Management logs (daily files)
   - job_name: cage-manage-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
           component: manage
-          __path__: /var/log/cage/manage.log
+          __path__: /var/log/cage/manage/*.log
     pipeline_stages:
       - json:
           expressions:
@@ -102,14 +102,14 @@ scrape_configs:
       - output:
           source: message
 
-  # MCP logs
+  # MCP logs (daily files)
   - job_name: cage-mcp-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
           component: mcp
-          __path__: /var/log/cage/mcp/mcp.log
+          __path__: /var/log/cage/mcp/*.log
     pipeline_stages:
       - json:
           expressions:

@@ -69,32 +69,12 @@ class ModularCrewTool:
     
     def _setup_crewai_logging(self):
         """Set up comprehensive logging for CrewAI operations."""
-        # Create crewai-specific logger
-        self.crewai_logger = logging.getLogger(f"{__name__}.crewai")
+        from src.cage.utils.daily_logger import setup_daily_logger
         
-        # Create logs directory for crewai
-        logs_dir = Path("logs") / "crewai"
-        logs_dir.mkdir(parents=True, exist_ok=True)
+        # Set up daily logger for crewai
+        self.crewai_logger = setup_daily_logger("crewai", level=logging.DEBUG)
         
-        # Set up file handler for crewai logs
-        crewai_log_file = logs_dir / "crewai.log"
-        file_handler = logging.FileHandler(crewai_log_file)
-        file_handler.setLevel(logging.DEBUG)
-        
-        # Create formatter
-        formatter = logging.Formatter(
-            '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "component": "crewai", "message": "%(message)s", "file": "%(filename)s", "line": %(lineno)d}'
-        )
-        file_handler.setFormatter(formatter)
-        
-        # Add handler to logger
-        self.crewai_logger.addHandler(file_handler)
-        self.crewai_logger.setLevel(logging.DEBUG)
-        
-        # Prevent duplicate logs
-        self.crewai_logger.propagate = False
-        
-        self.logger.info(f"CrewAI logging initialized. Log file: {crewai_log_file}")
+        self.logger.info("CrewAI daily logging initialized")
     
     def _setup_modular_agents(self):
         """Set up the modular agent system."""
