@@ -4,10 +4,10 @@
   "owner": "AI Agent",
   "status": "done",
   "created_at": "2025-09-26 10:30",
-  "updated_at": "2025-09-26 18:04",
+  "updated_at": "2025-09-26 18:07",
   "progress_percent": 100,
   "tags": ["documentation", "organization", "memory-bank"],
-  "summary": "Successfully consolidated all .md files (except gemini.md) from root and other directories into the memory-bank structure. Files organized into reports/, guides/, and guides/features/ directories. Root directory now clean with only gemini.md remaining.",
+  "summary": "Successfully consolidated and renamed all .md files (except gemini.md) from root and other directories into the memory-bank structure. Files organized into reports/, guides/, and guides/features/ directories with proper lowercase-with-hyphens naming convention. Root directory now clean with only gemini.md remaining.",
   "success_criteria": [
     {"text": "All .md files (except gemini.md) are moved from root directory into memory-bank", "checked": true},
     {"text": "Files are organized logically within memory-bank structure (reports/, guides/, scenarios/, etc.)", "checked": true},
@@ -39,7 +39,18 @@
     {"text": "Move logging-stack documentation to appropriate memory-bank location", "status": "done", "date_started": "2025-09-26 16:45", "date_stopped": "2025-09-26 16:50"},
     {"text": "Move README.md to memory-bank/ if it's project documentation", "status": "done", "date_started": "2025-09-26 16:50", "date_stopped": "2025-09-26 16:55"},
     {"text": "Update any file references or links in moved files", "status": "done", "date_started": "2025-09-26 16:55", "date_stopped": "2025-09-26 17:00"},
-    {"text": "Verify all files are accessible and no duplicates exist", "status": "done", "date_started": "2025-09-26 17:00", "date_stopped": "2025-09-26 18:04"}
+    {
+      "text": "Verify all files are accessible and no duplicates exist",
+      "status": "done",
+      "date_started": "2025-09-26 17:00",
+      "date_stopped": "2025-09-26 18:04"
+    },
+    {
+      "text": "Rename all moved files to follow memory-bank naming convention (lowercase with hyphens)",
+      "status": "done",
+      "date_started": "2025-09-26 18:06",
+      "date_stopped": "2025-09-26 18:07"
+    }
   ],
   "changelog": [
     {"timestamp": "2025-09-26 10:30", "text": "Task file created with initial analysis of .md files to consolidate"},
@@ -48,7 +59,18 @@
     {"timestamp": "2025-09-26 16:45", "text": "Moved guide files to memory-bank/guides/"},
     {"timestamp": "2025-09-26 16:50", "text": "Moved logging-stack documentation to memory-bank/guides/features/"},
     {"timestamp": "2025-09-26 16:55", "text": "Moved README.md and agents documentation to memory-bank/"},
-    {"timestamp": "2025-09-26 18:04", "text": "Task completed successfully - all .md files consolidated, only gemini.md remains in root"}
+    {
+      "timestamp": "2025-09-26 18:04",
+      "text": "Task completed successfully - all .md files consolidated, only gemini.md remains in root"
+    },
+    {
+      "timestamp": "2025-09-26 18:06",
+      "text": "Started renaming files to follow memory-bank naming convention (lowercase with hyphens)"
+    },
+    {
+      "timestamp": "2025-09-26 18:07",
+      "text": "All files renamed successfully - task fully completed"
+    }
   ],
   "decisions": [
     "Exclude gemini.md from consolidation as per user request",
@@ -59,7 +81,9 @@
     "Systematic file categorization before moving prevents confusion",
     "Using descriptive filenames (e.g., logging-stack-readme.md) helps avoid conflicts",
     "Verification step is crucial to ensure no files are missed",
-    "Memory-bank structure provides good organization for different file types"
+    "Memory-bank structure provides good organization for different file types",
+    "Memory-bank follows lowercase-with-hyphens naming convention consistently",
+    "Renaming files after moving ensures consistency with existing directory patterns"
   ],
   "issues_risks": [
     "Risk of breaking internal links when moving files",
