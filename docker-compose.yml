@@ -152,6 +152,25 @@ services:
       - logrotate-status:/var/lib/logrotate
     restart: unless-stopped
 
+  # Note-Taking Application
+  notes-app:
+    build:
+      context: .
+      dockerfile: dockerfiles/notes-app
+    ports:
+      - "8738:8738"
+    environment:
+      - POD_TOKEN=${POD_TOKEN:-test-token}
+    volumes:
+      - ./notes-data:/app/notes
+      - ./notes.db:/app/notes.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8738/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
 volumes:
   postgres_data:
   redis_data:
@@ -160,3 +179,5 @@ volumes:
   promtail-positions:
   grafana-data:
   logrotate-status:
+  # Notes app volumes
+  notes-data:

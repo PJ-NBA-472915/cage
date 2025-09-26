@@ -1,0 +1,96 @@
+{
+  "id": "2025-09-26-consolidate-md-files",
+  "title": "Consolidate and move all .md files into memory-bank structure",
+  "owner": "AI Agent",
+  "status": "done",
+  "created_at": "2025-09-26 10:30",
+  "updated_at": "2025-09-26 18:04",
+  "progress_percent": 100,
+  "tags": ["documentation", "organization", "memory-bank"],
+  "summary": "Successfully consolidated all .md files (except gemini.md) from root and other directories into the memory-bank structure. Files organized into reports/, guides/, and guides/features/ directories. Root directory now clean with only gemini.md remaining.",
+  "success_criteria": [
+    {"text": "All .md files (except gemini.md) are moved from root directory into memory-bank", "checked": true},
+    {"text": "Files are organized logically within memory-bank structure (reports/, guides/, scenarios/, etc.)", "checked": true},
+    {"text": "No duplicate files exist after consolidation", "checked": true},
+    {"text": "All file references and links are updated to reflect new locations", "checked": true},
+    {"text": "Root directory is clean of .md files except gemini.md", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Verify all .md files are in memory-bank or subdirectories", "checked": true},
+    {"text": "Check that gemini.md remains in its current location", "checked": true},
+    {"text": "Ensure no broken links after file moves", "checked": true},
+    {"text": "Confirm logical organization within memory-bank structure", "checked": true},
+    {"text": "Test that all moved files are accessible and readable", "checked": true}
+  ],
+  "subtasks": [
+    "Identify all .md files outside memory-bank",
+    "Categorize files by type (reports, guides, summaries, etc.)",
+    "Determine appropriate memory-bank subdirectory for each file",
+    "Move files to their designated locations",
+    "Update any internal references or links",
+    "Verify no duplicates were created",
+    "Clean up any empty directories left behind"
+  ],
+  "todo": [
+    {"text": "Scan and identify all .md files outside memory-bank directory", "status": "done", "date_started": "2025-09-26 16:32", "date_stopped": "2025-09-26 16:33"},
+    {"text": "Categorize files by content type and determine target directories", "status": "done", "date_started": "2025-09-26 16:33", "date_stopped": "2025-09-26 16:35"},
+    {"text": "Move summary files (DAILY_LOGGING_SUMMARY.md, INTEGRATION_SUMMARY.md, etc.) to memory-bank/reports/", "status": "done", "date_started": "2025-09-26 16:35", "date_stopped": "2025-09-26 16:40"},
+    {"text": "Move guide files (POSTMAN_QUICK_START.md, POSTMAN_COLLECTION_GUIDE.md) to memory-bank/guides/", "status": "done", "date_started": "2025-09-26 16:40", "date_stopped": "2025-09-26 16:45"},
+    {"text": "Move logging-stack documentation to appropriate memory-bank location", "status": "done", "date_started": "2025-09-26 16:45", "date_stopped": "2025-09-26 16:50"},
+    {"text": "Move README.md to memory-bank/ if it's project documentation", "status": "done", "date_started": "2025-09-26 16:50", "date_stopped": "2025-09-26 16:55"},
+    {"text": "Update any file references or links in moved files", "status": "done", "date_started": "2025-09-26 16:55", "date_stopped": "2025-09-26 17:00"},
+    {"text": "Verify all files are accessible and no duplicates exist", "status": "done", "date_started": "2025-09-26 17:00", "date_stopped": "2025-09-26 18:04"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-26 10:30", "text": "Task file created with initial analysis of .md files to consolidate"},
+    {"timestamp": "2025-09-26 16:32", "text": "Started identification of .md files outside memory-bank"},
+    {"timestamp": "2025-09-26 16:35", "text": "Moved summary files to memory-bank/reports/"},
+    {"timestamp": "2025-09-26 16:45", "text": "Moved guide files to memory-bank/guides/"},
+    {"timestamp": "2025-09-26 16:50", "text": "Moved logging-stack documentation to memory-bank/guides/features/"},
+    {"timestamp": "2025-09-26 16:55", "text": "Moved README.md and agents documentation to memory-bank/"},
+    {"timestamp": "2025-09-26 18:04", "text": "Task completed successfully - all .md files consolidated, only gemini.md remains in root"}
+  ],
+  "decisions": [
+    "Exclude gemini.md from consolidation as per user request",
+    "Use existing memory-bank structure (reports/, guides/, scenarios/, etc.) for organization",
+    "Maintain logical grouping of related files"
+  ],
+  "lessons_learned": [
+    "Systematic file categorization before moving prevents confusion",
+    "Using descriptive filenames (e.g., logging-stack-readme.md) helps avoid conflicts",
+    "Verification step is crucial to ensure no files are missed",
+    "Memory-bank structure provides good organization for different file types"
+  ],
+  "issues_risks": [
+    "Risk of breaking internal links when moving files",
+    "Potential for creating duplicate files if not careful",
+    "Need to ensure proper categorization to maintain organization"
+  ],
+  "next_steps": [
+    "Begin systematic identification and categorization of files",
+    "Start with root directory files first",
+    "Move files in logical groups to maintain organization"
+  ],
+  "references": [
+    "memory-bank/context/entrypoint.md - for understanding memory-bank structure",
+    "Project file listing - for identifying all .md files"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "files_to_move": [
+      "DAILY_LOGGING_SUMMARY.md",
+      "LOGROTATE_FIX_SUMMARY.md", 
+      "INTEGRATION_SUMMARY.md",
+      "note-app-api-plan-summary.md",
+      "planner-agent-test-results.md",
+      "POSTMAN_QUICK_START.md",
+      "POSTMAN_COLLECTION_GUIDE.md",
+      "README.md",
+      "logging-stack/DEPLOYMENT_SUMMARY.md",
+      "logging-stack/README.md"
+    ],
+    "excluded_files": [
+      "memory-bank/utils/gemini.md"
+    ]
+  }
+}
