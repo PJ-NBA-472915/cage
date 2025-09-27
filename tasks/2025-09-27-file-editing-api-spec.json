@@ -1,0 +1,72 @@
+{
+  "id": "2025-09-27-file-editing-api-spec",
+  "title": "Add File Editing API specification to Cage documentation",
+  "owner": "Agent",
+  "status": "done",
+  "created_at": "2025-09-27 09:15",
+  "updated_at": "2025-09-27 09:15",
+  "progress_percent": 100,
+  "tags": ["cage", "api", "specification", "file-editing"],
+  "summary": "Integrate the provided File Editing API specification into the existing Cage specification documentation following the established three-tier structure (000_MASTER, 100_SPLIT, 200_INDEX).",
+  "success_criteria": [
+    {"text": "File Editing API specification is added to the Cage master specification", "checked": true},
+    {"text": "Specification is properly sliced into logical sections", "checked": true},
+    {"text": "Index files (MANIFEST.yaml, HEADINGS.json, KEYWORDS.json, XREF.json) are updated", "checked": true},
+    {"text": "Specification follows existing Cage documentation patterns and structure", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "New specification section is accessible via the three-tier structure", "checked": true},
+    {"text": "Content is searchable via keywords and headings", "checked": true},
+    {"text": "Make commands (slice-cage, index-cage) work correctly", "checked": true},
+    {"text": "Specification integrates seamlessly with existing Cage documentation", "checked": true}
+  ],
+  "subtasks": [
+    "Review existing Cage specification structure and patterns",
+    "Add File Editing API specification to the master specification file",
+    "Slice the updated specification into logical sections",
+    "Generate updated index files for searchability",
+    "Verify the integration and test make commands"
+  ],
+  "todo": [
+    {"text": "Read existing Cage specification structure and patterns", "status": "done", "date_started": "2025-09-27 09:05", "date_stopped": "2025-09-27 09:05"},
+    {"text": "Add File Editing API specification to SPEC_RAW.md", "status": "done", "date_started": "2025-09-27 09:05", "date_stopped": "2025-09-27 09:05"},
+    {"text": "Run make slice-cage to update slice files", "status": "done", "date_started": "2025-09-27 09:05", "date_stopped": "2025-09-27 09:05"},
+    {"text": "Run make index-cage to update search indexes", "status": "done", "date_started": "2025-09-27 09:05", "date_stopped": "2025-09-27 09:05"},
+    {"text": "Verify integration and test make commands", "status": "done", "date_started": "2025-09-27 09:05", "date_stopped": "2025-09-27 09:05"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-27 09:15", "text": "Task file created with initial specification integration plan"},
+    {"timestamp": "2025-09-27 09:05", "text": "Successfully added File Editing API specification to Cage master specification"},
+    {"timestamp": "2025-09-27 09:05", "text": "Completed slicing and indexing of updated specification"},
+    {"timestamp": "2025-09-27 09:05", "text": "Task completed successfully - File Editing API now integrated into Cage documentation"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Need to ensure the new specification aligns with existing Cage API patterns",
+    "Must maintain consistency with the three-tier documentation structure"
+  ],
+  "next_steps": [
+    "Review existing Cage specification to understand current patterns",
+    "Determine optimal placement for the File Editing API specification"
+  ],
+  "references": [
+    "memory-bank/context/spec/cage/000_MASTER/SPEC_RAW.md",
+    "memory-bank/context/spec/cage/200_INDEX/MANIFEST.yaml",
+    "Provided File Editing API specification"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "specification_type": "file_editing_api",
+    "api_version": "v1",
+    "concurrency_model": "optimistic_with_etag",
+    "standards_compliance": ["RFC 5789", "RFC 6902", "HTTP Conditional Requests"]
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-09-27 09:15",
+      "text": "Please add this specification for the file editing api so that it is in line with the cage specification that exists already",
+      "context": "User provided a comprehensive File Editing API specification and wants it integrated into the existing Cage documentation structure"
+    }
+  ]
+}
