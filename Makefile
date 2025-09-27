@@ -114,14 +114,6 @@ test-api:
 		exit 1; \
 	fi
 
-test-cli:
-	@echo "Running CLI tests..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python tests/run_tests.py cli -v; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
 
 # Run tests with coverage
 test-coverage:

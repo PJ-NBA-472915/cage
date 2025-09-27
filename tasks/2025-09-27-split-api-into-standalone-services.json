@@ -1,0 +1,130 @@
+{
+  "id": "2025-09-27-split-api-into-standalone-services",
+  "title": "Split monolithic API into standalone, debuggable services",
+  "owner": "Jaak",
+  "status": "in-progress",
+  "created_at": "2025-09-27 08:23",
+  "updated_at": "2025-09-27 08:35",
+  "progress_percent": 71,
+  "tags": ["cursor", "task", "docker", "fastapi", "debugging", "healthcheck", "service-boundaries", "golang", "lock-api"],
+  "summary": "Extract the current big API into separately runnable FastAPI services (files, git, rag, lock-api) with minimal boot paths, clear health endpoints, and Compose wiring. Optimize dev environment for Golang development to enable agents to build Golang apps.",
+  "success_criteria": [
+    { "text": "Each service (files, git, rag, lock-api) starts independently and exposes only its routes plus `/health`", "checked": false },
+    { "text": "Each service can be run with a single `docker compose up <service>` and logs show a clean boot path", "checked": false },
+    { "text": "Clear failure isolation: breaking one service does not prevent the others from starting", "checked": false },
+    { "text": "Optional dev mode supports code reload (documented) without requiring container rebuilds", "checked": false },
+    { "text": "Dev environment optimized for Golang development with proper tooling and build capabilities", "checked": false },
+    { "text": "Lock-api service can generate and output Golang applications", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "`docker compose up files-api` brings up only the files service and its strict dependencies; `/health` returns 200", "checked": false },
+    { "text": "`docker compose up git-api`, `rag-api`, and `lock-api` behave the same; each advertises a minimal OpenAPI surface scoped to its domain", "checked": false },
+    { "text": "Health checks for postgres/redis gate dependent services with `depends_on: condition: service_healthy`", "checked": false },
+    { "text": "A deliberate crash in one service (e.g., import error) does not block the other services from building/starting", "checked": false },
+    { "text": "Dev reload works via `uvicorn --reload` (dev only) and is disabled in prod compose profile", "checked": false },
+    { "text": "Golang toolchain available in dev environment with `go build`, `go mod`, and standard libraries", "checked": false },
+    { "text": "Lock-api service can compile and output working Golang applications from templates", "checked": false }
+  ],
+  "subtasks": [
+    "Identify and list current routes/endpoints; bucket them into files / git / rag / lock-api domains; note cross-calls that need refactors or client stubs.",
+    "Create four FastAPI apps (or routers promoted to sub-apps) with `/health` and domain routes only; keep boot code minimal.",
+    "Add four Dockerfiles (files-api, git-api, rag-api, lock-api) using non-root worker; lean images and pinned deps.",
+    "Add/modify compose services: ports, env, volumes, healthchecks, and `depends_on` using `service_healthy` for postgres/redis.",
+    "Introduce a dev profile: uvicorn `--reload` and watched dirs; keep prod profile without reload and with stricter commands.",
+    "Optimize dev environment for Golang development: install Go toolchain, set up GOPATH, enable Go modules support.",
+    "Implement lock-api service with Golang code generation capabilities: templates, compilation, and output management.",
+    "Instrument minimal structured logging with per-request IDs; ensure each service logs its own request/response and errors.",
+    "Write a short debug playbook: how to run each service solo, inspect health, tail logs, and trigger a basic endpoint.",
+    "Document any required refactors (shared models, clients) to remove hidden coupling across services."
+  ],
+  "todo": [
+    { "text": "Draft the service boundary table (route → service + notes on shared deps)", "status": "done", "date_started": "2025-09-27 08:35", "date_stopped": "2025-09-27 08:40" },
+    { "text": "Scaffold `src/services/files_api/main.py`, `git_api/main.py`, `rag_api/main.py`, `lock_api/main.py` with `/health` and one no-op route each", "status": "done", "date_started": "2025-09-27 08:40", "date_stopped": "2025-09-27 08:50" },
+    { "text": "Write Dockerfiles with `USER worker` and minimal runtime; verify image runs without root", "status": "done", "date_started": "2025-09-27 08:50", "date_stopped": "2025-09-27 09:00" },
+    { "text": "Amend `docker-compose.yml` with four api services and healthchecks; limit each to its env/volumes", "status": "done", "date_started": "2025-09-27 09:00", "date_stopped": "2025-09-27 09:10" },
+    { "text": "Add dev compose profile using uvicorn `--reload` (document caveats)", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Install and configure Golang toolchain in dev environment (Go 1.21+, GOPATH, modules)", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Implement lock-api Golang code generation: templates, compilation, output management", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Add request-ID middleware and JSON logs; verify correlation in logs", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Create DEBUG.md with step-by-step isolate-and-fix flow", "status": "done", "date_started": "2025-09-27 09:10", "date_stopped": "2025-09-27 09:20" },
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-27 08:23", "text": "Task created to split and isolate API services for targeted debugging." },
+    { "timestamp": "2025-09-27 08:29", "text": "Added lock-api service and Golang development environment optimization requirements." },
+    { "timestamp": "2025-09-27 08:35", "text": "Task confirmed and started - beginning with service boundary analysis." },
+    { "timestamp": "2025-09-27 08:40", "text": "Completed service boundary analysis - identified 4 main services (files, git, rag, lock-api) plus shared components (tasks, crew). Created detailed mapping document." },
+    { "timestamp": "2025-09-27 08:50", "text": "Scaffolded all four FastAPI services with health endpoints and placeholder routes. Each service has proper authentication, logging, and error handling." },
+    { "timestamp": "2025-09-27 09:00", "text": "Created Dockerfiles for all four services with non-root worker user, health checks, and proper permissions. Lock-api includes Golang toolchain installation." },
+    { "timestamp": "2025-09-27 09:10", "text": "Updated docker-compose.yml with four new API services (files-api:8001, git-api:8002, rag-api:8003, lock-api:8004) with proper health checks, dependencies, and profiles. Legacy API moved to 'legacy' profile." },
+    { "timestamp": "2025-09-27 09:20", "text": "Created comprehensive DEBUG.md playbook with step-by-step isolate-and-fix flow, troubleshooting checklists, and service-specific debugging procedures." }
+  ],
+  "decisions": [
+    "Use FastAPI sub-apps/routers for strict separation; each service owns its OpenAPI surface.",
+    "Use Compose healthchecks with `depends_on: condition: service_healthy` so services start only when deps are truly ready.",
+    "Provide dev vs prod compose profiles; dev enables code reload, prod disables it and tightens commands.",
+    "Lock-api service remains in Python but optimizes dev environment for Golang code generation and compilation.",
+    "Golang toolchain installation in dev environment to enable agents to build and output Golang applications."
+  ],
+  "lessons_learned": [
+    "Mounting sub-apps simplifies separate docs and keeps boundaries visible.",
+    "`depends_on` without healthchecks only waits for containers to run, not be ready; healthchecks reduce flakiness.",
+    "`--reload` is for development only and can mask timing/boot issues if used in production."
+  ],
+  "issues_risks": [
+    "Hidden cross-service calls may require a small client layer or shared package; defer heavy refactors in this task.",
+    "Healthchecks that are too strict can slow boots; too lax can allow race conditions—tune pragmatically.",
+    "Reload watchers can increase CPU in large trees; scope watched dirs carefully.",
+    "Golang toolchain installation may increase container size; consider multi-stage builds for production.",
+    "Lock-api service needs secure handling of generated Golang code and compilation artifacts."
+  ],
+  "next_steps": [
+    "Complete the route → service mapping and confirm with a quick review.",
+    "Land minimal boots for the four services and wire compose with healthchecks.",
+    "Install and configure Golang toolchain in dev environment.",
+    "Implement lock-api service with Golang code generation capabilities.",
+    "Iterate: move endpoints into their services in small, verifiable PRs; keep the monolith routes disabled behind a feature flag until parity is reached."
+  ],
+  "references": [
+    "FastAPI sub-applications and mounting",
+    "FastAPI bigger-app structure (routers/modules)",
+    "Uvicorn reload flags and caveats",
+    "Docker Compose services & health-gated depends_on",
+    "Microservice boundary guidance",
+    "Golang installation and environment setup",
+    "Go modules and dependency management",
+    "Golang code generation and templating"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-09-27 08:23",
+      "text": "Create a task for this { ... }",
+      "context": "User provided a complete task definition for splitting the monolithic API into standalone services"
+    },
+    {
+      "timestamp": "2025-09-27 08:29",
+      "text": "Please make these changes: 1. Add a lock-api service 2. The service is currently written in python, and keep that the same, but optimise the dev environemnt that the agents work in to allow them to build apps in Golang. I want this service to output golang apps.",
+      "context": "User requested adding lock-api service and optimizing dev environment for Golang development"
+    },
+    {
+      "timestamp": "2025-09-27 08:35",
+      "text": "Confirm this is what I want. Please continue",
+      "context": "User confirmed task requirements and requested to proceed with implementation"
+    }
+  ],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "profiles": ["dev", "prod"],
+    "services": ["files-api", "git-api", "rag-api", "lock-api"],
+    "owner_uid_gid_strategy": "non-root worker user; match host bind mount where needed",
+    "golang_requirements": {
+      "version": "1.21+",
+      "features": ["go build", "go mod", "code generation", "template compilation"],
+      "dev_environment": "optimized for agent-based Golang app development"
+    }
+  }
+}

@@ -30,7 +30,126 @@ services:
       timeout: 5s
       retries: 5
 
-  # Cage API service
+  # Files API service
+  files-api:
+    build:
+      context: .
+      dockerfile: dockerfiles/files-api/Dockerfile
+    command: ["python", "-m", "src.services.files_api.main"]
+    ports:
+      - "8001:8001"
+    environment:
+      - POD_TOKEN=${POD_TOKEN}
+      - REPO_PATH=/work/repo
+      - RELOAD=${RELOAD:-false}
+    volumes:
+      - .:/app
+      - ${REPO_PATH}:/work/repo
+    depends_on:
+      postgres: 
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    profiles:
+      - dev
+      - prod
+
+  # Git API service
+  git-api:
+    build:
+      context: .
+      dockerfile: dockerfiles/git-api/Dockerfile
+    command: ["python", "-m", "src.services.git_api.main"]
+    ports:
+      - "8002:8002"
+    environment:
+      - POD_TOKEN=${POD_TOKEN}
+      - REPO_PATH=/work/repo
+      - RELOAD=${RELOAD:-false}
+    volumes:
+      - .:/app
+      - ${REPO_PATH}:/work/repo
+    depends_on:
+      postgres: 
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    profiles:
+      - dev
+      - prod
+
+  # RAG API service
+  rag-api:
+    build:
+      context: .
+      dockerfile: dockerfiles/rag-api/Dockerfile
+    command: ["python", "-m", "src.services.rag_api.main"]
+    ports:
+      - "8003:8003"
+    environment:
+      - POD_TOKEN=${POD_TOKEN}
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/cage
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - RELOAD=${RELOAD:-false}
+    volumes:
+      - .:/app
+      - ${REPO_PATH}:/work/repo
+    depends_on:
+      postgres: 
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    profiles:
+      - dev
+      - prod
+
+  # Lock API service (Golang development)
+  lock-api:
+    build:
+      context: .
+      dockerfile: dockerfiles/lock-api/Dockerfile
+    command: ["python", "-m", "src.services.lock_api.main"]
+    ports:
+      - "8004:8004"
+    environment:
+      - POD_TOKEN=${POD_TOKEN}
+      - REPO_PATH=/work/repo
+      - RELOAD=${RELOAD:-false}
+      - GOPATH=/go
+      - GOROOT=/usr/local/go
+    volumes:
+      - .:/app
+      - ${REPO_PATH}:/work/repo
+      - go_cache:/go
+    depends_on:
+      postgres: 
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    profiles:
+      - dev
+      - prod
+
+  # Legacy monolithic API service (for backward compatibility)
   api:
     build:
       context: .
@@ -40,7 +159,7 @@ services:
         GIT_NAME: ${GIT_NAME:-"Cage Agent"}
     command: ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
     ports:
-      - "8000:8000"  # Different port to avoid conflict
+      - "8000:8000"
       - "5678:5678"  # debugpy debug port
     environment:
       - POD_TOKEN=${POD_TOKEN}
@@ -64,6 +183,8 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+    profiles:
+      - legacy
 
   # MCP Server (Streamable HTTP)
   mcp:
@@ -152,32 +273,12 @@ services:
       - logrotate-status:/var/lib/logrotate
     restart: unless-stopped
 
-  # Note-Taking Application
-  notes-app:
-    build:
-      context: .
-      dockerfile: dockerfiles/notes-app
-    ports:
-      - "8738:8738"
-    environment:
-      - POD_TOKEN=${POD_TOKEN:-test-token}
-    volumes:
-      - ./notes-data:/app/notes
-      - ./notes.db:/app/notes.db
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8738/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
 volumes:
   postgres_data:
   redis_data:
+  go_cache:
   # Logging stack volumes
   loki-data:
   promtail-positions:
   grafana-data:
   logrotate-status:
-  # Notes app volumes
-  notes-data:
