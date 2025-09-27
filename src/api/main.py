@@ -4,8 +4,9 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Dict
-from fastapi import FastAPI, HTTPException, Depends, Request
+from typing import Optional, Dict, Union
+from datetime import datetime, timezone
+from fastapi import FastAPI, HTTPException, Depends, Request, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -30,12 +31,19 @@ if os.getenv("DEBUGPY_ENABLED", "0") == "1":
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 # Import task management
-from src.cage.models import TaskManager, TaskFile
+from src.cage.models import (
+    TaskManager, TaskFile,
+    FileContentResponse, FileCreateUpdateRequest, FileCreateUpdateResponse,
+    CommitInfo, JsonPatchRequest, TextPatchRequest, LinePatchRequest, FileDeleteRequest, AuditEntry,
+    AuditQueryParams, AuditResponse, FileOperationError
+)
 from src.cage.tools.editor_tool import EditorTool, FileOperation, OperationType
 from src.cage.tools.git_tool import GitTool
 from src.cage.tools.crew_tool import CrewTool
 from src.cage.tools.crew_tool import ModularCrewTool
 from src.cage.rag_service import RAGService
+from src.cage.utils.file_editing_utils import ETagManager, PathValidator, AuditTrailManager, JsonPatchValidator, FileTypeDetector, LinePatchValidator
+from src.cage.utils.file_logging import file_logger
 
 # Security
 security = HTTPBearer()
@@ -51,7 +59,7 @@ def get_pod_token(credentials: HTTPAuthorizationCredentials = Depends(security))
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        start_time = datetime.datetime.utcnow()
+        start_time = datetime.utcnow()
         
         # Skip logging for health endpoint
         if request.url.path == "/health":
@@ -72,7 +80,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             
             # Log the response
-            duration_ms = (datetime.datetime.utcnow() - start_time).total_seconds() * 1000
+            duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
             logger.info("HTTP response sent", 
                         extra={"json_data": {
                             "event": "http_response",
@@ -85,7 +93,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             return response
             
         except Exception as e:
-            duration_ms = (datetime.datetime.utcnow() - start_time).total_seconds() * 1000
+            duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
             logger.error("HTTP request failed", 
                         extra={"json_data": {
                             "event": "http_error",
@@ -138,6 +146,10 @@ task_manager = TaskManager(tasks_dir)
 git_tool = GitTool(repo_path)
 crew_tool = CrewTool(repo_path, task_manager)
 modular_crew_tool = ModularCrewTool(repo_path, task_manager)
+
+# Initialize file editing utilities
+path_validator = PathValidator(str(repo_path))
+audit_trail_manager = AuditTrailManager()
 
 # Initialize RAG service
 rag_service = None
@@ -289,7 +301,7 @@ class NoteResponse(BaseModel):
 @app.get("/health")
 def health():
     """Health check endpoint."""
-    current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     try:
         repo_path = get_repository_path()
@@ -629,6 +641,524 @@ def commit_file_changes(
         raise
     except Exception as e:
         logger.error(f"Error committing file changes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# New File Editing API endpoints (optimistic concurrency)
+
+@app.get("/files/{path:path}", response_model=FileContentResponse)
+def get_file(
+    path: str,
+    raw: bool = False,
+    ref: Optional[str] = None,
+    token: str = Depends(get_pod_token)
+):
+    """
+    Retrieve file content and current validators.
+    
+    Args:
+        path: File path relative to repo root
+        raw: If true, return raw bytes with Content-Type header
+        ref: Read from named ref/branch (default: working/main ref)
+        token: Authentication token
+    """
+    import base64
+    import time
+    
+    start_time = time.time()
+    
+    try:
+        # Validate and normalize path
+        normalized_path = path_validator.normalize_path(path)
+        
+        if not normalized_path.exists():
+            file_logger.log_file_read(path, "", "", 0, token, False, "File not found")
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        # Read file content
+        with open(normalized_path, 'rb') as f:
+            content_bytes = f.read()
+        
+        # Get file stats
+        stat = normalized_path.stat()
+        file_size = stat.st_size
+        last_modified = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
+        
+        # Generate ETag and SHA
+        content_str = content_bytes.decode('utf-8', errors='replace')
+        etag = ETagManager.generate_etag(content_str, str(normalized_path))
+        sha = ETagManager.generate_sha(content_str)
+        
+        # Encode content as base64
+        content_base64 = base64.b64encode(content_bytes).decode('ascii')
+        
+        duration_ms = int((time.time() - start_time) * 1000)
+        file_logger.log_file_read(path, etag, sha, file_size, token, True, duration_ms=duration_ms)
+        
+        if raw:
+            # Return raw content with ETag header
+            from fastapi.responses import Response
+            response = Response(
+                content=content_bytes,
+                media_type="application/octet-stream",
+                headers={"ETag": etag}
+            )
+            return response
+        else:
+            # Return JSON response with ETag in headers
+            from fastapi.responses import JSONResponse
+            response_data = {
+                "path": path,
+                "sha": sha,
+                "size": file_size,
+                "encoding": "base64",
+                "content": content_base64,
+                "last_modified": last_modified.isoformat()
+            }
+            return JSONResponse(
+                content=response_data,
+                headers={"ETag": etag}
+            )
+    
+    except ValueError as e:
+        file_logger.log_path_validation(path, "", False, token, str(e))
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        file_logger.log_file_read(path, "", "", 0, token, False, str(e))
+        logger.error(f"Error reading file {path}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.put("/files/{path:path}")
+def put_file(
+    path: str,
+    request: FileCreateUpdateRequest,
+    if_match: Optional[str] = Header(None, alias="If-Match"),
+    if_none_match: Optional[str] = Header(None, alias="If-None-Match"),
+    token: str = Depends(get_pod_token)
+):
+    """
+    Create or replace file content with optimistic concurrency.
+    
+    Args:
+        path: File path relative to repo root
+        request: File content and metadata
+        if_match: ETag for existing file (required for updates)
+        if_none_match: "*" to require create only
+        token: Authentication token
+    """
+    import base64
+    import time
+    from uuid import uuid4
+    
+    start_time = time.time()
+    
+    try:
+        # Validate and normalize path
+        normalized_path = path_validator.normalize_path(path)
+        
+        # Check if file exists
+        file_exists = normalized_path.exists()
+        
+        # Handle If-None-Match header
+        if if_none_match == "*" and file_exists:
+            raise HTTPException(status_code=409, detail="File already exists")
+        
+        # Read current content if file exists
+        current_etag = None
+        current_sha = None
+        current_content = None
+        
+        if file_exists:
+            with open(normalized_path, 'rb') as f:
+                current_content_bytes = f.read()
+            current_content = current_content_bytes.decode('utf-8', errors='replace')
+            current_etag = ETagManager.generate_etag(current_content, str(normalized_path))
+            current_sha = ETagManager.generate_sha(current_content)
+            
+            # Validate If-Match header (required for updates)
+            if if_match:
+                if not ETagManager.validate_etag(if_match, current_etag):
+                    file_logger.log_etag_validation(path, if_match, current_etag, False, token)
+                    raise HTTPException(status_code=412, detail="Precondition failed - ETag mismatch")
+            elif request.base_sha and request.base_sha != current_sha:
+                raise HTTPException(status_code=412, detail="Precondition failed - SHA mismatch")
+            else:
+                # If-Match is required for updates when no base_sha is provided
+                raise HTTPException(status_code=428, detail="Precondition required - If-Match header is required for updates")
+        
+        # Decode new content
+        try:
+            new_content_bytes = base64.b64decode(request.content_base64)
+            new_content = new_content_bytes.decode('utf-8', errors='replace')
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid base64 content: {e}")
+        
+        # Write new content
+        normalized_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(normalized_path, 'wb') as f:
+            f.write(new_content_bytes)
+        
+        # Generate new ETag and SHA
+        new_etag = ETagManager.generate_etag(new_content, str(normalized_path))
+        new_sha = ETagManager.generate_sha(new_content)
+        
+        # Create commit info
+        commit_id = str(uuid4())
+        commit_info = CommitInfo(
+            id=commit_id,
+            message=request.message,
+            timestamp=datetime.now(timezone.utc),
+            author=request.author,
+            committer=request.committer
+        )
+        
+        # Record in audit trail
+        audit_trail_manager.record_operation(
+            actor=token,
+            method="PUT",
+            path=path,
+            base_etag=current_etag,
+            new_etag=new_etag,
+            sha_before=current_sha,
+            sha_after=new_sha,
+            message=request.message
+        )
+        
+        duration_ms = int((time.time() - start_time) * 1000)
+        file_logger.log_file_write(
+            path, current_etag, new_etag, current_sha, new_sha,
+            token, "PUT", True, duration_ms=duration_ms, message=request.message
+        )
+        
+        response = FileCreateUpdateResponse(
+            path=path,
+            sha_before=current_sha,
+            sha_after=new_sha,
+            commit=commit_info
+        )
+        
+        status_code = 201 if not file_exists else 200
+        return response
+    
+    except HTTPException:
+        raise
+    except ValueError as e:
+        file_logger.log_path_validation(path, "", False, token, str(e))
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        file_logger.log_file_write(path, None, "", None, "", token, "PUT", False, str(e))
+        logger.error(f"Error writing file {path}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.patch("/files/{path:path}")
+def patch_file(
+    path: str,
+    request: Union[JsonPatchRequest, TextPatchRequest, LinePatchRequest],
+    if_match: str = Header(..., alias="If-Match"),
+    token: str = Depends(get_pod_token)
+):
+    """
+    Apply patch operations to any file type.
+    
+    Supports:
+    - JSON Patch for JSON files (RFC 6902)
+    - Text replacement for any text file
+    - Line-based operations for structured text files
+    
+    Args:
+        path: File path relative to repo root
+        request: Patch request (JSON, Text, or Line-based)
+        if_match: ETag of current file version (required)
+        token: Authentication token
+    """
+    import time
+    from uuid import uuid4
+    
+    start_time = time.time()
+    
+    try:
+        # Validate and normalize path
+        normalized_path = path_validator.normalize_path(path)
+        
+        if not normalized_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        # Read current content
+        try:
+            with open(normalized_path, 'r', encoding='utf-8') as f:
+                current_content = f.read()
+        except UnicodeDecodeError:
+            raise HTTPException(status_code=422, detail="File is not a valid text file")
+        
+        # Generate current ETag
+        current_etag = ETagManager.generate_etag(current_content, str(normalized_path))
+        
+        # Validate If-Match header
+        if not ETagManager.validate_etag(if_match, current_etag):
+            file_logger.log_etag_validation(path, if_match, current_etag, False, token)
+            raise HTTPException(status_code=412, detail="Precondition failed - ETag mismatch")
+        
+        # Detect file type
+        file_type = FileTypeDetector.get_file_type(str(normalized_path))
+        
+        # Determine patch type and apply accordingly
+        new_content = None
+        patch_message = ""
+        
+        if isinstance(request, JsonPatchRequest):
+            # JSON Patch operations
+            if not FileTypeDetector.can_apply_json_patch(file_type):
+                raise HTTPException(status_code=422, detail=f"JSON Patch not supported for {file_type} files")
+            
+            # Validate that file is valid JSON
+            try:
+                json.loads(current_content)
+            except json.JSONDecodeError:
+                raise HTTPException(status_code=422, detail="File is not valid JSON")
+            
+            # Validate patch operations
+            if not JsonPatchValidator.validate_patch_operations(request.operations):
+                raise HTTPException(status_code=422, detail="Invalid JSON Patch operations")
+            
+            # Apply JSON patch operations
+            try:
+                new_content = JsonPatchValidator.apply_patch(current_content, request.operations)
+                patch_message = f"JSON Patch: {len(request.operations)} operations"
+            except ValueError as e:
+                file_logger.log_json_patch(path, len(request.operations), current_etag, "", token, False, str(e))
+                raise HTTPException(status_code=422, detail=str(e))
+        
+        elif isinstance(request, TextPatchRequest):
+            # Text replacement
+            new_content = request.content
+            patch_message = request.message or "Text content replacement"
+        
+        elif isinstance(request, LinePatchRequest):
+            # Line-based operations
+            if not FileTypeDetector.can_apply_line_patch(file_type):
+                raise HTTPException(status_code=422, detail=f"Line-based patches not supported for {file_type} files")
+            
+            # Validate line operations
+            if not LinePatchValidator.validate_line_operations(request.operations):
+                raise HTTPException(status_code=422, detail="Invalid line-based operations")
+            
+            # Apply line-based patch operations
+            try:
+                new_content = LinePatchValidator.apply_line_patch(current_content, request.operations)
+                patch_message = request.message or f"Line patch: {len(request.operations)} operations"
+            except ValueError as e:
+                file_logger.log_json_patch(path, len(request.operations), current_etag, "", token, False, str(e))
+                raise HTTPException(status_code=422, detail=str(e))
+        
+        else:
+            raise HTTPException(status_code=400, detail="Invalid patch request type")
+        
+        # Write new content
+        with open(normalized_path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+        
+        # Generate new ETag and SHA
+        new_etag = ETagManager.generate_etag(new_content, str(normalized_path))
+        new_sha = ETagManager.generate_sha(new_content)
+        current_sha = ETagManager.generate_sha(current_content)
+        
+        # Record in audit trail
+        audit_trail_manager.record_operation(
+            actor=token,
+            method="PATCH",
+            path=path,
+            base_etag=current_etag,
+            new_etag=new_etag,
+            sha_before=current_sha,
+            sha_after=new_sha,
+            message=patch_message
+        )
+        
+        # Log the operation
+        if isinstance(request, JsonPatchRequest):
+            file_logger.log_json_patch(path, len(request.operations), current_etag, new_etag, token, True)
+        else:
+            file_logger.log_file_write(
+                path, current_etag, new_etag, current_sha, new_sha,
+                token, "PATCH", True, message=patch_message
+            )
+        
+        # Create commit info
+        commit_id = str(uuid4())
+        commit_info = CommitInfo(
+            id=commit_id,
+            message=patch_message,
+            timestamp=datetime.now(timezone.utc)
+        )
+        
+        return FileCreateUpdateResponse(
+            path=path,
+            sha_before=current_sha,
+            sha_after=new_sha,
+            commit=commit_info
+        )
+    
+    except HTTPException:
+        raise
+    except ValueError as e:
+        file_logger.log_path_validation(path, "", False, token, str(e))
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        file_logger.log_file_write(path, "", "", "", "", token, "PATCH", False, str(e))
+        logger.error(f"Error patching file {path}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/files/{path:path}")
+def delete_file(
+    path: str,
+    request: FileDeleteRequest,
+    if_match: str = Header(..., alias="If-Match"),
+    token: str = Depends(get_pod_token)
+):
+    """
+    Delete a file with ETag validation.
+    
+    Args:
+        path: File path relative to repo root
+        request: Delete request with message
+        if_match: ETag of current file version (required)
+        token: Authentication token
+    """
+    import time
+    from uuid import uuid4
+    
+    start_time = time.time()
+    
+    try:
+        # Validate and normalize path
+        normalized_path = path_validator.normalize_path(path)
+        
+        if not normalized_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        # Read current content for ETag validation
+        with open(normalized_path, 'r', encoding='utf-8') as f:
+            current_content = f.read()
+        
+        # Generate current ETag
+        current_etag = ETagManager.generate_etag(current_content, str(normalized_path))
+        current_sha = ETagManager.generate_sha(current_content)
+        
+        # Validate If-Match header
+        if not ETagManager.validate_etag(if_match, current_etag):
+            file_logger.log_etag_validation(path, if_match, current_etag, False, token)
+            raise HTTPException(status_code=412, detail="Precondition failed - ETag mismatch")
+        
+        # Delete file
+        normalized_path.unlink()
+        
+        # Record in audit trail
+        audit_trail_manager.record_operation(
+            actor=token,
+            method="DELETE",
+            path=path,
+            base_etag=current_etag,
+            new_etag=None,
+            sha_before=current_sha,
+            sha_after=None,
+            message=request.message
+        )
+        
+        duration_ms = int((time.time() - start_time) * 1000)
+        file_logger.log_file_write(
+            path, current_etag, "", current_sha, "", token, "DELETE", True,
+            duration_ms=duration_ms, message=request.message
+        )
+        
+        return {"status": "success", "message": "File deleted successfully"}
+    
+    except HTTPException:
+        raise
+    except ValueError as e:
+        file_logger.log_path_validation(path, "", False, token, str(e))
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        file_logger.log_file_write(path, "", "", "", "", token, "DELETE", False, str(e))
+        logger.error(f"Error deleting file {path}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/audit", response_model=AuditResponse)
+def get_audit_trail(
+    path: Optional[str] = None,
+    actor: Optional[str] = None,
+    since: Optional[str] = None,
+    until: Optional[str] = None,
+    limit: int = 100,
+    cursor: Optional[str] = None,
+    token: str = Depends(get_pod_token)
+):
+    """
+    Query audit trail entries.
+    
+    Args:
+        path: Filter by file path
+        actor: Filter by actor
+        since: Filter entries after this timestamp (ISO format)
+        until: Filter entries before this timestamp (ISO format)
+        limit: Maximum number of entries (1-1000)
+        cursor: Pagination cursor
+        token: Authentication token
+    """
+    import time
+    
+    start_time = time.time()
+    
+    try:
+        # Parse timestamps
+        since_dt = None
+        until_dt = None
+        
+        if since:
+            try:
+                since_dt = datetime.fromisoformat(since.replace('Z', '+00:00'))
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid since timestamp format")
+        
+        if until:
+            try:
+                until_dt = datetime.fromisoformat(until.replace('Z', '+00:00'))
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid until timestamp format")
+        
+        # Validate limit
+        if limit < 1 or limit > 1000:
+            raise HTTPException(status_code=400, detail="Limit must be between 1 and 1000")
+        
+        # Query audit trail
+        entries = audit_trail_manager.query_audit_trail(
+            path=path,
+            actor=actor,
+            since=since_dt,
+            until=until_dt,
+            limit=limit,
+            cursor=cursor
+        )
+        
+        duration_ms = int((time.time() - start_time) * 1000)
+        file_logger.log_audit_query(
+            token,
+            {"path": path, "actor": actor, "since": since, "until": until, "limit": limit},
+            len(entries),
+            duration_ms
+        )
+        
+        return AuditResponse(
+            items=entries,
+            next_cursor=None  # TODO: Implement cursor-based pagination
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error querying audit trail: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Git endpoints
@@ -1012,7 +1542,7 @@ def open_pr(from_branch: str, to: str = "main", title: str = "", body: str = "",
     try:
         # This is a placeholder - in a real implementation, this would integrate with GitHub/GitLab API
         # For now, we'll just return a mock response
-        pr_id = f"pr-{from_branch}-{int(datetime.datetime.now().timestamp())}"
+        pr_id = f"pr-{from_branch}-{int(datetime.now().timestamp())}"
         
         return {
             "status": "success",
@@ -1048,7 +1578,7 @@ def update_task_comprehensive(request: dict, token: str = Depends(get_pod_token)
             task = task_manager.load_task(task_id)
             if task:
                 current_changelog = task.changelog or []
-                updates["changelog"] = current_changelog + [{"timestamp": datetime.datetime.now().isoformat(), "text": item} for item in updates["changelog_append"]]
+                updates["changelog"] = current_changelog + [{"timestamp": datetime.now().isoformat(), "text": item} for item in updates["changelog_append"]]
                 del updates["changelog_append"]
         
         if "lessons_append" in updates:

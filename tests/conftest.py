@@ -17,8 +17,8 @@ from fastapi.testclient import TestClient
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from src.cage.task_models import TaskManager, TaskFile
-from src.cage.editor_tool import EditorTool, FileLockManager
+from src.cage.models import TaskManager, TaskFile
+from src.cage.tools.editor_tool import EditorTool, FileLockManager
 from src.api.main import app
 
 

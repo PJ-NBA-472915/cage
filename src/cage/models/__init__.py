@@ -16,6 +16,20 @@ from .task_provenance import TaskProvenance
 from .task_artefacts import TaskArtefacts
 from .task_file import TaskFile
 from .task_manager import TaskManager
+from .file_editing_models import (
+    FileContentResponse,
+    FileCreateUpdateRequest,
+    FileCreateUpdateResponse,
+    CommitInfo,
+    JsonPatchRequest,
+    TextPatchRequest,
+    LinePatchRequest,
+    FileDeleteRequest,
+    AuditEntry,
+    AuditQueryParams,
+    AuditResponse,
+    FileOperationError
+)
 
 __all__ = [
     "TaskCriteria",
@@ -30,4 +44,16 @@ __all__ = [
     "TaskArtefacts",
     "TaskFile",
     "TaskManager",
+    "FileContentResponse",
+    "FileCreateUpdateRequest",
+    "FileCreateUpdateResponse",
+    "CommitInfo",
+    "JsonPatchRequest",
+    "TextPatchRequest",
+    "LinePatchRequest",
+    "FileDeleteRequest",
+    "AuditEntry",
+    "AuditQueryParams",
+    "AuditResponse",
+    "FileOperationError",
 ]
