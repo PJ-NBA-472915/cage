@@ -7,9 +7,11 @@ import datetime
 import logging
 import os
 import sys
+import uuid
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 import uvicorn
 
@@ -20,9 +22,38 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from src.cage.utils.file_editing_utils import PathValidator
 from src.cage.utils.file_logging import file_logger
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure structured logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(request_id)s] - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
+class RequestIDMiddleware(BaseHTTPMiddleware):
+    """Middleware to add request ID to all requests."""
+    
+    async def dispatch(self, request: Request, call_next):
+        # Generate or extract request ID
+        request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+        
+        # Add request ID to request state
+        request.state.request_id = request_id
+        
+        # Set up logging context
+        old_factory = logging.getLogRecordFactory()
+        def record_factory(*args, **kwargs):
+            record = old_factory(*args, **kwargs)
+            record.request_id = request_id
+            return record
+        logging.setLogRecordFactory(record_factory)
+        
+        try:
+            response = await call_next(request)
+            response.headers["X-Request-ID"] = request_id
+            return response
+        finally:
+            # Restore original factory
+            logging.setLogRecordFactory(old_factory)
 
 # Security
 security = HTTPBearer()
@@ -42,6 +73,9 @@ app = FastAPI(
     description="File operations, content management, and file locking",
     version="1.0.0"
 )
+
+# Add middleware
+app.add_middleware(RequestIDMiddleware)
 
 # Initialize path validator with restricted container access
 repo_path = os.environ.get("REPO_PATH", "/work/repo")

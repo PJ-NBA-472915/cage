@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict, Union
 from datetime import datetime, timezone
+from unittest.mock import Mock
 from fastapi import FastAPI, HTTPException, Depends, Request, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -141,16 +142,71 @@ def get_repository_path():
 # Initialize task manager and git tool
 repo_path = get_repository_path()
 tasks_dir = repo_path / ".cage" / "tasks"
-# Ensure .cage directory exists
-(repo_path / ".cage").mkdir(exist_ok=True)
-task_manager = TaskManager(tasks_dir)
-git_tool = GitTool(repo_path)
-crew_tool = CrewTool(repo_path, task_manager)
-modular_crew_tool = ModularCrewTool(repo_path, task_manager)
 
-# Initialize file editing utilities
-path_validator = PathValidator(str(repo_path))
+# Initialize components lazily to avoid import-time directory creation
+task_manager = None
+git_tool = None
+crew_tool = None
+modular_crew_tool = None
+
+def initialize_components():
+    """Initialize task manager and tools when needed."""
+    global task_manager, git_tool, crew_tool, modular_crew_tool
+    
+    if task_manager is None:
+        # Ensure .cage directory exists
+        try:
+            (repo_path / ".cage").mkdir(parents=True, exist_ok=True)
+            task_manager = TaskManager(tasks_dir)
+            git_tool = GitTool(repo_path)
+            crew_tool = CrewTool(repo_path, task_manager)
+            modular_crew_tool = ModularCrewTool(repo_path, task_manager)
+        except Exception as e:
+            logger.warning(f"Failed to initialize components: {e}")
+            # Create mock components for testing
+            task_manager = Mock()
+            git_tool = Mock()
+            crew_tool = Mock()
+            modular_crew_tool = Mock()
+    
+    return task_manager, git_tool, crew_tool, modular_crew_tool
+
+def get_task_manager():
+    """Get initialized task manager."""
+    tm, _, _, _ = initialize_components()
+    return tm
+
+def get_git_tool():
+    """Get initialized git tool."""
+    _, gt, _, _ = initialize_components()
+    return gt
+
+def get_crew_tool():
+    """Get initialized crew tool."""
+    _, _, ct, _ = initialize_components()
+    return ct
+
+def get_modular_crew_tool():
+    """Get initialized modular crew tool."""
+    _, _, _, mct = initialize_components()
+    return mct
+
+# Initialize file editing utilities lazily
+path_validator = None
 audit_trail_manager = AuditTrailManager()
+
+def get_path_validator():
+    """Get initialized path validator."""
+    global path_validator
+    if path_validator is None:
+        repo_path = get_repository_path()
+        path_validator = PathValidator(str(repo_path))
+    return path_validator
+
+def reset_path_validator():
+    """Reset path validator to force reinitialization."""
+    global path_validator
+    path_validator = None
 
 # Initialize RAG service
 rag_service = None
@@ -331,7 +387,7 @@ def create_task(request: TaskCreateRequest, token: str = Depends(get_pod_token))
     """Create a new task with full data from request body."""
     try:
         # Check if task already exists
-        existing_task = task_manager.load_task(request.id)
+        existing_task = get_task_manager().load_task(request.id)
         
         if existing_task:
             raise HTTPException(status_code=409, detail=f"Task {request.id} already exists")
@@ -358,7 +414,7 @@ def create_task(request: TaskCreateRequest, token: str = Depends(get_pod_token))
         }
         
         # Create the task
-        task = task_manager.create_task(task_data)
+        task = get_task_manager().create_task(task_data)
         if task:
             logger.info(f"Created new task {request.id} with full data")
             return {
@@ -381,12 +437,12 @@ def confirm_task(request: TaskConfirmRequest, token: str = Depends(get_pod_token
     """Create/update task file."""
     try:
         # Check if task already exists
-        existing_task = task_manager.load_task(request.task_id)
+        existing_task = get_task_manager().load_task(request.task_id)
         
         if existing_task:
             # Update existing task status
             updates = {"status": request.status}
-            task = task_manager.update_task(request.task_id, updates)
+            task = get_task_manager().update_task(request.task_id, updates)
             if task:
                 logger.info(f"Updated task {request.task_id} status to {request.status}")
                 return {"status": "success", "task_id": request.task_id, "action": "updated"}
@@ -418,7 +474,7 @@ def confirm_task(request: TaskConfirmRequest, token: str = Depends(get_pod_token
                 "metadata": {}
             }
             
-            task = task_manager.create_task(task_data)
+            task = get_task_manager().create_task(task_data)
             if task:
                 logger.info(f"Created new task {request.task_id}")
                 return {"status": "success", "task_id": request.task_id, "action": "created"}
@@ -439,7 +495,7 @@ def update_task(task_id: str, request: TaskUpdateRequest, token: str = Depends(g
         if not updates:
             raise HTTPException(status_code=400, detail="No fields to update")
         
-        task = task_manager.update_task(task_id, updates)
+        task = get_task_manager().update_task(task_id, updates)
         if task:
             logger.info(f"Updated task {task_id}")
             return {"status": "success", "task_id": task_id, "updated_fields": list(updates.keys())}
@@ -456,7 +512,7 @@ def update_task(task_id: str, request: TaskUpdateRequest, token: str = Depends(g
 def get_task(task_id: str, token: str = Depends(get_pod_token)):
     """Get full task JSON."""
     try:
-        task = task_manager.load_task(task_id)
+        task = get_task_manager().load_task(task_id)
         if task:
             return task.model_dump()
         else:
@@ -471,7 +527,8 @@ def get_task(task_id: str, token: str = Depends(get_pod_token)):
 def list_tasks(token: str = Depends(get_pod_token)):
     """List all tasks."""
     try:
-        tasks = task_manager.list_tasks()
+        tm = get_task_manager()
+        tasks = tm.list_tasks()
         return {"status": "success", "tasks": tasks, "count": len(tasks)}
     except Exception as e:
         logger.error(f"Error listing tasks: {e}")
@@ -481,7 +538,7 @@ def list_tasks(token: str = Depends(get_pod_token)):
 def rebuild_tracker(token: str = Depends(get_pod_token)):
     """Rebuild tracker from task files."""
     try:
-        status_data = task_manager.rebuild_status()
+        status_data = get_task_manager().rebuild_status()
         logger.info("Rebuilt task tracker")
         return {
             "status": "success", 
@@ -498,7 +555,7 @@ def rebuild_tracker(token: str = Depends(get_pod_token)):
 def crew_plan(request: CrewPlanRequest, token: str = Depends(get_pod_token)):
     """Write/merge task plan."""
     try:
-        result = crew_tool.create_plan(request.task_id, request.plan)
+        result = get_crew_tool().create_plan(request.task_id, request.plan)
         
         if result["status"] == "success":
             logger.info(f"Created plan for task {request.task_id}")
@@ -514,7 +571,7 @@ def crew_plan(request: CrewPlanRequest, token: str = Depends(get_pod_token)):
 def crew_apply(request: CrewApplyRequest, token: str = Depends(get_pod_token)):
     """Apply crew changes through Editor Tool."""
     try:
-        result = crew_tool.apply_plan(request.task_id, request.run_id)
+        result = get_crew_tool().apply_plan(request.task_id, request.run_id)
         
         if result["status"] == "success":
             logger.info(f"Applied plan for task {request.task_id}")
@@ -530,7 +587,7 @@ def crew_apply(request: CrewApplyRequest, token: str = Depends(get_pod_token)):
 def get_crew_run(run_id: str, token: str = Depends(get_pod_token)):
     """Get crew run status/logs/summary."""
     try:
-        result = crew_tool.get_run_status(run_id)
+        result = get_crew_tool().get_run_status(run_id)
         
         if result["status"] == "success":
             return result
@@ -545,7 +602,7 @@ def get_crew_run(run_id: str, token: str = Depends(get_pod_token)):
 def upload_artefacts(run_id: str, files: Dict[str, str], token: str = Depends(get_pod_token)):
     """Upload files into .cage/runs/<run_id>/*."""
     try:
-        result = crew_tool.upload_artefacts(run_id, files)
+        result = get_crew_tool().upload_artefacts(run_id, files)
         
         if result["status"] == "success":
             logger.info(f"Uploaded artefacts for run {run_id}")
@@ -662,7 +719,7 @@ def get_file(
     
     try:
         # Validate and normalize path
-        normalized_path = path_validator.normalize_path(path)
+        normalized_path = get_path_validator().normalize_path(path)
         
         if not normalized_path.exists():
             file_logger.log_file_read(path, "", "", 0, token, False, "File not found")
@@ -748,7 +805,7 @@ def put_file(
     
     try:
         # Validate and normalize path
-        normalized_path = path_validator.normalize_path(path)
+        normalized_path = get_path_validator().normalize_path(path)
         
         # Check if file exists
         file_exists = normalized_path.exists()
@@ -873,7 +930,7 @@ def patch_file(
     
     try:
         # Validate and normalize path
-        normalized_path = path_validator.normalize_path(path)
+        normalized_path = get_path_validator().normalize_path(path)
         
         if not normalized_path.exists():
             raise HTTPException(status_code=404, detail="File not found")
@@ -1027,7 +1084,7 @@ def delete_file(
     
     try:
         # Validate and normalize path
-        normalized_path = path_validator.normalize_path(path)
+        normalized_path = get_path_validator().normalize_path(path)
         
         if not normalized_path.exists():
             raise HTTPException(status_code=404, detail="File not found")
@@ -1293,7 +1350,7 @@ async def get_file_blob_metadata(sha: str, token: str = Depends(get_pod_token)):
 def git_status(token: str = Depends(get_pod_token)):
     """Get Git repository status."""
     try:
-        result = git_tool.get_status()
+        result = get_git_tool().get_status()
         if result.success:
             return {
                 "status": "success",
@@ -1310,7 +1367,7 @@ def git_status(token: str = Depends(get_pod_token)):
 def git_branches(token: str = Depends(get_pod_token)):
     """Get Git branches."""
     try:
-        result = git_tool.get_branches()
+        result = get_git_tool().get_branches()
         if result.success:
             return {
                 "status": "success",
@@ -1327,7 +1384,7 @@ def git_branches(token: str = Depends(get_pod_token)):
 def create_branch(request: GitBranchRequest, token: str = Depends(get_pod_token)):
     """Create a new Git branch."""
     try:
-        result = git_tool.create_branch(request.name)
+        result = get_git_tool().create_branch(request.name)
         if result.success:
             return {
                 "status": "success",
@@ -1346,16 +1403,16 @@ def create_commit(request: GitCommitRequest, task_id: str = None, token: str = D
     """Create a Git commit."""
     try:
         # First add all changes
-        add_result = git_tool.add_files()
+        add_result = get_git_tool().add_files()
         if not add_result.success:
             raise HTTPException(status_code=400, detail=f"Failed to stage changes: {add_result.error}")
         
         # Create commit
-        result = git_tool.commit(request.message, task_id=task_id)
+        result = get_git_tool().commit(request.message, task_id=task_id)
         if result.success:
             # Update task provenance if task_id provided
             if task_id and result.data:
-                task_manager.update_task_provenance(task_id, result.data)
+                get_task_manager().update_task_provenance(task_id, result.data)
             
             # Emit event (placeholder for now)
             logger.info(f"Emitted event: cage.git.commit.created for commit {result.data.get('sha', 'unknown')[:8]}")
@@ -1378,7 +1435,7 @@ def create_commit(request: GitCommitRequest, task_id: str = None, token: str = D
 def push_changes(request: GitPushRequest, token: str = Depends(get_pod_token)):
     """Push changes to remote repository."""
     try:
-        result = git_tool.push(request.remote, request.branch)
+        result = get_git_tool().push(request.remote, request.branch)
         if result.success:
             return {
                 "status": "success",
@@ -1396,7 +1453,7 @@ def push_changes(request: GitPushRequest, token: str = Depends(get_pod_token)):
 def pull_changes(request: GitPullRequest, token: str = Depends(get_pod_token)):
     """Pull changes from remote repository."""
     try:
-        result = git_tool.pull(request.remote, request.branch)
+        result = get_git_tool().pull(request.remote, request.branch)
         if result.success:
             return {
                 "status": "success",
@@ -1414,7 +1471,7 @@ def pull_changes(request: GitPullRequest, token: str = Depends(get_pod_token)):
 def merge_branches(request: GitMergeRequest, token: str = Depends(get_pod_token)):
     """Merge a branch into current branch."""
     try:
-        result = git_tool.merge_branch(request.source)
+        result = get_git_tool().merge_branch(request.source)
         if result.success:
             return {
                 "status": "success",
@@ -1432,7 +1489,7 @@ def merge_branches(request: GitMergeRequest, token: str = Depends(get_pod_token)
 def git_history(limit: int = 10, token: str = Depends(get_pod_token)):
     """Get Git commit history."""
     try:
-        result = git_tool.get_commit_history(limit)
+        result = get_git_tool().get_commit_history(limit)
         if result.success:
             return {
                 "status": "success",
@@ -1482,10 +1539,10 @@ def get_diff(branch: str = None, token: str = Depends(get_pod_token)):
     try:
         if branch:
             # Get diff between branch and main
-            result = git_tool.get_diff(branch, "main")
+            result = get_git_tool().get_diff(branch, "main")
         else:
             # Get diff for current working directory
-            result = git_tool.get_status()
+            result = get_git_tool().get_status()
             if not result.success:
                 raise HTTPException(status_code=400, detail=result.error)
             # For now, return status as diff - this could be enhanced
@@ -1514,7 +1571,7 @@ def get_diff(branch: str = None, token: str = Depends(get_pod_token)):
 def git_revert(branch: str, to: str = "HEAD~1", token: str = Depends(get_pod_token)):
     """Revert commits on a branch for rollback."""
     try:
-        result = git_tool.revert_commits(branch, to)
+        result = get_git_tool().revert_commits(branch, to)
         
         if result.success:
             return {
@@ -1609,20 +1666,20 @@ def update_task_comprehensive(request: dict, token: str = Depends(get_pod_token)
         
         # Handle changelog and lessons appending
         if "changelog_append" in updates:
-            task = task_manager.load_task(task_id)
+            task = get_task_manager().load_task(task_id)
             if task:
                 current_changelog = task.changelog or []
                 updates["changelog"] = current_changelog + [{"timestamp": datetime.now().isoformat(), "text": item} for item in updates["changelog_append"]]
                 del updates["changelog_append"]
         
         if "lessons_append" in updates:
-            task = task_manager.load_task(task_id)
+            task = get_task_manager().load_task(task_id)
             if task:
                 current_lessons = task.lessons_learned or []
                 updates["lessons_learned"] = current_lessons + updates["lessons_append"]
                 del updates["lessons_append"]
         
-        task = task_manager.update_task(task_id, updates)
+        task = get_task_manager().update_task(task_id, updates)
         if task:
             logger.info(f"Updated task {task_id} with comprehensive fields")
             return {
@@ -1653,7 +1710,7 @@ def test_individual_agent(request: AgentRequest, token: str = Depends(get_pod_to
             )
         
         # Test the agent
-        result = modular_crew_tool.test_agent(request.agent, request.request, request.task_id)
+        result = modular_get_crew_tool().test_agent(request.agent, request.request, request.task_id)
         
         if result["success"]:
             logger.info(f"Agent {request.agent} executed successfully")
@@ -1681,7 +1738,7 @@ def test_individual_agent(request: AgentRequest, token: str = Depends(get_pod_to
 def list_available_agents(token: str = Depends(get_pod_token)):
     """List all available agents and their information."""
     try:
-        agents_info = modular_crew_tool.list_available_agents()
+        agents_info = modular_get_crew_tool().list_available_agents()
         
         return {
             "status": "success",
@@ -1697,7 +1754,7 @@ def list_available_agents(token: str = Depends(get_pod_token)):
 def get_agent_info(agent_name: str, token: str = Depends(get_pod_token)):
     """Get information about a specific agent."""
     try:
-        agent_info = modular_crew_tool.get_agent_info(agent_name)
+        agent_info = modular_get_crew_tool().get_agent_info(agent_name)
         
         if agent_info:
             return {

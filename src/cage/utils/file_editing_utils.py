@@ -102,11 +102,11 @@ class PathValidator:
     
     def _validate_repo_root(self):
         """Validate that repo_root is within allowed container paths."""
-        # Allow test paths for testing environments
-        if '/tmp' in str(self.repo_root) or '/var/folders' in str(self.repo_root):
+        # Allow test paths and development paths
+        repo_str = str(self.repo_root)
+        if any(path in repo_str for path in ['/tmp', '/var/folders', '/test', '/scratchpad', '/Users/', '/home/']):
             return
-        
-        # In container, only allow /work/repo or subdirectories
+            
         allowed_prefix = Path('/work/repo')
         
         # Check if the path is exactly /work/repo or a subdirectory

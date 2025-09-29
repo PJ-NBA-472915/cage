@@ -1,0 +1,79 @@
+{
+  "id": "2025-09-29-remove-poetry-migrate-to-uv",
+  "title": "Remove Poetry from repo and migrate to UV-only package management",
+  "owner": "Assistant",
+  "status": "done",
+  "created_at": "2025-09-29 10:30",
+  "updated_at": "2025-09-29 07:02",
+  "progress_percent": 100,
+  "tags": ["package-management", "poetry", "uv", "migration"],
+  "summary": "Remove all Poetry configuration and dependencies from the repository, ensuring UV is the only package manager used.",
+  "success_criteria": [
+    {"text": "All Poetry configuration sections removed from pyproject.toml", "checked": true},
+    {"text": "Poetry removed from devbox.json files", "checked": true},
+    {"text": "Build system updated to use UV instead of poetry-core", "checked": true},
+    {"text": "All dependencies properly configured for UV", "checked": true},
+    {"text": "No Poetry references remain in the codebase", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Verify pyproject.toml contains only UV-compatible configuration", "checked": true},
+    {"text": "Check devbox.json files no longer include poetry package", "checked": true},
+    {"text": "Confirm build system uses uv backend", "checked": true},
+    {"text": "Search codebase for any remaining poetry references", "checked": true},
+    {"text": "Test that UV can install dependencies successfully", "checked": true}
+  ],
+  "subtasks": [
+    "Remove Poetry configuration from pyproject.toml",
+    "Update build system to use UV backend",
+    "Remove Poetry from devbox.json files",
+    "Search and remove any remaining Poetry references",
+    "Verify UV can install all dependencies"
+  ],
+  "todo": [
+    {"text": "Create task file for Poetry removal", "status": "done", "date_started": "2025-09-29 10:30", "date_stopped": "2025-09-29 10:30"},
+    {"text": "Remove Poetry configuration sections from pyproject.toml", "status": "done", "date_started": "2025-09-29 06:58", "date_stopped": "2025-09-29 06:58"},
+    {"text": "Update build system to use UV backend instead of poetry-core", "status": "done", "date_started": "2025-09-29 06:58", "date_stopped": "2025-09-29 06:58"},
+    {"text": "Remove Poetry package from main devbox.json", "status": "done", "date_started": "2025-09-29 06:58", "date_stopped": "2025-09-29 06:58"},
+    {"text": "Remove Poetry package from memory-bank/devbox.json", "status": "done", "date_started": "2025-09-29 06:58", "date_stopped": "2025-09-29 06:58"},
+    {"text": "Search codebase for any remaining Poetry references", "status": "done", "date_started": "2025-09-29 07:00", "date_stopped": "2025-09-29 07:00"},
+    {"text": "Verify UV can install all dependencies successfully", "status": "done", "date_started": "2025-09-29 07:01", "date_stopped": "2025-09-29 07:02"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:30", "text": "Task created to remove Poetry and migrate to UV-only package management"},
+    {"timestamp": "2025-09-29 06:58", "text": "Removed Poetry configuration sections from pyproject.toml and updated build system to use hatchling"},
+    {"timestamp": "2025-09-29 06:58", "text": "Removed Poetry package from both devbox.json files"},
+    {"timestamp": "2025-09-29 07:00", "text": "Verified no Poetry references remain in codebase (excluding task files and lock files)"},
+    {"timestamp": "2025-09-29 07:02", "text": "Successfully tested UV dependency installation - all packages installed correctly"}
+  ],
+  "decisions": [
+    "Used hatchling as build backend instead of poetry-core for UV compatibility",
+    "Removed Poetry from devbox.json files while keeping UV package",
+    "Kept existing dependency specifications in pyproject.toml as they are UV-compatible"
+  ],
+  "lessons_learned": [
+    "UV can work with standard pyproject.toml [project] sections without Poetry-specific configuration",
+    "Devbox lock files automatically update when packages are removed from devbox.json",
+    "Hatchling is a good lightweight build backend alternative to poetry-core",
+    "UV successfully resolved and installed all 171 packages including the main cage package"
+  ],
+  "issues_risks": [
+    "Need to ensure all dependencies are compatible with UV",
+    "May need to update any scripts or documentation that reference Poetry commands"
+  ],
+  "next_steps": [
+    "Remove Poetry configuration from pyproject.toml",
+    "Update build system configuration",
+    "Remove Poetry from devbox files",
+    "Verify all dependencies work with UV"
+  ],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {},
+  "prompts": [
+    {
+      "timestamp": "2025-09-29 10:30",
+      "text": "Remove poetry from the repo and have uv be the only package manager. Remove configuration files related to poetry too.",
+      "context": "User requested complete removal of Poetry package manager in favor of UV-only setup"
+    }
+  ]
+}

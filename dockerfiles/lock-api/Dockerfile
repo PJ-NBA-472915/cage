@@ -25,8 +25,11 @@ RUN wget -O go.tar.gz "https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz"
     tar -C /usr/local -xzf go.tar.gz && \
     rm go.tar.gz
 
-# Verify Go installation
-RUN go version
+# Verify Go installation and set up Go modules
+RUN go version && \
+    go env -w GO111MODULE=on && \
+    go env -w GOPROXY=https://proxy.golang.org,direct && \
+    go env -w GOSUMDB=sum.golang.org
 
 # Set working directory
 WORKDIR /app

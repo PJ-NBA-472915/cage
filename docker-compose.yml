@@ -35,7 +35,16 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/files-api/Dockerfile
-    command: ["python", "-m", "src.services.files_api.main"]
+    command: 
+      - python
+      - -m
+      - uvicorn
+      - src.services.files_api.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - 8001
+      - ${RELOAD:+--reload}
     ports:
       - "8001:8001"
     environment:
@@ -44,7 +53,7 @@ services:
       - RELOAD=${RELOAD:-false}
     volumes:
       # Mount only the source code, not the entire project directory
-      - ./src:/app/src:ro
+      - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml:ro
       # Mount the repository with restricted access
       - ${REPO_PATH}:/work/repo
@@ -69,7 +78,16 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/git-api/Dockerfile
-    command: ["python", "-m", "src.services.git_api.main"]
+    command: 
+      - python
+      - -m
+      - uvicorn
+      - src.services.git_api.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - 8002
+      - ${RELOAD:+--reload}
     ports:
       - "8002:8002"
     environment:
@@ -77,7 +95,8 @@ services:
       - REPO_PATH=/work/repo
       - RELOAD=${RELOAD:-false}
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml:ro
       - ${REPO_PATH}:/work/repo
     depends_on:
       postgres: 
@@ -97,7 +116,16 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/rag-api/Dockerfile
-    command: ["python", "-m", "src.services.rag_api.main"]
+    command: 
+      - python
+      - -m
+      - uvicorn
+      - src.services.rag_api.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - 8003
+      - ${RELOAD:+--reload}
     ports:
       - "8003:8003"
     environment:
@@ -107,7 +135,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - RELOAD=${RELOAD:-false}
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml:ro
       - ${REPO_PATH}:/work/repo
     depends_on:
       postgres: 
@@ -129,7 +158,16 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/lock-api/Dockerfile
-    command: ["python", "-m", "src.services.lock_api.main"]
+    command: 
+      - python
+      - -m
+      - uvicorn
+      - src.services.lock_api.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - 8004
+      - ${RELOAD:+--reload}
     ports:
       - "8004:8004"
     environment:
@@ -139,7 +177,8 @@ services:
       - GOPATH=/go
       - GOROOT=/usr/local/go
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml:ro
       - ${REPO_PATH}:/work/repo
       - go_cache:/go
     depends_on:

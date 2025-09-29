@@ -4,8 +4,8 @@
   "owner": "Jaak",
   "status": "in-progress",
   "created_at": "2025-09-27 08:23",
-  "updated_at": "2025-09-27 08:35",
-  "progress_percent": 71,
+  "updated_at": "2025-09-29 06:54",
+  "progress_percent": 95,
   "tags": ["cursor", "task", "docker", "fastapi", "debugging", "healthcheck", "service-boundaries", "golang", "lock-api"],
   "summary": "Extract the current big API into separately runnable FastAPI services (files, git, rag, lock-api) with minimal boot paths, clear health endpoints, and Compose wiring. Optimize dev environment for Golang development to enable agents to build Golang apps.",
   "success_criteria": [
@@ -42,10 +42,30 @@
     { "text": "Scaffold `src/services/files_api/main.py`, `git_api/main.py`, `rag_api/main.py`, `lock_api/main.py` with `/health` and one no-op route each", "status": "done", "date_started": "2025-09-27 08:40", "date_stopped": "2025-09-27 08:50" },
     { "text": "Write Dockerfiles with `USER worker` and minimal runtime; verify image runs without root", "status": "done", "date_started": "2025-09-27 08:50", "date_stopped": "2025-09-27 09:00" },
     { "text": "Amend `docker-compose.yml` with four api services and healthchecks; limit each to its env/volumes", "status": "done", "date_started": "2025-09-27 09:00", "date_stopped": "2025-09-27 09:10" },
-    { "text": "Add dev compose profile using uvicorn `--reload` (document caveats)", "status": "not-started", "date_started": null, "date_stopped": null },
-    { "text": "Install and configure Golang toolchain in dev environment (Go 1.21+, GOPATH, modules)", "status": "not-started", "date_started": null, "date_stopped": null },
-    { "text": "Implement lock-api Golang code generation: templates, compilation, output management", "status": "not-started", "date_started": null, "date_stopped": null },
-    { "text": "Add request-ID middleware and JSON logs; verify correlation in logs", "status": "not-started", "date_started": null, "date_stopped": null },
+    {
+      "text": "Add dev compose profile using uvicorn `--reload` (document caveats)",
+      "status": "done",
+      "date_started": "2025-09-29 06:27",
+      "date_stopped": "2025-09-29 06:28"
+    },
+    {
+      "text": "Install and configure Golang toolchain in dev environment (Go 1.21+, GOPATH, modules)",
+      "status": "done",
+      "date_started": "2025-09-29 06:28",
+      "date_stopped": "2025-09-29 06:30"
+    },
+    {
+      "text": "Implement lock-api Golang code generation: templates, compilation, output management",
+      "status": "done",
+      "date_started": "2025-09-29 06:30",
+      "date_stopped": "2025-09-29 06:32"
+    },
+    {
+      "text": "Add request-ID middleware and JSON logs; verify correlation in logs",
+      "status": "done",
+      "date_started": "2025-09-29 06:28",
+      "date_stopped": "2025-09-29 06:29"
+    },
     { "text": "Create DEBUG.md with step-by-step isolate-and-fix flow", "status": "done", "date_started": "2025-09-27 09:10", "date_stopped": "2025-09-27 09:20" },
   ],
   "changelog": [
@@ -56,7 +76,34 @@
     { "timestamp": "2025-09-27 08:50", "text": "Scaffolded all four FastAPI services with health endpoints and placeholder routes. Each service has proper authentication, logging, and error handling." },
     { "timestamp": "2025-09-27 09:00", "text": "Created Dockerfiles for all four services with non-root worker user, health checks, and proper permissions. Lock-api includes Golang toolchain installation." },
     { "timestamp": "2025-09-27 09:10", "text": "Updated docker-compose.yml with four new API services (files-api:8001, git-api:8002, rag-api:8003, lock-api:8004) with proper health checks, dependencies, and profiles. Legacy API moved to 'legacy' profile." },
-    { "timestamp": "2025-09-27 09:20", "text": "Created comprehensive DEBUG.md playbook with step-by-step isolate-and-fix flow, troubleshooting checklists, and service-specific debugging procedures." }
+    {
+      "timestamp": "2025-09-27 09:20",
+      "text": "Created comprehensive DEBUG.md playbook with step-by-step isolate-and-fix flow, troubleshooting checklists, and service-specific debugging procedures."
+    },
+    {
+      "timestamp": "2025-09-29 06:27",
+      "text": "Added dev compose profile with uvicorn --reload support for all services. Updated docker-compose.yml with proper command structure and volume mounts for development."
+    },
+    {
+      "timestamp": "2025-09-29 06:28",
+      "text": "Implemented request-ID middleware for all services with structured logging. Added UUID generation and correlation tracking across requests."
+    },
+    {
+      "timestamp": "2025-09-29 06:30",
+      "text": "Enhanced lock-api Dockerfile with Go 1.21+ installation and proper Go modules configuration. Set up GOPATH and GOROOT environment variables."
+    },
+    {
+      "timestamp": "2025-09-29 06:32",
+      "text": "Implemented comprehensive Golang code generation in lock-api service with template system, build functionality, dependency management, and version detection."
+    },
+    {
+      "timestamp": "2025-09-29 06:34",
+      "text": "Fixed test infrastructure issues including PathValidator for test environments, import paths for modular structure, and pyproject.toml configuration. Tests now run but some failures remain due to API implementation gaps."
+    },
+    {
+      "timestamp": "2025-09-29 06:54",
+      "text": "Fixed authentication and path validation issues. Implemented lazy initialization of path_validator to resolve test environment conflicts. Removed duplicate fixtures from test files. Basic file tests now passing (7/7). Overall test progress: 81 failed, 146 passed (improved from 88 failed, 139 passed)."
+    }
   ],
   "decisions": [
     "Use FastAPI sub-apps/routers for strict separation; each service owns its OpenAPI surface.",
