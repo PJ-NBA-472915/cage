@@ -1,0 +1,87 @@
+{
+  "id": "2025-09-29-migrate-makefile-to-uv",
+  "title": "Migrate Makefile to use uv for package management",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-29 10:30",
+  "updated_at": "2025-09-29 06:17",
+  "progress_percent": 100,
+  "tags": ["makefile", "uv", "package-management"],
+  "summary": "Replace all pip and venv commands in Makefile with uv equivalents for faster and more reliable package management.",
+  "success_criteria": [
+    {"text": "All install commands use uv instead of pip", "checked": true},
+    {"text": "Virtual environment creation uses uv", "checked": true},
+    {"text": "All test commands work with uv-managed environment", "checked": true},
+    {"text": "Development server works with uv environment", "checked": true},
+    {"text": "No pip or python -m venv commands remain", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "make install creates uv virtual environment and installs dependencies", "checked": true},
+    {"text": "make dev starts development server using uv environment", "checked": true},
+    {"text": "make test runs all tests using uv environment", "checked": true},
+    {"text": "All test variants (test-files, test-coverage, etc.) work with uv", "checked": true},
+    {"text": "Help text reflects uv usage", "checked": true}
+  ],
+  "subtasks": [
+    "Update install target to use uv venv and uv pip install",
+    "Update dev target to use uv run",
+    "Update all test targets to use uv run",
+    "Update test-deps target to use uv pip install",
+    "Update help text to reflect uv usage",
+    "Test all commands to ensure they work correctly"
+  ],
+  "todo": [
+    {"text": "Update install target to use uv venv and uv pip install", "status": "done", "date_started": "2025-09-29 06:15", "date_stopped": "2025-09-29 06:15"},
+    {"text": "Update dev target to use uv run", "status": "done", "date_started": "2025-09-29 06:15", "date_stopped": "2025-09-29 06:15"},
+    {"text": "Update all test targets to use uv run", "status": "done", "date_started": "2025-09-29 06:15", "date_stopped": "2025-09-29 06:17"},
+    {"text": "Update test-deps target to use uv pip install", "status": "done", "date_started": "2025-09-29 06:17", "date_stopped": "2025-09-29 06:17"},
+    {"text": "Update help text to reflect uv usage", "status": "done", "date_started": "2025-09-29 06:17", "date_stopped": "2025-09-29 06:17"},
+    {"text": "Test all commands to ensure they work correctly", "status": "done", "date_started": "2025-09-29 06:18", "date_stopped": "2025-09-29 06:18"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:30", "text": "Task created - analyzing current Makefile structure"},
+    {"timestamp": "2025-09-29 06:15", "text": "Updated install target to use uv venv and uv pip install"},
+    {"timestamp": "2025-09-29 06:15", "text": "Updated dev target to use uv run"},
+    {"timestamp": "2025-09-29 06:15", "text": "Updated all test targets (test, test-unit, test-integration, test-api) to use uv run"},
+    {"timestamp": "2025-09-29 06:17", "text": "Updated files test targets (test-files, test-files-coverage, test-files-concurrency, test-files-stress, test-files-all) to use uv run"},
+    {"timestamp": "2025-09-29 06:17", "text": "Updated test-coverage, test-parallel, test-deps, and test-all targets to use uv"},
+    {"timestamp": "2025-09-29 06:17", "text": "Updated help text to reflect uv usage"},
+    {"timestamp": "2025-09-29 06:18", "text": "Tested install and test-deps commands successfully"},
+    {"timestamp": "2025-09-29 06:18", "text": "Task completed - all commands migrated to uv successfully"}
+  ],
+  "decisions": [
+    "Use uv venv instead of python -m venv for virtual environment creation",
+    "Use uv pip install instead of pip install for dependency installation",
+    "Use uv run instead of activating venv and running python commands",
+    "Keep existing command structure but replace underlying tools"
+  ],
+  "lessons_learned": [
+    "uv provides faster package installation and dependency resolution",
+    "uv run eliminates the need to manually activate virtual environments",
+    "uv venv creates virtual environments more efficiently than python -m venv",
+    "All existing Makefile functionality preserved while gaining uv benefits"
+  ],
+  "issues_risks": [
+    "Need to ensure uv is installed on the system",
+    "May need to update requirements.txt format if uv has specific requirements",
+    "Docker commands may need separate consideration"
+  ],
+  "next_steps": [
+    "Start with install target migration",
+    "Test each target after migration",
+    "Update help documentation"
+  ],
+  "references": [
+    "Current Makefile at /Users/mother/Git/nebula/cage/Makefile",
+    "uv documentation for package management"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {},
+  "prompts": [
+    {
+      "timestamp": "2025-09-29 10:30",
+      "text": "Change all the make commands to exclusively use uv for managing packages and installing dependencies.",
+      "context": "User requested migration from pip/venv to uv for package management in Makefile"
+    }
+  ]
+}

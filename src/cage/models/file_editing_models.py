@@ -105,5 +105,42 @@ class FileOperationError(BaseModel):
     details: Optional[Dict[str, Any]] = None
 
 
+class FileSearchRequest(BaseModel):
+    """Request model for file search using RAG."""
+    query: str = Field(..., description="Search query text")
+    filters: Optional[Dict[str, Any]] = Field(None, description="Search filters (path, language, etc.)")
+    top_k: int = Field(8, description="Maximum number of results to return")
+
+
+class FileSearchHit(BaseModel):
+    """Individual search hit from file search."""
+    content: str = Field(..., description="Content snippet")
+    metadata: Dict[str, Any] = Field(..., description="File metadata (path, language, etc.)")
+    score: float = Field(..., description="Relevance score")
+    blob_sha: str = Field(..., description="Git blob SHA")
+
+
+class FileSearchResponse(BaseModel):
+    """Response model for file search."""
+    status: str = Field(..., description="Search status")
+    hits: List[FileSearchHit] = Field(..., description="Search results")
+    total: int = Field(..., description="Total number of results")
+    query: str = Field(..., description="Original query")
+
+
+class FileReindexRequest(BaseModel):
+    """Request model for reindexing files in RAG system."""
+    scope: str = Field(..., description="Reindex scope: 'repo', 'tasks', 'chat', or 'all'")
+
+
+class FileReindexResponse(BaseModel):
+    """Response model for file reindexing."""
+    status: str = Field(..., description="Reindex status")
+    scope: str = Field(..., description="Reindex scope")
+    indexed_files: int = Field(..., description="Number of files indexed")
+    total_chunks: int = Field(..., description="Total number of chunks created")
+    blob_shas: List[str] = Field(..., description="List of blob SHAs processed")
+
+
 # Update forward references
 FileCreateUpdateResponse.model_rebuild()

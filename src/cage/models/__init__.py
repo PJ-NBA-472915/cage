@@ -28,7 +28,12 @@ from .file_editing_models import (
     AuditEntry,
     AuditQueryParams,
     AuditResponse,
-    FileOperationError
+    FileOperationError,
+    FileSearchRequest,
+    FileSearchHit,
+    FileSearchResponse,
+    FileReindexRequest,
+    FileReindexResponse
 )
 
 __all__ = [
@@ -56,4 +61,9 @@ __all__ = [
     "AuditQueryParams",
     "AuditResponse",
     "FileOperationError",
+    "FileSearchRequest",
+    "FileSearchHit",
+    "FileSearchResponse",
+    "FileReindexRequest",
+    "FileReindexResponse",
 ]

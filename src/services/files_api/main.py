@@ -16,6 +16,10 @@ import uvicorn
 # Add src to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
+# Import file editing utilities
+from src.cage.utils.file_editing_utils import PathValidator
+from src.cage.utils.file_logging import file_logger
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,6 +42,11 @@ app = FastAPI(
     description="File operations, content management, and file locking",
     version="1.0.0"
 )
+
+# Initialize path validator with restricted container access
+repo_path = os.environ.get("REPO_PATH", "/work/repo")
+path_validator = PathValidator(repo_path)
+logger.info(f"Files API initialized with repo path: {repo_path}")
 
 # Request/Response models
 class FileEditRequest(BaseModel):

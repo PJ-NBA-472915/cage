@@ -8,9 +8,14 @@ help:
 	@echo "Cage Pod - Available commands:"
 	@echo ""
 	@echo "Development:"
-	@echo "  install    - Install dependencies"
+	@echo "  install    - Install dependencies with uv"
 	@echo "  dev        - Start development server"
-	@echo "  test       - Run tests"
+	@echo "  test       - Run all tests"
+	@echo "  test-files - Run files API basic tests"
+	@echo "  test-files-concurrency - Run files API concurrency tests"
+	@echo "  test-files-stress - Run files API stress tests"
+	@echo "  test-files-all - Run all files API tests"
+	@echo "  test-files-coverage - Run files tests with coverage"
 	@echo "  clean      - Clean up build artifacts"
 	@echo ""
 	@echo "Docker Commands:"
@@ -53,23 +58,23 @@ help:
 
 # Install dependencies
 install:
-	@echo "Setting up virtual environment and installing dependencies..."
+	@echo "Setting up virtual environment and installing dependencies with uv..."
 	@if [ ! -d .venv ]; then \
-		echo "Creating virtual environment..."; \
-		python3 -m venv .venv; \
+		echo "Creating virtual environment with uv..."; \
+		uv venv .venv; \
 	fi
-	@echo "Activating virtual environment and installing dependencies..."
-	@. .venv/bin/activate && pip install --upgrade pip
-	@. .venv/bin/activate && pip install -r requirements.txt
-	@. .venv/bin/activate && pip install -r requirements-test.txt
+	@echo "Installing dependencies with uv..."
+	@uv pip install --upgrade pip
+	@uv pip install -r requirements.txt
+	@uv pip install -r requirements-test.txt
 	@echo "✅ Installation complete! Virtual environment ready."
 
 # Development server
 dev:
 	@echo "Starting Cage development server..."
 	@echo "Make sure to set REPO_PATH environment variable"
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python -m uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000; \
+	@if [ -d .venv ]; then \
+		uv run python -m uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -78,9 +83,9 @@ dev:
 # Run tests
 test:
 	@echo "Running complete test suite in virtual environment..."
-	@if [ -f .venv/bin/activate ]; then \
-		echo "Activating virtual environment..."; \
-		. .venv/bin/activate && python tests/run_tests.py; \
+	@if [ -d .venv ]; then \
+		echo "Using uv to run tests..."; \
+		uv run python tests/run_tests.py; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -89,8 +94,8 @@ test:
 # Run specific test types
 test-unit:
 	@echo "Running unit tests..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python tests/run_tests.py unit -v; \
+	@if [ -d .venv ]; then \
+		uv run python tests/run_tests.py unit -v; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -98,8 +103,8 @@ test-unit:
 
 test-integration:
 	@echo "Running integration tests..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python tests/run_tests.py integration -v; \
+	@if [ -d .venv ]; then \
+		uv run python tests/run_tests.py integration -v; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -107,8 +112,58 @@ test-integration:
 
 test-api:
 	@echo "Running API tests..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python tests/run_tests.py api -v; \
+	@if [ -d .venv ]; then \
+		uv run python tests/run_tests.py api -v; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
+
+# Run files routes tests specifically
+test-files:
+	@echo "Running Files API routes tests..."
+	@if [ -d .venv ]; then \
+		uv run python -m pytest tests/api/test_files_basic.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
+
+# Run files routes tests with coverage
+test-files-coverage:
+	@echo "Running Files API routes tests with coverage..."
+	@if [ -d .venv ]; then \
+		uv run python -m pytest tests/api/test_files_basic.py -v --cov=src --cov-report=html --cov-report=term --tb=short -p no:cacheprovider --confcutdir=tests/api; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
+
+# Run files concurrency tests
+test-files-concurrency:
+	@echo "Running Files API concurrency and locking tests..."
+	@if [ -d .venv ]; then \
+		uv run python -m pytest tests/api/test_files_concurrency_simple.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
+
+# Run files stress tests
+test-files-stress:
+	@echo "Running Files API stress tests..."
+	@if [ -d .venv ]; then \
+		uv run python -m pytest tests/api/test_files_stress.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
+	else \
+		echo "Virtual environment not found. Please run 'make install' first."; \
+		exit 1; \
+	fi
+
+# Run all files tests (basic + concurrency + stress)
+test-files-all:
+	@echo "Running all Files API tests..."
+	@if [ -d .venv ]; then \
+		uv run python -m pytest tests/api/test_files_*.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -118,8 +173,8 @@ test-api:
 # Run tests with coverage
 test-coverage:
 	@echo "Running tests with coverage..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python tests/run_tests.py all -v --coverage; \
+	@if [ -d .venv ]; then \
+		uv run python tests/run_tests.py all -v --coverage; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -128,8 +183,8 @@ test-coverage:
 # Run tests in parallel
 test-parallel:
 	@echo "Running tests in parallel..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python tests/run_tests.py all -v --parallel; \
+	@if [ -d .venv ]; then \
+		uv run python tests/run_tests.py all -v --parallel; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -138,8 +193,8 @@ test-parallel:
 # Install test dependencies
 test-deps:
 	@echo "Installing test dependencies..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && pip install -r requirements-test.txt; \
+	@if [ -d .venv ]; then \
+		uv pip install -r requirements-test.txt; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \
@@ -148,8 +203,8 @@ test-deps:
 # Run all tests with full reporting
 test-all:
 	@echo "Running all tests with full reporting..."
-	@if [ -f .venv/bin/activate ]; then \
-		. .venv/bin/activate && python tests/run_tests.py all -v --coverage --parallel; \
+	@if [ -d .venv ]; then \
+		uv run python tests/run_tests.py all -v --coverage --parallel; \
 	else \
 		echo "Virtual environment not found. Please run 'make install' first."; \
 		exit 1; \

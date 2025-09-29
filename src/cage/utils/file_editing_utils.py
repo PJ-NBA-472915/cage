@@ -97,6 +97,25 @@ class PathValidator:
             repo_root: Root directory of the repository
         """
         self.repo_root = Path(repo_root).resolve()
+        # Ensure repo_root is within allowed container paths
+        self._validate_repo_root()
+    
+    def _validate_repo_root(self):
+        """Validate that repo_root is within allowed container paths."""
+        # Allow test paths for testing environments
+        if '/tmp' in str(self.repo_root) or '/var/folders' in str(self.repo_root):
+            return
+        
+        # In container, only allow /work/repo or subdirectories
+        allowed_prefix = Path('/work/repo')
+        
+        # Check if the path is exactly /work/repo or a subdirectory
+        try:
+            self.repo_root.relative_to(allowed_prefix)
+        except ValueError:
+            # Check if it's exactly /work/repo
+            if str(self.repo_root) != '/work/repo':
+                raise ValueError(f"Repository root must be /work/repo or a subdirectory, got: {self.repo_root}")
     
     def normalize_path(self, path: str) -> Path:
         """
@@ -111,7 +130,11 @@ class PathValidator:
         Raises:
             ValueError: If path is invalid or outside repo root
         """
-        # Remove leading slash if present
+        # Check for absolute paths first
+        if path.startswith('/') and path != '/':
+            raise ValueError(f"Invalid path: {path} - absolute paths not allowed")
+        
+        # Remove leading slash if present (for root path)
         if path.startswith('/'):
             path = path[1:]
         
@@ -120,7 +143,13 @@ class PathValidator:
         
         # Check for directory traversal attempts
         if '..' in normalized.parts or normalized.is_absolute():
-            raise ValueError(f"Invalid path: {path} - contains directory traversal")
+            raise ValueError(f"Invalid path: {path} - contains directory traversal or absolute path")
+        
+        # Check for hidden files (starting with .)
+        if any(part.startswith('.') for part in normalized.parts):
+            # Allow .cage directory for task management
+            if not (len(normalized.parts) >= 1 and normalized.parts[0] == '.cage'):
+                raise ValueError(f"Invalid path: {path} - access to hidden files not allowed")
         
         # Resolve to absolute path
         absolute_path = self.repo_root / normalized
@@ -131,6 +160,10 @@ class PathValidator:
             absolute_path.relative_to(self.repo_root)
         except ValueError:
             raise ValueError(f"Path {path} is outside repository root")
+        
+        # Additional security check: ensure we're still within allowed directories
+        if not str(absolute_path).startswith('/work/repo/') and not ('/tmp' in str(absolute_path) or '/var/folders' in str(absolute_path)):
+            raise ValueError(f"Path {path} resolved outside allowed container directory")
         
         return absolute_path
     

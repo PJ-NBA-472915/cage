@@ -43,8 +43,14 @@ services:
       - REPO_PATH=/work/repo
       - RELOAD=${RELOAD:-false}
     volumes:
-      - .:/app
+      # Mount only the source code, not the entire project directory
+      - ./src:/app/src:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      # Mount the repository with restricted access
       - ${REPO_PATH}:/work/repo
+      # Mount logs directory for the service to write logs
+      - ./logs/api/files:/app/logs
+    user: filesapi:filesapi
     depends_on:
       postgres: 
         condition: service_healthy

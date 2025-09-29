@@ -35,7 +35,8 @@ from src.cage.models import (
     TaskManager, TaskFile,
     FileContentResponse, FileCreateUpdateRequest, FileCreateUpdateResponse,
     CommitInfo, JsonPatchRequest, TextPatchRequest, LinePatchRequest, FileDeleteRequest, AuditEntry,
-    AuditQueryParams, AuditResponse, FileOperationError
+    AuditQueryParams, AuditResponse, FileOperationError,
+    FileSearchRequest, FileSearchHit, FileSearchResponse, FileReindexRequest, FileReindexResponse
 )
 from src.cage.tools.editor_tool import EditorTool, FileOperation, OperationType
 from src.cage.tools.git_tool import GitTool
@@ -266,13 +267,6 @@ class GitMergeRequest(BaseModel):
     source: str
     target: str | None = None
 
-class RAGQueryRequest(BaseModel):
-    query: str
-    filters: dict | None = None
-    top_k: int = 8
-
-class RAGReindexRequest(BaseModel):
-    scope: str  # repo, tasks, chat, all
 
 class AgentRequest(BaseModel):
     agent: str
@@ -1161,6 +1155,139 @@ def get_audit_trail(
         logger.error(f"Error querying audit trail: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# File Search endpoints (RAG functionality)
+@app.post("/files/search", response_model=FileSearchResponse)
+async def search_files(request: FileSearchRequest, token: str = Depends(get_pod_token)):
+    """
+    Search files using RAG (Retrieval-Augmented Generation) system.
+    
+    This endpoint provides semantic search across all indexed files in the repository.
+    It can find relevant code snippets, documentation, and other content based on
+    natural language queries.
+    
+    Args:
+        request: Search request with query, filters, and result limit
+        token: Authentication token
+        
+    Returns:
+        Search results with relevant file content snippets
+    """
+    if not rag_service:
+        raise HTTPException(status_code=503, detail="File search service not available")
+    
+    try:
+        results = await rag_service.query(
+            query_text=request.query,
+            top_k=request.top_k,
+            filters=request.filters
+        )
+        
+        # Convert results to response format
+        hits = []
+        for result in results:
+            hit = FileSearchHit(
+                content=result.content,
+                metadata={
+                    "path": result.metadata.path,
+                    "language": result.metadata.language,
+                    "commit_sha": result.metadata.commit_sha,
+                    "branch": result.metadata.branch,
+                    "chunk_id": result.metadata.chunk_id
+                },
+                score=result.score,
+                blob_sha=result.blob_sha
+            )
+            hits.append(hit)
+        
+        return FileSearchResponse(
+            status="success",
+            hits=hits,
+            total=len(hits),
+            query=request.query
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in file search: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/files/reindex", response_model=FileReindexResponse)
+async def reindex_files(request: FileReindexRequest, token: str = Depends(get_pod_token)):
+    """
+    Reindex files for search functionality.
+    
+    This endpoint rebuilds the search index for files in the repository.
+    Use this when you want to update the search index after significant
+    changes to the codebase.
+    
+    Args:
+        request: Reindex request with scope specification
+        token: Authentication token
+        
+    Returns:
+        Reindex results with statistics
+    """
+    logger.info(f"File reindex request received: scope={request.scope}")
+    
+    if not rag_service:
+        logger.error("File search service not available")
+        raise HTTPException(status_code=503, detail="File search service not available")
+    
+    try:
+        repo_path = get_repository_path()
+        logger.info(f"Repository path: {repo_path}")
+        logger.info(f"Repository path exists: {repo_path.exists()}")
+        
+        logger.info(f"Calling rag_service.reindex_repository with path={repo_path}, scope={request.scope}")
+        
+        try:
+            result = await rag_service.reindex_repository(repo_path, request.scope)
+            logger.info(f"Reindex result: {result}")
+        except Exception as e:
+            logger.error(f"Exception in rag_service.reindex_repository: {e}")
+            raise
+        
+        return FileReindexResponse(
+            status="success",
+            scope=request.scope,
+            indexed_files=result["indexed_files"],
+            total_chunks=result["total_chunks"],
+            blob_shas=result["blob_shas"]
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in file reindex: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/files/blobs/{sha}")
+async def get_file_blob_metadata(sha: str, token: str = Depends(get_pod_token)):
+    """
+    Check if file blob metadata is present in search index.
+    
+    This endpoint allows you to check whether a specific file blob
+    has been indexed for search functionality.
+    
+    Args:
+        sha: Git blob SHA to check
+        token: Authentication token
+        
+    Returns:
+        Blob metadata information
+    """
+    if not rag_service:
+        raise HTTPException(status_code=503, detail="File search service not available")
+    
+    try:
+        result = await rag_service.check_blob_metadata(sha)
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error checking blob metadata: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Git endpoints
 @app.get("/git/status")
 def git_status(token: str = Depends(get_pod_token)):
@@ -1317,99 +1444,6 @@ def git_history(limit: int = 10, token: str = Depends(get_pod_token)):
         logger.error(f"Error getting commit history: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# RAG endpoints
-@app.post("/rag/query")
-async def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token)):
-    """Query RAG system."""
-    if not rag_service:
-        raise HTTPException(status_code=503, detail="RAG service not available")
-    
-    try:
-        results = await rag_service.query(
-            query_text=request.query,
-            top_k=request.top_k,
-            filters=request.filters
-        )
-        
-        # Convert results to response format
-        hits = []
-        for result in results:
-            hit = {
-                "content": result.content,
-                "metadata": {
-                    "path": result.metadata.path,
-                    "language": result.metadata.language,
-                    "commit_sha": result.metadata.commit_sha,
-                    "branch": result.metadata.branch,
-                    "chunk_id": result.metadata.chunk_id
-                },
-                "score": result.score,
-                "blob_sha": result.blob_sha
-            }
-            hits.append(hit)
-        
-        return {
-            "status": "success",
-            "hits": hits,
-            "total": len(hits),
-            "query": request.query
-        }
-        
-    except Exception as e:
-        logger.error(f"Error in RAG query: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/rag/reindex")
-async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_token)):
-    """Reindex RAG system."""
-    logger.info(f"RAG reindex request received: scope={request.scope}")
-    
-    if not rag_service:
-        logger.error("RAG service not available")
-        raise HTTPException(status_code=503, detail="RAG service not available")
-    
-    try:
-        repo_path = get_repository_path()
-        logger.info(f"Repository path: {repo_path}")
-        logger.info(f"Repository path exists: {repo_path.exists()}")
-        
-        logger.info(f"Calling rag_service.reindex_repository with path={repo_path}, scope={request.scope}")
-        logger.info(f"RAG service object: {rag_service}")
-        logger.info(f"RAG service type: {type(rag_service)}")
-        logger.info(f"RAG service has reindex_repository method: {hasattr(rag_service, 'reindex_repository')}")
-        
-        try:
-            result = await rag_service.reindex_repository(repo_path, request.scope)
-            logger.info(f"Reindex result: {result}")
-        except Exception as e:
-            logger.error(f"Exception in rag_service.reindex_repository: {e}")
-            raise
-        
-        return {
-            "status": "success",
-            "scope": request.scope,
-            "indexed_files": result["indexed_files"],
-            "total_chunks": result["total_chunks"],
-            "blob_shas": result["blob_shas"]
-        }
-        
-    except Exception as e:
-        logger.error(f"Error in RAG reindex: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/rag/blobs/{sha}")
-async def get_rag_blob(sha: str, token: str = Depends(get_pod_token)):
-    """Check if blob metadata is present."""
-    if not rag_service:
-        raise HTTPException(status_code=503, detail="RAG service not available")
-    
-    try:
-        result = await rag_service.check_blob_metadata(sha)
-        return result
-        
-    except Exception as e:
-        logger.error(f"Error checking blob metadata: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 # Additional endpoints for Cage-native planner
 
