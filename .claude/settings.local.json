@@ -12,7 +12,8 @@
       "Bash(pushd:*)",
       "Bash(popd:*)",
       "Bash(git log:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
