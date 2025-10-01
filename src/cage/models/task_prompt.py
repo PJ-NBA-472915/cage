@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 class TaskPrompt(BaseModel):
     """User prompt entry for audit trail."""
+
     timestamp: str
     text: str
     context: str

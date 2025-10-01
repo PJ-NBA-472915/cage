@@ -5,13 +5,15 @@ This module provides Pydantic models for the new file editing API endpoints
 that implement optimistic concurrency with ETag support.
 """
 
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Any, Optional
+
+from pydantic import BaseModel, Field
 
 
 class FileContentResponse(BaseModel):
     """Response model for GET /files/{path} endpoint."""
+
     path: str
     sha: str
     size: int
@@ -22,54 +24,66 @@ class FileContentResponse(BaseModel):
 
 class FileCreateUpdateRequest(BaseModel):
     """Request model for PUT /files/{path} endpoint."""
+
     message: str
     content_base64: str
     base_sha: Optional[str] = None
-    author: Optional[Dict[str, str]] = None
-    committer: Optional[Dict[str, str]] = None
+    author: Optional[dict[str, str]] = None
+    committer: Optional[dict[str, str]] = None
 
 
 class FileCreateUpdateResponse(BaseModel):
     """Response model for PUT /files/{path} endpoint."""
+
     path: str
     sha_before: Optional[str] = None
     sha_after: str
-    commit: 'CommitInfo'
+    commit: "CommitInfo"
 
 
 class CommitInfo(BaseModel):
     """Commit information for file operations."""
+
     id: str
     message: str
     timestamp: datetime
-    author: Optional[Dict[str, str]] = None
-    committer: Optional[Dict[str, str]] = None
+    author: Optional[dict[str, str]] = None
+    committer: Optional[dict[str, str]] = None
 
 
 class JsonPatchRequest(BaseModel):
     """Request model for PATCH /files/{path} endpoint (JSON Patch)."""
-    operations: List[Dict[str, Any]] = Field(..., description="JSON Patch operations array")
+
+    operations: list[dict[str, Any]] = Field(
+        ..., description="JSON Patch operations array"
+    )
 
 
 class TextPatchRequest(BaseModel):
     """Request model for PATCH /files/{path} endpoint (Text Patch)."""
+
     content: str = Field(..., description="New file content")
     message: str = Field(..., description="Description of the change")
 
 
 class LinePatchRequest(BaseModel):
     """Request model for PATCH /files/{path} endpoint (Line-based Patch)."""
-    operations: List[Dict[str, Any]] = Field(..., description="Line-based operations (add, remove, replace)")
+
+    operations: list[dict[str, Any]] = Field(
+        ..., description="Line-based operations (add, remove, replace)"
+    )
     message: str = Field(..., description="Description of the change")
 
 
 class FileDeleteRequest(BaseModel):
     """Request model for DELETE /files/{path} endpoint."""
+
     message: str
 
 
 class AuditEntry(BaseModel):
     """Audit trail entry model."""
+
     id: str
     timestamp: datetime
     actor: str
@@ -84,6 +98,7 @@ class AuditEntry(BaseModel):
 
 class AuditQueryParams(BaseModel):
     """Query parameters for GET /audit endpoint."""
+
     path: Optional[str] = None
     actor: Optional[str] = None
     since: Optional[datetime] = None
@@ -94,52 +109,65 @@ class AuditQueryParams(BaseModel):
 
 class AuditResponse(BaseModel):
     """Response model for GET /audit endpoint."""
-    items: List[AuditEntry]
+
+    items: list[AuditEntry]
     next_cursor: Optional[str] = None
 
 
 class FileOperationError(BaseModel):
     """Error response model for file operations."""
+
     error: str
     code: str
-    details: Optional[Dict[str, Any]] = None
+    details: Optional[dict[str, Any]] = None
 
 
 class FileSearchRequest(BaseModel):
     """Request model for file search using RAG."""
+
     query: str = Field(..., description="Search query text")
-    filters: Optional[Dict[str, Any]] = Field(None, description="Search filters (path, language, etc.)")
+    filters: Optional[dict[str, Any]] = Field(
+        None, description="Search filters (path, language, etc.)"
+    )
     top_k: int = Field(8, description="Maximum number of results to return")
 
 
 class FileSearchHit(BaseModel):
     """Individual search hit from file search."""
+
     content: str = Field(..., description="Content snippet")
-    metadata: Dict[str, Any] = Field(..., description="File metadata (path, language, etc.)")
+    metadata: dict[str, Any] = Field(
+        ..., description="File metadata (path, language, etc.)"
+    )
     score: float = Field(..., description="Relevance score")
     blob_sha: str = Field(..., description="Git blob SHA")
 
 
 class FileSearchResponse(BaseModel):
     """Response model for file search."""
+
     status: str = Field(..., description="Search status")
-    hits: List[FileSearchHit] = Field(..., description="Search results")
+    hits: list[FileSearchHit] = Field(..., description="Search results")
     total: int = Field(..., description="Total number of results")
     query: str = Field(..., description="Original query")
 
 
 class FileReindexRequest(BaseModel):
     """Request model for reindexing files in RAG system."""
-    scope: str = Field(..., description="Reindex scope: 'repo', 'tasks', 'chat', or 'all'")
+
+    scope: str = Field(
+        ..., description="Reindex scope: 'repo', 'tasks', 'chat', or 'all'"
+    )
 
 
 class FileReindexResponse(BaseModel):
     """Response model for file reindexing."""
+
     status: str = Field(..., description="Reindex status")
     scope: str = Field(..., description="Reindex scope")
     indexed_files: int = Field(..., description="Number of files indexed")
     total_chunks: int = Field(..., description="Total number of chunks created")
-    blob_shas: List[str] = Field(..., description="List of blob SHAs processed")
+    blob_shas: list[str] = Field(..., description="List of blob SHAs processed")
 
 
 # Update forward references

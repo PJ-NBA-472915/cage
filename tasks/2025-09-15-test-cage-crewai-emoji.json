@@ -60,7 +60,7 @@
     "Start Cage platform service for CrewAI test",
     "Trigger CrewAI multi-agent workflow",
     "Monitor agent planning phase",
-    "Monitor agent implementation phase", 
+    "Monitor agent implementation phase",
     "Monitor agent review phase",
     "Monitor agent commit phase",
     "Verify enhanced app functionality",

@@ -29,7 +29,7 @@
     "Create comprehensive collection structure",
     "Document all health and status endpoints",
     "Document all task management endpoints",
-    "Document all crew operation endpoints", 
+    "Document all crew operation endpoints",
     "Document all file editor endpoints",
     "Document all git operation endpoints",
     "Document all RAG service endpoints",

@@ -56,7 +56,7 @@
     "Create task file schema (tasks/_schema.json)",
     "Implement task file validation",
     "Build POST /tasks/confirm endpoint",
-    "Build GET /tasks/{id} endpoint", 
+    "Build GET /tasks/{id} endpoint",
     "Build PATCH /tasks/{id} endpoint",
     "Build POST /tracker/rebuild endpoint",
     "Add basic CLI commands for task management",

@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 class TaskCommit(BaseModel):
     """Git commit information."""
+
     sha: str
     title: str
     files_changed: int = 0

@@ -10,13 +10,24 @@ help:
 	@echo "Development:"
 	@echo "  install    - Install dependencies with uv"
 	@echo "  dev        - Start development server"
-	@echo "  test       - Run all tests"
-	@echo "  test-files - Run files API basic tests"
-	@echo "  test-files-concurrency - Run files API concurrency tests"
-	@echo "  test-files-stress - Run files API stress tests"
-	@echo "  test-files-all - Run all files API tests"
-	@echo "  test-files-coverage - Run files tests with coverage"
+	@echo "  test       - Run all tests with coverage"
+	@echo "  test-unit  - Run unit tests only"
+	@echo "  test-integration - Run integration tests only"
+	@echo "  test-api   - Run API tests only"
+	@echo "  test-smoke - Run smoke tests only"
+	@echo "  test-parallel - Run tests in parallel"
+	@echo "  test-coverage - Run tests with HTML coverage report"
+	@echo "  test-files - Run files API basic tests (requires Docker)"
+	@echo "  test-files-concurrency - Run files API concurrency tests (requires Docker)"
+	@echo "  test-files-all - Run all files API tests (requires Docker)"
 	@echo "  clean      - Clean up build artifacts"
+	@echo ""
+	@echo "Configuration:"
+	@echo "  config-load-dev     - Load development configuration"
+	@echo "  config-load-test    - Load testing configuration"
+	@echo "  config-load-prod    - Load production configuration"
+	@echo "  config-validate     - Validate current configuration"
+	@echo "  config-example      - Create .env file from template"
 	@echo ""
 	@echo "Docker Commands:"
 	@echo "  docker-build     - Build all Docker images"
@@ -66,7 +77,6 @@ install:
 	@echo "Installing dependencies with uv..."
 	@uv pip install --upgrade pip
 	@uv pip install -r requirements.txt
-	@uv pip install -r requirements-test.txt
 	@echo "✅ Installation complete! Virtual environment ready."
 
 # Development server
@@ -80,54 +90,37 @@ dev:
 		exit 1; \
 	fi
 
-# Run tests
+# Run all tests with coverage
 test:
-	@echo "Running complete test suite in virtual environment..."
-	@if [ -d .venv ]; then \
-		echo "Using uv to run tests..."; \
-		uv run python tests/run_tests.py; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@echo "Running all tests with coverage..."
+	@./scripts/run-tests.sh -t all
 
 # Run specific test types
 test-unit:
 	@echo "Running unit tests..."
-	@if [ -d .venv ]; then \
-		uv run python tests/run_tests.py unit -v; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@./scripts/run-tests.sh -t unit
 
 test-integration:
 	@echo "Running integration tests..."
-	@if [ -d .venv ]; then \
-		uv run python tests/run_tests.py integration -v; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@./scripts/run-tests.sh -t integration
 
 test-api:
 	@echo "Running API tests..."
-	@if [ -d .venv ]; then \
-		uv run python tests/run_tests.py api -v; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@./scripts/run-tests.sh -t api
+
+test-smoke:
+	@echo "Running smoke tests..."
+	@./scripts/run-tests.sh -t smoke
 
 # Run files routes tests specifically
 test-files:
 	@echo "Running Files API routes tests..."
-	@if [ -d .venv ]; then \
-		uv run python -m pytest tests/api/test_files_basic.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@echo "Starting files-api service..."
+	@docker-compose up files-api -d --no-deps
+	@echo "Waiting for service to be ready..."
+	@sleep 5
+	@echo "Running tests against Docker service..."
+	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_simple.py
 
 # Run files routes tests with coverage
 test-files-coverage:
@@ -142,12 +135,12 @@ test-files-coverage:
 # Run files concurrency tests
 test-files-concurrency:
 	@echo "Running Files API concurrency and locking tests..."
-	@if [ -d .venv ]; then \
-		uv run python -m pytest tests/api/test_files_concurrency_simple.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@echo "Starting files-api service..."
+	@docker-compose up files-api -d --no-deps
+	@echo "Waiting for service to be ready..."
+	@sleep 5
+	@echo "Running tests against Docker service..."
+	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_functionality.py
 
 # Run files stress tests
 test-files-stress:
@@ -162,52 +155,67 @@ test-files-stress:
 # Run all files tests (basic + concurrency + stress)
 test-files-all:
 	@echo "Running all Files API tests..."
-	@if [ -d .venv ]; then \
-		uv run python -m pytest tests/api/test_files_*.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@echo "Starting files-api service..."
+	@docker-compose up files-api -d --no-deps
+	@echo "Waiting for service to be ready..."
+	@sleep 5
+	@echo "Running basic tests..."
+	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_simple.py
+	@echo "Running functionality tests..."
+	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_functionality.py
 
 
-# Run tests with coverage
+# Run all tests including Docker-based file editing tests
+test-complete:
+	@echo "Running complete test suite..."
+	@./scripts/run-tests.sh -t all
+
+# Run tests with HTML coverage report
 test-coverage:
-	@echo "Running tests with coverage..."
-	@if [ -d .venv ]; then \
-		uv run python tests/run_tests.py all -v --coverage; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@echo "Running tests with HTML coverage report..."
+	@./scripts/run-tests.sh -t all -o html
 
 # Run tests in parallel
 test-parallel:
 	@echo "Running tests in parallel..."
-	@if [ -d .venv ]; then \
-		uv run python tests/run_tests.py all -v --parallel; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@./scripts/run-tests.sh -t all -p
 
 # Install test dependencies
 test-deps:
 	@echo "Installing test dependencies..."
-	@if [ -d .venv ]; then \
-		uv pip install -r requirements-test.txt; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
+	@uv sync --extra dev
 
 # Run all tests with full reporting
 test-all:
 	@echo "Running all tests with full reporting..."
-	@if [ -d .venv ]; then \
-		uv run python tests/run_tests.py all -v --coverage --parallel; \
+	@./scripts/run-tests.sh -t all -v
+
+# Configuration management
+config-load-dev:
+	@echo "Loading development configuration..."
+	@./scripts/load-config.sh -e development -v
+
+config-load-test:
+	@echo "Loading testing configuration..."
+	@./scripts/load-config.sh -e testing -v
+
+config-load-prod:
+	@echo "Loading production configuration..."
+	@./scripts/load-config.sh -e production -v
+
+config-validate:
+	@echo "Validating configuration..."
+	@./scripts/load-config.sh --validate -v
+
+config-example:
+	@echo "Creating .env file from template..."
+	@if [ ! -f .env ]; then \
+		cp config/environment.example .env; \
+		echo "✅ Created .env file from template"; \
+		echo "📝 Please edit .env file with your configuration"; \
 	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
+		echo "⚠️  .env file already exists"; \
+		echo "📝 If you want to recreate it, delete .env first"; \
 	fi
 
 # Clean up

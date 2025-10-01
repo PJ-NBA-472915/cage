@@ -5,22 +5,22 @@ This module provides a daily logging handler that creates new log files
 each day while maintaining the existing JSON format and structure.
 """
 
-import os
-import logging
 import json
+import logging
+import os
 import time
 from datetime import datetime
-from pathlib import Path
 from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
 
 
 class DailyJsonFormatter(logging.Formatter):
     """Custom JSON formatter for daily logs."""
-    
+
     def __init__(self, component: str = None):
         super().__init__()
         self.component = component
-    
+
     def format(self, record):
         log_record = {
             "timestamp": self.formatTime(record, self.datefmt),
@@ -29,110 +29,112 @@ class DailyJsonFormatter(logging.Formatter):
             "file": record.filename,
             "line": record.lineno,
         }
-        
+
         # Add component if specified
         if self.component:
             log_record["component"] = self.component
-            
+
         # Add any extra JSON data
-        if hasattr(record, 'json_data'):
+        if hasattr(record, "json_data"):
             log_record.update(record.json_data)
-            
+
         return json.dumps(log_record)
 
 
 class DailyLogHandler(TimedRotatingFileHandler):
     """Custom daily rotating file handler with JSON formatting."""
-    
+
     def __init__(self, log_dir: str, component: str, level: int = logging.INFO):
         # Ensure log directory exists
         log_path = Path(log_dir)
         log_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Create log file path with component subdirectory
         component_dir = log_path / component
         component_dir.mkdir(parents=True, exist_ok=True)
-        
+
         log_file = component_dir / f"{component}.log"
-        
+
         # Initialize TimedRotatingFileHandler for daily rotation
         super().__init__(
             filename=str(log_file),
-            when='midnight',
+            when="midnight",
             interval=1,
             backupCount=30,  # Keep 30 days of logs
-            encoding='utf-8'
+            encoding="utf-8",
         )
-        
+
         # Set up JSON formatter
         formatter = DailyJsonFormatter(component=component)
         self.setFormatter(formatter)
         self.setLevel(level)
-    
+
     def doRollover(self):
         """Override doRollover to use [area]-[date].log format."""
         if self.stream:
             self.stream.close()
             self.stream = None
-        
+
         # Get current time for date formatting
         current_time = int(time.time())
         dfn = self.rotation_filename(self.baseFilename)
-        
+
         # Create the new filename with [area]-[date].log format
         if self.backupCount > 0:
             # Get the component name from the base filename
             base_path = Path(self.baseFilename)
             component = base_path.stem  # This should be the component name
-            
+
             # Format date as YYYY-MM-DD
-            date_str = datetime.fromtimestamp(current_time).strftime('%Y-%m-%d')
+            date_str = datetime.fromtimestamp(current_time).strftime("%Y-%m-%d")
             new_filename = base_path.parent / f"{component}-{date_str}.log"
-            
+
             # Rename the current file to the new format
             if os.path.exists(self.baseFilename):
                 os.rename(self.baseFilename, str(new_filename))
-        
+
         # Open new file
         if not self.delay:
             self.stream = self._open()
 
 
-def setup_daily_logger(component: str, log_dir: str = "logs", level: int = logging.INFO) -> logging.Logger:
+def setup_daily_logger(
+    component: str, log_dir: str = "logs", level: int = logging.INFO
+) -> logging.Logger:
     """
     Set up a daily logger for a specific component.
-    
+
     Args:
         component: Component name (e.g., 'api', 'crewai', 'mcp', 'manage')
         log_dir: Base log directory (default: 'logs')
         level: Logging level (default: INFO)
-    
+
     Returns:
         Configured logger instance
     """
     logger = logging.getLogger(f"cage.{component}")
     logger.setLevel(level)
-    
+
     # Clear any existing handlers to avoid duplicates
     logger.handlers.clear()
-    
+
     # Add daily file handler
     file_handler = DailyLogHandler(log_dir, component, level)
     logger.addHandler(file_handler)
-    
+
     # Prevent propagation to avoid duplicate logs
     logger.propagate = False
-    
+
     return logger
 
 
 def get_daily_logger(component: str) -> logging.Logger:
     """
     Get an existing daily logger for a component.
-    
+
     Args:
         component: Component name
-    
+
     Returns:
         Logger instance
     """

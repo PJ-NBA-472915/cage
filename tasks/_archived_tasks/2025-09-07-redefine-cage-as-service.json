@@ -74,7 +74,7 @@
     "original_request": "Redefine cage repo as a service that runs on a specific repository to make changes to that. Instead of the current cloning logic and functionality, want the cage repo to be a service that runs alongside a repository and exposes a service that can be interacted with to work with that repository.",
     "key_requirements": [
       "Service runs with specific directory parameter",
-      "Exposes API endpoints for repository operations", 
+      "Exposes API endpoints for repository operations",
       "Maintains existing cloning functionality",
       "Directory-specific service (one per repository)"
     ]

@@ -9,5 +9,6 @@ from pydantic import BaseModel
 
 class TaskCriteria(BaseModel):
     """Success criteria or acceptance check item."""
+
     text: str
     checked: bool = False

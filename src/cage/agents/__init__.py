@@ -5,15 +5,15 @@ This module provides a modular system for defining and managing CrewAI agents
 with support for runtime crew construction and individual agent testing.
 """
 
-from .base import BaseAgent, AgentConfig, AgentType
-from .registry import AgentRegistry
+from .base import AgentConfig, AgentType, BaseAgent
 from .factory import AgentFactory, CrewBuilder
+from .registry import AgentRegistry
 
 __all__ = [
-    'BaseAgent',
-    'AgentConfig', 
-    'AgentType',
-    'AgentRegistry',
-    'AgentFactory',
-    'CrewBuilder'
+    "BaseAgent",
+    "AgentConfig",
+    "AgentType",
+    "AgentRegistry",
+    "AgentFactory",
+    "CrewBuilder",
 ]

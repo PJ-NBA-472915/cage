@@ -23,7 +23,7 @@
   "subtasks": [
     "Analyze test structure and organization",
     "Compare test coverage against API specification",
-    "Compare test coverage against Editor Tool specification", 
+    "Compare test coverage against Editor Tool specification",
     "Assess test quality and value",
     "Identify gaps and missing coverage",
     "Analyze test failures and issues",

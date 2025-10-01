@@ -16,7 +16,7 @@
 - GitTool (for commits)
 - File system access
 
-### Git API Service  
+### Git API Service
 **Domain**: Git operations, version control, repository management
 **Dependencies**: Git repository, file system
 **Routes**:

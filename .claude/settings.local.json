@@ -11,7 +11,8 @@
       "Bash(docker exec:*)",
       "Bash(pushd:*)",
       "Bash(popd:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

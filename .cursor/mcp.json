@@ -1,11 +1,8 @@
 {
   "mcpServers": {
-    "Notion": {
-      "url": "https://mcp.notion.com/mcp",
-      "headers": {}
-    },
-    "Cage RAG": {
-      "url": "http://localhost:8765/mcp"
+    "Cage": {
+      "url": "http://localhost:8765/mcp/rpc",
+      "transport": "http"
     }
   }
 }

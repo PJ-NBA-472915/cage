@@ -40,7 +40,7 @@ scrape_configs:
           status_code:
       - timestamp:
           source: timestamp
-          format: '2006-01-02 15:04:05,000'
+          format: "2006-01-02 15:04:05,000"
           action_on_failure: fudge
       - output:
           source: message
@@ -68,7 +68,7 @@ scrape_configs:
           file:
       - timestamp:
           source: timestamp
-          format: '2006-01-02 15:04:05,000'
+          format: "2006-01-02 15:04:05,000"
           action_on_failure: fudge
       - output:
           source: message
@@ -97,7 +97,7 @@ scrape_configs:
           status:
       - timestamp:
           source: timestamp
-          format: '2006-01-02 15:04:05,000'
+          format: "2006-01-02 15:04:05,000"
           action_on_failure: fudge
       - output:
           source: message
@@ -135,7 +135,7 @@ scrape_configs:
           status_code:
       - timestamp:
           source: timestamp
-          format: '2006-01-02 15:04:05,000'
+          format: "2006-01-02 15:04:05,000"
           action_on_failure: fudge
       - output:
           source: message

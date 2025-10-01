@@ -27,7 +27,7 @@
     "Start Cage platform service",
     "Submit hello world app creation request to platform",
     "Monitor platform planning phase",
-    "Monitor platform file creation phase", 
+    "Monitor platform file creation phase",
     "Monitor platform execution phase",
     "Verify app functionality",
     "Document platform performance metrics",

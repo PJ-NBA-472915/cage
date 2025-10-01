@@ -113,7 +113,7 @@
   "metadata": {
     "api_endpoints": {
       "rag_query": "POST /rag/query",
-      "rag_reindex": "POST /rag/reindex", 
+      "rag_reindex": "POST /rag/reindex",
       "rag_blobs": "GET /rag/blobs/{sha}"
     },
     "authentication": "Bearer token via POD_TOKEN environment variable",

@@ -103,7 +103,7 @@
   "metadata": {
     "files_to_move": [
       "DAILY_LOGGING_SUMMARY.md",
-      "LOGROTATE_FIX_SUMMARY.md", 
+      "LOGROTATE_FIX_SUMMARY.md",
       "INTEGRATION_SUMMARY.md",
       "note-app-api-plan-summary.md",
       "planner-agent-test-results.md",

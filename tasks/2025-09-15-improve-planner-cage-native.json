@@ -283,4 +283,3 @@
   "artefacts": {"run_id": "", "logs": [], "reports": [], "diff_bundles": [], "external": []},
   "metadata": {"cage_native_required": true, "rollback_required": true, "validation_required": true}
 }
-
