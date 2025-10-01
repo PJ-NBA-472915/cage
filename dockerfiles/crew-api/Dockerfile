@@ -11,16 +11,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Install UV
+RUN pip install uv
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy dependency files for better caching
+COPY pyproject.toml uv.lock README.md ./
+
+# Install Python dependencies with UV
+RUN uv sync --frozen
 
 # Copy source code
 COPY src/ ./src/
-COPY tasks/ ./tasks/
-COPY memory-bank/ ./memory-bank/
 
 # Create logs directory
 RUN mkdir -p logs
@@ -37,4 +38,4 @@ RUN git config --global user.email "${GIT_EMAIL}" && \
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "src.apps.crew_api.main:app", "--host", "0.0.0.0", "--port", "8000"]

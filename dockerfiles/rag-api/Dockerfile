@@ -17,9 +17,14 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install UV
+RUN pip install uv
+
+# Copy dependency files for better caching
+COPY pyproject.toml uv.lock README.md ./
+
+# Install Python dependencies with UV
+RUN uv sync --frozen
 
 # Copy application code
 COPY src/ ./src/
@@ -40,4 +45,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 EXPOSE ${PORT}
 
 # Run the application
-CMD ["python", "-m", "src.services.rag_api.main"]
+CMD ["python", "-m", "src.apps.rag_api.main"]
