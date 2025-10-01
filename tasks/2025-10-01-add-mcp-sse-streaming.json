@@ -1,0 +1,167 @@
+{
+  "id": "2025-10-01-add-mcp-sse-streaming",
+  "title": "Add Server-Sent Events (SSE) Streaming Support to MCP",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:25",
+  "updated_at": "2025-10-01 23:47",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "protocol",
+    "streaming",
+    "high-priority"
+  ],
+  "summary": "MCP protocol supports Server-Sent Events for streaming responses. Current implementation only supports JSON. Need to detect Accept: text/event-stream header and provide streaming responses for better user experience.",
+  "success_criteria": [
+    {
+      "text": "Server detects Accept: text/event-stream header",
+      "checked": false
+    },
+    {
+      "text": "Streaming responses formatted as SSE",
+      "checked": false
+    },
+    {
+      "text": "Both JSON and SSE transports work correctly",
+      "checked": false
+    },
+    {
+      "text": "Tool results stream progressively when available",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Client can connect with Accept: text/event-stream",
+      "checked": false
+    },
+    {
+      "text": "Long-running tool calls stream progress updates",
+      "checked": false
+    },
+    {
+      "text": "JSON-only clients still work correctly",
+      "checked": false
+    },
+    {
+      "text": "Connection handling is robust",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Study MCP SSE specification",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add Accept header detection to /mcp/rpc endpoint",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Implement SSE response formatting",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add streaming support using FastAPI StreamingResponse",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Update tool handlers to support streaming",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Handle connection errors and timeouts",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test with SSE-capable MCP client",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test fallback to JSON when SSE not requested",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Record an SSE session showing progressive tool output and link artefact in changelog",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Update API documentation to describe SSE usage and fallback behavior",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:25",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "SSE implementation can be complex with proper error handling",
+    "Need to handle client disconnections gracefully",
+    "Tool implementations may need updates to support streaming",
+    "May need message buffering for reliable delivery",
+    "Need load testing to ensure SSE connections do not exhaust worker threads"
+  ],
+  "next_steps": [
+    "Complete JSON-RPC implementation first (prerequisite)",
+    "Research MCP SSE message format",
+    "Implement basic SSE support",
+    "Add streaming to long-running operations"
+  ],
+  "references": [
+    "src/cage/mcp/server.py:1397-1431 - RPC endpoint to enhance",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Future Work #2",
+    "MCP Protocol Specification - SSE Transport"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:46",
+      "text": "Follow-up on review recommendation to add Server-Sent Events transport so long-running MCP tool calls can stream progress.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Future Work #2"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_hours": 12,
+    "related_files": [
+      "src/cage/mcp/server.py"
+    ],
+    "depends_on": [
+      "2025-10-01-implement-mcp-rpc-protocol"
+    ]
+  }
+}

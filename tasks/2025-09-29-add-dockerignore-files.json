@@ -1,0 +1,76 @@
+{
+  "id": "2025-09-29-add-dockerignore-files",
+  "title": "Add .dockerignore files",
+  "owner": "AI Agent",
+  "status": "done",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 19:52",
+  "progress_percent": 100,
+  "tags": ["docker", "optimization", "security"],
+  "summary": "Create .dockerignore files for each Docker build context, excluding unnecessary paths such as logs/, venv/, .pytest_cache/, __pycache__/, and memory-bank/outputs/ to keep images smaller, builds faster, and avoid leaking local files.",
+  "success_criteria": [
+    {"text": ".dockerignore files created for each Docker build context", "checked": true},
+    {"text": "Unnecessary paths are excluded from Docker builds", "checked": true},
+    {"text": "Docker images are smaller and build faster", "checked": true},
+    {"text": "Local files are not leaked into container images", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": ".dockerignore files exist in appropriate locations", "checked": true},
+    {"text": "logs/, venv/, .pytest_cache/, __pycache__/ are excluded", "checked": true},
+    {"text": "memory-bank/outputs/ is excluded", "checked": true},
+    {"text": "Docker build times are improved", "checked": true}
+  ],
+  "subtasks": [
+    "Identify all Docker build contexts",
+    "Create .dockerignore for main project",
+    "Create .dockerignore for each service/app",
+    "Test Docker builds to verify exclusions",
+    "Document .dockerignore patterns"
+  ],
+  "todo": [
+    {"text": "Identify all Docker build contexts", "status": "done", "date_started": "2025-09-29 19:51", "date_stopped": "2025-09-29 19:51"},
+    {"text": "Create .dockerignore for main project", "status": "done", "date_started": "2025-09-29 19:51", "date_stopped": "2025-09-29 19:51"},
+    {"text": "Create .dockerignore for each service/app", "status": "done", "date_started": "2025-09-29 19:51", "date_stopped": "2025-09-29 19:51"},
+    {"text": "Test Docker builds to verify exclusions", "status": "done", "date_started": "2025-09-29 19:51", "date_stopped": "2025-09-29 19:52"},
+    {"text": "Document .dockerignore patterns", "status": "done", "date_started": "2025-09-29 19:52", "date_stopped": "2025-09-29 19:52"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 5"},
+    {"timestamp": "2025-09-29 19:51", "text": "Created comprehensive .dockerignore for main project"},
+    {"timestamp": "2025-09-29 19:51", "text": "Created service-specific .dockerignore files for each Docker build context"},
+    {"timestamp": "2025-09-29 19:51", "text": "Fixed .dockerignore to not exclude README.md needed for builds"},
+    {"timestamp": "2025-09-29 19:52", "text": "Successfully tested Docker build with reduced context size"},
+    {"timestamp": "2025-09-29 19:52", "text": "Task completed successfully"}
+  ],
+  "decisions": [
+    "Created comprehensive main .dockerignore excluding logs, venv, tests, etc.",
+    "Created service-specific .dockerignore files to exclude other services",
+    "Preserved README.md in .dockerignore as it's needed for pyproject.toml builds",
+    "Excluded memory-bank/outputs/ and tasks/ to prevent data leakage"
+  ],
+  "lessons_learned": [
+    ".dockerignore significantly reduces build context size and improves build times",
+    "README.md must be preserved for pyproject.toml builds to work",
+    "Service-specific .dockerignore files prevent cross-contamination between services",
+    "Comprehensive exclusion patterns prevent accidental data leakage"
+  ],
+  "issues_risks": [
+    "Risk: Accidentally excluding necessary files",
+    "Risk: Different services may need different exclusions"
+  ],
+  "next_steps": [
+    "Review current Docker build contexts",
+    "Identify common exclusion patterns",
+    "Create standardized .dockerignore templates"
+  ],
+  "references": [
+    "Docker .dockerignore documentation",
+    "Docker best practices for build optimization"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 5,
+    "priority": "medium",
+    "estimated_effort": "2 hours"
+  }
+}

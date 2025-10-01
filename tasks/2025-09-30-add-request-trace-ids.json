@@ -1,0 +1,81 @@
+{
+  "id": "2025-09-30-add-request-trace-ids",
+  "title": "Add request/trace IDs and propagate them",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 10:48",
+  "progress_percent": 100,
+  "tags": ["file-api", "middleware", "tracing", "stability"],
+  "summary": "Add FastAPI middleware that assigns a request_id (preferably read from X-Request-ID or generated) and include it in all logs and responses (X-Request-ID header).",
+  "success_criteria": [
+    { "text": "Every request/response pair carries the same ID", "checked": true },
+    { "text": "Logs show request_id on all entries for that request", "checked": true },
+    { "text": "X-Request-ID header is returned in all responses", "checked": true },
+    { "text": "Request ID is extracted from X-Request-ID header when provided", "checked": true },
+    { "text": "Request ID is generated when not provided in headers", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "FastAPI middleware assigns request_id to all requests", "checked": true },
+    { "text": "Request ID is included in all log entries for a request", "checked": true },
+    { "text": "X-Request-ID header is returned in all API responses", "checked": true },
+    { "text": "Client-provided X-Request-ID headers are respected", "checked": true },
+    { "text": "Request ID propagation works across all file API services", "checked": true }
+  ],
+  "subtasks": [
+    "Audit existing RequestIDMiddleware implementation",
+    "Enhance middleware to ensure request_id in all logs",
+    "Update all file API services to use enhanced middleware",
+    "Test request ID propagation in logs and responses",
+    "Verify X-Request-ID header handling"
+  ],
+  "todo": [
+    { "text": "Audit existing RequestIDMiddleware implementation", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Enhance middleware to ensure request_id in all logs", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Update all file API services to use enhanced middleware", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Test request ID propagation in logs and responses", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Verify X-Request-ID header handling", "status": "not-started", "date_started": null, "date_stopped": null }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-30 10:33", "text": "Task file created for request/trace ID implementation" },
+    { "timestamp": "2025-09-30 10:48", "text": "Enhanced RequestIDMiddleware with context variable support for better JSONL logging integration" },
+    { "timestamp": "2025-09-30 10:48", "text": "Updated all file API services to use enhanced middleware with service names" },
+    { "timestamp": "2025-09-30 10:48", "text": "Verified request ID propagation in logs and X-Request-ID header handling" },
+    { "timestamp": "2025-09-30 10:48", "text": "Task completed successfully - all acceptance criteria met" }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Existing RequestIDMiddleware may need enhancement for complete log coverage",
+    "Need to ensure request_id is available in all logging contexts",
+    "Middleware must handle both client-provided and generated request IDs"
+  ],
+  "next_steps": [
+    "Review existing RequestIDMiddleware in src/apps/files_api/main.py",
+    "Check current request ID implementation in other API services",
+    "Design enhanced middleware that ensures complete request ID propagation"
+  ],
+  "references": [
+    "src/apps/files_api/main.py - Current RequestIDMiddleware implementation",
+    "src/apps/rag_api/main.py - RAG API middleware",
+    "src/apps/lock_api/main.py - Lock API middleware",
+    "src/api/main.py - Main API middleware"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_effort": "5",
+    "dependencies": ["2025-09-30-switch-to-structured-jsonl-logging"],
+    "related_tasks": [
+      "2025-09-30-switch-to-structured-jsonl-logging",
+      "2025-09-30-capture-assert-logs-in-tests"
+    ]
+  }
+}

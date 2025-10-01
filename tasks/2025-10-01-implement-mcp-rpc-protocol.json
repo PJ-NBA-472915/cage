@@ -1,0 +1,195 @@
+{
+  "id": "2025-10-01-implement-mcp-rpc-protocol",
+  "title": "Implement Full MCP JSON-RPC Protocol in /mcp/rpc Endpoint",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:00",
+  "updated_at": "2025-10-01 23:45",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "protocol",
+    "critical",
+    "bug"
+  ],
+  "summary": "The /mcp/rpc endpoint currently returns a placeholder response instead of implementing the actual MCP JSON-RPC protocol. Need to implement proper request dispatching to the MCP server's registered handlers for initialize, tools/list, and tools/call methods.",
+  "success_criteria": [
+    {
+      "text": "MCP RPC endpoint properly parses JSON-RPC requests",
+      "checked": false
+    },
+    {
+      "text": "Requests are dispatched to mcp_server based on method name",
+      "checked": false
+    },
+    {
+      "text": "initialize method returns proper server capabilities",
+      "checked": false
+    },
+    {
+      "text": "tools/list method returns registered MCP tools",
+      "checked": false
+    },
+    {
+      "text": "tools/call method invokes tools and returns results",
+      "checked": false
+    },
+    {
+      "text": "Proper JSON-RPC error responses for invalid requests",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Client can successfully call initialize and receive server info",
+      "checked": false
+    },
+    {
+      "text": "Client can list available tools via tools/list",
+      "checked": false
+    },
+    {
+      "text": "Client can invoke rag_query tool and receive results",
+      "checked": false
+    },
+    {
+      "text": "Client can invoke agent_create tool and receive agent ID",
+      "checked": false
+    },
+    {
+      "text": "Invalid method names return proper JSON-RPC error",
+      "checked": false
+    },
+    {
+      "text": "Integration test passes for full MCP workflow",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Study MCP protocol specification for JSON-RPC over HTTP",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Review mcp_server.request_handlers structure",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Implement JSON-RPC request parsing in /mcp/rpc endpoint",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add method dispatcher to route to correct handler",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Handle initialize method properly",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Handle tools/list method properly",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Handle tools/call method properly",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add error handling for invalid methods",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add error handling for malformed requests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Update test_mcp_client.py to test actual protocol",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test with real MCP client (Claude Desktop or similar)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Capture successful initialize/tools/list/tools/call responses and attach artefacts to changelog",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document JSON-RPC error handling scenarios that were verified",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:00",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Current MCP server instance uses mcp.Server from mcp library - need to understand how to properly invoke request_handlers",
+    "May need to convert between FastAPI Request objects and MCP protocol objects",
+    "Need to handle both sync and async handlers properly"
+  ],
+  "next_steps": [
+    "Read MCP SDK documentation for server implementation",
+    "Check how mcp.Server expects to receive and process requests",
+    "Look at example implementations of MCP over HTTP"
+  ],
+  "references": [
+    "src/cage/mcp/server.py:1397-1431 - Current placeholder implementation",
+    "src/cage/mcp/server.py:424-469 - Request handler registration",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Bug #1"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:45",
+      "text": "Claude Code flagged that /mcp/rpc currently returns a placeholder instead of dispatching JSON-RPC requests to the MCP server handlers.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Critical Issue #1"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "critical",
+    "estimated_hours": 8,
+    "related_files": [
+      "src/cage/mcp/server.py"
+    ]
+  }
+}

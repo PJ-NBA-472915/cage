@@ -1,0 +1,53 @@
+{
+  "id": "2025-09-30-crew-request-id-middleware",
+  "title": "Request-ID middleware",
+  "owner": "Assistant",
+  "status": "completed",
+  "created_at": "2025-09-30 12:50",
+  "updated_at": "2025-09-30 12:52",
+  "progress_percent": 100,
+  "tags": ["crew", "middleware", "request-id"],
+  "summary": "Correlate logs and responses with a stable per-request ID using middleware.",
+  "success_criteria": [
+    {"text": "Every response includes X-Request-ID echoing a UUID (or provided value)", "checked": true},
+    {"text": "Logs for a request include that same request_id", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Middleware reads X-Request-ID or generates UUIDv4", "checked": true},
+    {"text": "Request ID stored on request.state.request_id", "checked": true},
+    {"text": "Response header X-Request-ID set", "checked": true},
+    {"text": "Downstream loggers can access request_id via contextvar or logging.Filter", "checked": true}
+  ],
+  "subtasks": [
+    "Create middleware_request_id.py",
+    "Implement request ID extraction/generation",
+    "Store request ID in request.state",
+    "Set response header",
+    "Wire middleware into main.py",
+    "Test request ID propagation"
+  ],
+  "todo": [
+    {"text": "Create middleware_request_id.py", "status": "done", "date_started": "2025-09-30 12:50", "date_stopped": "2025-09-30 12:51"},
+    {"text": "Implement request ID extraction/generation", "status": "done", "date_started": "2025-09-30 12:51", "date_stopped": "2025-09-30 12:51"},
+    {"text": "Store request ID in request.state", "status": "done", "date_started": "2025-09-30 12:51", "date_stopped": "2025-09-30 12:51"},
+    {"text": "Set response header", "status": "done", "date_started": "2025-09-30 12:51", "date_stopped": "2025-09-30 12:51"},
+    {"text": "Wire middleware into main.py", "status": "done", "date_started": "2025-09-30 12:51", "date_stopped": "2025-09-30 12:51"},
+    {"text": "Test request ID propagation", "status": "done", "date_started": "2025-09-30 12:51", "date_stopped": "2025-09-30 12:52"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-30 12:50", "text": "Task created and started"},
+    {"timestamp": "2025-09-30 12:51", "text": "Created middleware_request_id.py with RequestIDMiddleware class"},
+    {"timestamp": "2025-09-30 12:51", "text": "Implemented request ID extraction/generation logic"},
+    {"timestamp": "2025-09-30 12:51", "text": "Added context variable support for request ID propagation"},
+    {"timestamp": "2025-09-30 12:51", "text": "Wired middleware into main.py application"},
+    {"timestamp": "2025-09-30 12:52", "text": "Updated router to use context variable for request ID"},
+    {"timestamp": "2025-09-30 12:52", "text": "Tested middleware - all functionality working correctly"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}

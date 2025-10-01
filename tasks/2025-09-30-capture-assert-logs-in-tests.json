@@ -1,0 +1,85 @@
+{
+  "id": "2025-09-30-capture-assert-logs-in-tests",
+  "title": "Capture and assert logs in tests",
+  "owner": "Jaak",
+  "status": "in-progress",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 12:18",
+  "progress_percent": 0,
+  "tags": ["file-api", "testing", "logging", "stability"],
+  "summary": "Use caplog (or equivalent) to assert that error paths log a structured entry with level=ERROR, request_id, and type/title, and that happy paths do not produce ERROR logs.",
+  "success_criteria": [
+    { "text": "Tests fail if ERROR logs appear in happy paths", "checked": false },
+    { "text": "Tests fail if error logs are missing required fields", "checked": false },
+    { "text": "Error paths log structured entry with level=ERROR", "checked": false },
+    { "text": "Error logs include request_id field", "checked": false },
+    { "text": "Error logs include type/title fields", "checked": false },
+    { "text": "Happy paths do not produce ERROR logs", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "caplog or equivalent is used to capture logs in tests", "checked": false },
+    { "text": "Error path tests assert ERROR level logs are produced", "checked": false },
+    { "text": "Happy path tests assert no ERROR level logs are produced", "checked": false },
+    { "text": "Log assertions verify required fields are present", "checked": false },
+    { "text": "Tests validate structured log format", "checked": false }
+  ],
+  "subtasks": [
+    "Set up log capture infrastructure for tests",
+    "Implement log assertions for error paths",
+    "Implement log assertions for happy paths",
+    "Verify structured log format in tests",
+    "Ensure tests fail on missing required log fields",
+    "Integrate log assertions with smoke tests"
+  ],
+  "todo": [
+    { "text": "Set up log capture infrastructure for tests", "status": "in-progress", "date_started": "2025-09-30 12:18", "date_stopped": null },
+    { "text": "Implement log assertions for error paths", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Implement log assertions for happy paths", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Verify structured log format in tests", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Ensure tests fail on missing required log fields", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Integrate log assertions with smoke tests", "status": "not-started", "date_started": null, "date_stopped": null }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-30 10:33", "text": "Task file created for log capture and assertion in tests" },
+    { "timestamp": "2025-09-30 12:18", "text": "Started working on Task 7: Capture and assert logs in tests" }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Log capture may interfere with normal logging behavior",
+    "Need to ensure log assertions are reliable and not flaky",
+    "Structured log format must be consistent for assertions to work"
+  ],
+  "next_steps": [
+    "Research caplog and similar log capture tools",
+    "Design log assertion framework",
+    "Identify key log fields to assert in tests"
+  ],
+  "references": [
+    "pytest caplog fixture documentation",
+    "src/apps/files_api/main.py - Files API logging",
+    "src/apps/rag_api/main.py - RAG API logging",
+    "src/apps/lock_api/main.py - Lock API logging",
+    "tests/ - Existing test infrastructure"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "medium",
+    "estimated_effort": "6",
+    "dependencies": [
+      "2025-09-30-switch-to-structured-jsonl-logging",
+      "2025-09-30-add-minimal-smoke-tests"
+    ],
+    "related_tasks": [
+      "2025-09-30-switch-to-structured-jsonl-logging",
+      "2025-09-30-add-minimal-smoke-tests"
+    ]
+  }
+}

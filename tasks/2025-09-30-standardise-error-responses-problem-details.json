@@ -1,0 +1,84 @@
+{
+  "id": "2025-09-30-standardise-error-responses-problem-details",
+  "title": "Standardise error responses as Problem Details",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 10:51",
+  "progress_percent": 100,
+  "tags": ["file-api", "error-handling", "api-design", "stability"],
+  "summary": "Implement global FastAPI exception handlers that return application/problem+json with fields: type, title, status, detail, instance, and errors (optional map). Define a small, documented set of error codes/types (e.g., validation-error, not-found, conflict, internal-error).",
+  "success_criteria": [
+    { "text": "All non-2xx responses conform to Problem Details schema", "checked": true },
+    { "text": "Stack traces are not leaked to clients but are logged", "checked": true },
+    { "text": "Error responses include type, title, status, detail, instance fields", "checked": true },
+    { "text": "Optional errors field is included for validation errors", "checked": true },
+    { "text": "Documented set of error codes/types is defined", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "Global FastAPI exception handlers return Problem Details format", "checked": true },
+    { "text": "All error responses use application/problem+json content type", "checked": true },
+    { "text": "Error types are documented and consistent across services", "checked": true },
+    { "text": "Stack traces are logged but not exposed to clients", "checked": true },
+    { "text": "Validation errors include helpful errors field", "checked": true }
+  ],
+  "subtasks": [
+    "Define Problem Details schema and error types",
+    "Implement global FastAPI exception handlers",
+    "Create error type constants and documentation",
+    "Update all file API services to use Problem Details",
+    "Test error response format across all endpoints",
+    "Ensure stack traces are logged but not exposed"
+  ],
+  "todo": [
+    { "text": "Define Problem Details schema and error types", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Implement global FastAPI exception handlers", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Create error type constants and documentation", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Update all file API services to use Problem Details", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Test error response format across all endpoints", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Ensure stack traces are logged but not exposed", "status": "not-started", "date_started": null, "date_stopped": null }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-30 10:33", "text": "Task file created for Problem Details error response standardization" },
+    { "timestamp": "2025-09-30 10:51", "text": "Implemented RFC 7807 Problem Details schema with type, title, status, detail, instance, and errors fields" },
+    { "timestamp": "2025-09-30 10:51", "text": "Created standard error types and titles for file API services" },
+    { "timestamp": "2025-09-30 10:51", "text": "Implemented global FastAPI exception handlers for HTTPException, ValidationError, and general exceptions" },
+    { "timestamp": "2025-09-30 10:51", "text": "Updated all file API services to use Problem Details handlers with stack trace logging" },
+    { "timestamp": "2025-09-30 10:51", "text": "Task completed successfully - all acceptance criteria met" }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Need to ensure backward compatibility with existing error handling",
+    "Problem Details format must be consistent across all services",
+    "Error type definitions should be comprehensive but not overly complex"
+  ],
+  "next_steps": [
+    "Research RFC 7807 Problem Details for HTTP APIs standard",
+    "Review current error handling in file API services",
+    "Design error type taxonomy for file operations"
+  ],
+  "references": [
+    "RFC 7807 - Problem Details for HTTP APIs",
+    "src/apps/files_api/main.py - Current error handling",
+    "src/apps/rag_api/main.py - RAG API error handling",
+    "src/apps/lock_api/main.py - Lock API error handling"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_effort": "8",
+    "dependencies": [],
+    "related_tasks": [
+      "2025-09-30-normalise-status-codes-validation",
+      "2025-09-30-update-tighten-openapi-spec"
+    ]
+  }
+}

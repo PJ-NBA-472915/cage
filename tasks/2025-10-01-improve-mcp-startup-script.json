@@ -1,0 +1,160 @@
+{
+  "id": "2025-10-01-improve-mcp-startup-script",
+  "title": "Simplify and Improve MCP Startup Script",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:20",
+  "updated_at": "2025-10-01 23:53",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "docker",
+    "startup",
+    "medium"
+  ],
+  "summary": "The scripts/start-mcp.sh has multiple issues: runs pip as root, installs dependencies twice with different Python versions, excessive debug output. Need to simplify and fix security issues.",
+  "success_criteria": [
+    {
+      "text": "Script uses non-root user for pip installations",
+      "checked": false
+    },
+    {
+      "text": "Dependencies installed only once consistently",
+      "checked": false
+    },
+    {
+      "text": "Debug print statements removed or made conditional",
+      "checked": false
+    },
+    {
+      "text": "Script is clean and maintainable",
+      "checked": false
+    },
+    {
+      "text": "Startup time improved",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "No pip warnings about running as root",
+      "checked": false
+    },
+    {
+      "text": "Service starts successfully with new script",
+      "checked": false
+    },
+    {
+      "text": "Startup logs are clean and informative",
+      "checked": false
+    },
+    {
+      "text": "Script follows shell scripting best practices",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Review Dockerfile to understand user setup",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Determine if dependencies should be in Dockerfile instead",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Remove duplicate dependency installations",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Use virtual environment consistently",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Remove or make debug statements conditional on DEBUG env var",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add proper error handling",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test startup script in clean container",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Capture clean startup logs after script rewrite and attach to task lessons",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Update Dockerfile or docs to reflect new dependency installation flow",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:20",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Dependencies should ideally be in Dockerfile for faster startup",
+    "May need to rebuild Docker image after changes",
+    "Need to test with fresh builds to catch missing dependencies"
+  ],
+  "next_steps": [
+    "Analyze what dependencies are actually needed at runtime",
+    "Consider moving installations to Dockerfile",
+    "Create cleaner startup script"
+  ],
+  "references": [
+    "scripts/start-mcp.sh - Current startup script",
+    "dockerfiles/mcp/Dockerfile - Container configuration",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Bugs #5 and #6"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:51",
+      "text": "Startup script issues (running pip as root, duplicate installs) were called out in the MCP review.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Bugs #5 & #6"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "medium",
+    "estimated_hours": 3,
+    "related_files": [
+      "scripts/start-mcp.sh",
+      "dockerfiles/mcp/Dockerfile"
+    ]
+  }
+}

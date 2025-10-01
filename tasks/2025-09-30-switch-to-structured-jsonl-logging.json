@@ -1,0 +1,87 @@
+{
+  "id": "2025-09-30-switch-to-structured-jsonl-logging",
+  "title": "Switch to structured JSONL logging",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 10:46",
+  "progress_percent": 100,
+  "tags": ["file-api", "logging", "stability"],
+  "summary": "Replace current logging with structured, one-event-per-line JSONL files using the standard logging module (or structlog) and write to logs/<service>/YYYY-MM-DD.jsonl. Each record must include ts, level, service, request_id, route, msg, and optional error/stack/context.",
+  "success_criteria": [
+    { "text": "Logs are newline-delimited JSON format", "checked": true },
+    { "text": "Logs parse with jq without errors", "checked": true },
+    { "text": "Logs rotate daily (or by size) with existing logrotate", "checked": true },
+    { "text": "Each log record includes ts, level, service, request_id, route, msg fields", "checked": true },
+    { "text": "Optional error/stack/context fields are included when applicable", "checked": true }
+  ],
+  "acceptance_checks": [
+    { "text": "All file API services use JSONL logging format", "checked": true },
+    { "text": "Log files are created in logs/<service>/YYYY-MM-DD.jsonl format", "checked": true },
+    { "text": "Log records can be parsed with jq commands", "checked": true },
+    { "text": "Daily log rotation works correctly", "checked": true },
+    { "text": "Request IDs are included in all log entries", "checked": true }
+  ],
+  "subtasks": [
+    "Audit current logging implementation across all file API services",
+    "Design JSONL log format schema with required fields",
+    "Implement JSONL formatter for logging module",
+    "Update file API services to use JSONL logging",
+    "Configure log rotation for JSONL files",
+    "Test log parsing with jq commands",
+    "Update logrotate configuration for JSONL format"
+  ],
+  "todo": [
+    { "text": "Audit current logging implementation across all file API services", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Design JSONL log format schema with required fields", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Implement JSONL formatter for logging module", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Update file API services to use JSONL logging", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Configure log rotation for JSONL files", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Test log parsing with jq commands", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Update logrotate configuration for JSONL format", "status": "not-started", "date_started": null, "date_stopped": null }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-30 10:33", "text": "Task file created for structured JSONL logging implementation" },
+    { "timestamp": "2025-09-30 10:43", "text": "Audited current logging implementation - found inconsistent formats across services" },
+    { "timestamp": "2025-09-30 10:45", "text": "Implemented JSONL logger with required fields: ts, level, service, request_id, route, msg" },
+    { "timestamp": "2025-09-30 10:45", "text": "Updated files API to use JSONL logging - tested and verified with jq parsing" },
+    { "timestamp": "2025-09-30 10:46", "text": "Updated all file API services (files-api, rag-api, lock-api, git-api) to use JSONL logging" },
+    { "timestamp": "2025-09-30 10:46", "text": "Verified log rotation works with YYYY-MM-DD.jsonl format and jq parsing works correctly" },
+    { "timestamp": "2025-09-30 10:46", "text": "Task completed successfully - all acceptance criteria met" }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Current logging uses daily rotation but may need adjustment for JSONL format",
+    "Need to ensure backward compatibility with existing log monitoring stack",
+    "JSONL format must be compatible with existing Promtail/Loki configuration"
+  ],
+  "next_steps": [
+    "Review current logging implementation in src/apps/files_api/main.py",
+    "Check existing daily_logger.py implementation",
+    "Design JSONL schema that includes all required fields"
+  ],
+  "references": [
+    "src/apps/files_api/main.py - Current files API logging",
+    "src/cage/utils/daily_logger.py - Existing daily logging utility",
+    "src/cage/utils/file_logging.py - File operation logging",
+    "logging-stack/promtail/ - Log monitoring configuration"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_effort": "8",
+    "dependencies": [],
+    "related_tasks": [
+      "2025-09-30-add-request-trace-ids",
+      "2025-09-30-capture-assert-logs-in-tests"
+    ]
+  }
+}

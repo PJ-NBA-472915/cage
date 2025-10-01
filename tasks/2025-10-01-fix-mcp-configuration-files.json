@@ -1,0 +1,153 @@
+{
+  "id": "2025-10-01-fix-mcp-configuration-files",
+  "title": "Fix MCP Configuration File Endpoint and Add Examples",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:05",
+  "updated_at": "2025-10-01 23:46",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "configuration",
+    "critical",
+    "bug"
+  ],
+  "summary": "The .cursor/mcp.json configuration file points to the wrong endpoint (/mcp instead of /mcp/rpc), causing 404 errors for MCP clients. Need to fix the endpoint and add example configurations for various MCP clients.",
+  "success_criteria": [
+    {
+      "text": ".cursor/mcp.json points to correct /mcp/rpc endpoint",
+      "checked": false
+    },
+    {
+      "text": "Example configuration for Claude Desktop added",
+      "checked": false
+    },
+    {
+      "text": "Example configuration for other MCP clients added",
+      "checked": false
+    },
+    {
+      "text": "Configuration documentation created",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Cursor IDE can connect to MCP server using .cursor/mcp.json",
+      "checked": false
+    },
+    {
+      "text": "Claude Desktop can connect using provided example config",
+      "checked": false
+    },
+    {
+      "text": "Configuration docs explain all settings",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Update .cursor/mcp.json endpoint from /mcp to /mcp/rpc",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create .claude/mcp.json example configuration",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create docs/mcp-configuration.md documentation",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document authentication token setup",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add environment variable configuration options",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test configuration with actual MCP client",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Verify updated .cursor/mcp.json by connecting with Cursor IDE",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Validate Claude Desktop example configuration against live MCP server",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add configuration verification notes to docs/mcp-configuration.md",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:05",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Need to verify correct MCP protocol URL format for different clients",
+    "May need different configurations for HTTP vs SSE transport"
+  ],
+  "next_steps": [
+    "Fix .cursor/mcp.json immediately",
+    "Research Claude Desktop MCP configuration format",
+    "Create comprehensive configuration guide"
+  ],
+  "references": [
+    ".cursor/mcp.json:4 - Current incorrect endpoint",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Bug #2"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:44",
+      "text": "Review found .cursor/mcp.json pointing to /mcp instead of /mcp/rpc and asked for example configs.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Critical Issue #2"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "critical",
+    "estimated_hours": 2,
+    "related_files": [
+      ".cursor/mcp.json",
+      "docs/mcp-configuration.md"
+    ],
+    "depends_on": [
+      "2025-10-01-implement-mcp-rpc-protocol"
+    ]
+  }
+}

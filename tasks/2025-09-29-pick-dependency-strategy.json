@@ -1,0 +1,81 @@
+{
+  "id": "2025-09-29-pick-dependency-strategy",
+  "title": "Pick one dependency management strategy",
+  "owner": "AI Agent",
+  "status": "done",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 19:46",
+  "progress_percent": 100,
+  "tags": ["dependencies", "python", "documentation"],
+  "summary": "Decide on a single dependency management tool (uv, pip-tools, or Poetry) and document the workflow in README.md to avoid divergence between requirements*.txt and pyproject.toml.",
+  "success_criteria": [
+    {"text": "Single dependency management tool is chosen", "checked": true},
+    {"text": "Workflow is documented in README.md", "checked": true},
+    {"text": "Lockfiles are kept in sync", "checked": true},
+    {"text": "Contributors know how to install dependencies", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "README.md contains clear dependency management instructions", "checked": true},
+    {"text": "Only one set of dependency files is actively maintained", "checked": true},
+    {"text": "Lockfiles are consistent and up-to-date", "checked": true},
+    {"text": "Team can follow documented workflow", "checked": true}
+  ],
+  "subtasks": [
+    "Analyze current dependency files (requirements.txt, pyproject.toml, uv.lock)",
+    "Choose appropriate dependency management tool",
+    "Consolidate dependency files",
+    "Document workflow in README.md",
+    "Update team on new process"
+  ],
+  "todo": [
+    {"text": "Analyze current dependency files (requirements.txt, pyproject.toml, uv.lock)", "status": "done", "date_started": "2025-09-29 19:45", "date_stopped": "2025-09-29 19:45"},
+    {"text": "Choose appropriate dependency management tool", "status": "done", "date_started": "2025-09-29 19:45", "date_stopped": "2025-09-29 19:45"},
+    {"text": "Consolidate dependency files", "status": "done", "date_started": "2025-09-29 19:45", "date_stopped": "2025-09-29 19:46"},
+    {"text": "Document workflow in README.md", "status": "done", "date_started": "2025-09-29 19:46", "date_stopped": "2025-09-29 19:46"},
+    {"text": "Update team on new process", "status": "done", "date_started": "2025-09-29 19:46", "date_stopped": "2025-09-29 19:46"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 2"},
+    {"timestamp": "2025-09-29 19:45", "text": "Analyzed existing dependency files - found UV already configured"},
+    {"timestamp": "2025-09-29 19:45", "text": "Chose UV as single dependency management tool"},
+    {"timestamp": "2025-09-29 19:45", "text": "Consolidated dependencies into pyproject.toml with dev extras"},
+    {"timestamp": "2025-09-29 19:45", "text": "Removed duplicate requirements.txt file"},
+    {"timestamp": "2025-09-29 19:45", "text": "Regenerated uv.lock with updated dependencies"},
+    {"timestamp": "2025-09-29 19:46", "text": "Documented UV workflow in README.md"},
+    {"timestamp": "2025-09-29 19:46", "text": "Task completed successfully"}
+  ],
+  "decisions": [
+    "Chose UV over pip-tools and Poetry for its speed and modern approach",
+    "Consolidated all dependencies into pyproject.toml with dev extras",
+    "Removed duplicate requirements.txt to avoid confusion",
+    "Documented clear workflow for contributors in README.md"
+  ],
+  "lessons_learned": [
+    "UV was already configured in devbox.json, making it the natural choice",
+    "Consolidating dependencies into pyproject.toml with dev extras provides better organization",
+    "Removing duplicate requirements.txt eliminates confusion and maintenance overhead",
+    "Clear documentation in README.md is essential for team adoption"
+  ],
+  "issues_risks": [
+    "Risk: Different tools have different strengths (uv for speed, pip-tools for simplicity, Poetry for full project management)",
+    "Risk: Team may have preferences for specific tools",
+    "Risk: Migration may require updating CI/CD pipelines"
+  ],
+  "next_steps": [
+    "Review current dependency files and their purposes",
+    "Consider team preferences and project requirements",
+    "Choose tool that best fits project needs"
+  ],
+  "references": [
+    "uv documentation",
+    "pip-tools documentation",
+    "Poetry documentation",
+    "Python dependency management best practices"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 2,
+    "priority": "high",
+    "estimated_effort": "3 hours"
+  }
+}

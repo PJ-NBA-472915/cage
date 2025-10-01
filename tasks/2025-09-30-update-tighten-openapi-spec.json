@@ -1,0 +1,157 @@
+{
+  "id": "2025-09-30-update-tighten-openapi-spec",
+  "title": "Update and tighten the OpenAPI spec",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 11:57",
+  "progress_percent": 100,
+  "tags": ["file-api", "openapi", "api-documentation", "stability"],
+  "summary": "Update each FastAPI app's OpenAPI to include a reusable Problem schema in components/schemas, reference it for all error responses, add concrete examples, and bump the API version (e.g., /v1 → 1.0.x).",
+  "success_criteria": [
+    {
+      "text": "/openapi.json validates without errors",
+      "checked": true
+    },
+    {
+      "text": "Shows Problem schema on error responses",
+      "checked": true
+    },
+    {
+      "text": "Includes X-Request-ID in response headers where relevant",
+      "checked": true
+    },
+    {
+      "text": "API version is bumped (e.g., /v1 → 1.0.x)",
+      "checked": true
+    },
+    {
+      "text": "Concrete examples are added to endpoints",
+      "checked": true
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "OpenAPI spec includes reusable Problem Details schema",
+      "checked": true
+    },
+    {
+      "text": "All error responses reference the Problem schema",
+      "checked": true
+    },
+    {
+      "text": "Response headers include X-Request-ID where applicable",
+      "checked": true
+    },
+    {
+      "text": "API version reflects current stable version",
+      "checked": true
+    },
+    {
+      "text": "Endpoints include concrete request/response examples",
+      "checked": true
+    }
+  ],
+  "subtasks": [
+    "Define reusable Problem Details schema in OpenAPI",
+    "Update all FastAPI apps to include Problem schema",
+    "Reference Problem schema in all error responses",
+    "Add X-Request-ID to response headers in OpenAPI",
+    "Bump API version numbers across all services",
+    "Add concrete examples to endpoints",
+    "Validate OpenAPI specs with standard tools"
+  ],
+  "todo": [
+    {
+      "text": "Define reusable Problem Details schema in OpenAPI",
+      "status": "done",
+      "date_started": "2025-09-30 11:45",
+      "date_stopped": "2025-09-30 11:50"
+    },
+    {
+      "text": "Update all FastAPI apps to include Problem schema",
+      "status": "done",
+      "date_started": "2025-09-30 11:50",
+      "date_stopped": "2025-09-30 11:52"
+    },
+    {
+      "text": "Reference Problem schema in all error responses",
+      "status": "done",
+      "date_started": "2025-09-30 11:52",
+      "date_stopped": "2025-09-30 11:53"
+    },
+    {
+      "text": "Add X-Request-ID to response headers in OpenAPI",
+      "status": "done",
+      "date_started": "2025-09-30 11:53",
+      "date_stopped": "2025-09-30 11:54"
+    },
+    {
+      "text": "Bump API version numbers across all services",
+      "status": "done",
+      "date_started": "2025-09-30 11:54",
+      "date_stopped": "2025-09-30 11:55"
+    },
+    {
+      "text": "Add concrete examples to endpoints",
+      "status": "done",
+      "date_started": "2025-09-30 11:55",
+      "date_stopped": "2025-09-30 11:56"
+    },
+    {
+      "text": "Validate OpenAPI specs with standard tools",
+      "status": "done",
+      "date_started": "2025-09-30 11:56",
+      "date_stopped": "2025-09-30 11:57"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-30 10:33",
+      "text": "Task file created for OpenAPI specification updates"
+    },
+    {
+      "timestamp": "2025-09-30 11:45",
+      "text": "Started working on Task 5: Update and tighten OpenAPI spec"
+    },
+    {
+      "timestamp": "2025-09-30 11:57",
+      "text": "Task 5 completed: OpenAPI specs updated with Problem Details, examples, and standardized schema"
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "OpenAPI spec changes may affect existing API documentation tools",
+    "Version bumping may require client-side updates",
+    "Need to ensure all services have consistent OpenAPI structure"
+  ],
+  "next_steps": [
+    "Review current OpenAPI specs for all file API services",
+    "Design reusable Problem Details schema",
+    "Plan API version numbering strategy"
+  ],
+  "references": [
+    "src/apps/files_api/main.py - Files API OpenAPI spec",
+    "src/apps/rag_api/main.py - RAG API OpenAPI spec",
+    "src/apps/lock_api/main.py - Lock API OpenAPI spec",
+    "OpenAPI 3.0 specification documentation"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "medium",
+    "estimated_effort": "5",
+    "dependencies": ["2025-09-30-standardise-error-responses-problem-details"],
+    "related_tasks": [
+      "2025-09-30-standardise-error-responses-problem-details",
+      "2025-09-30-normalise-status-codes-validation"
+    ]
+  }
+}

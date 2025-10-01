@@ -1,0 +1,185 @@
+{
+  "id": "2025-10-01-add-mcp-integration-tests",
+  "title": "Add Comprehensive Integration Tests for MCP Server",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:35",
+  "updated_at": "2025-10-01 23:50",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "testing",
+    "integration",
+    "medium"
+  ],
+  "summary": "MCP server currently lacks automated integration tests. Need to create comprehensive test suite covering full MCP protocol flow, error handling, and authentication.",
+  "success_criteria": [
+    {
+      "text": "Integration test suite created in tests/integration/",
+      "checked": false
+    },
+    {
+      "text": "Tests cover MCP protocol initialize flow",
+      "checked": false
+    },
+    {
+      "text": "Tests cover all tool invocations",
+      "checked": false
+    },
+    {
+      "text": "Tests cover error scenarios",
+      "checked": false
+    },
+    {
+      "text": "Tests cover authentication",
+      "checked": false
+    },
+    {
+      "text": "Tests can run in CI/CD pipeline",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "pytest runs all MCP integration tests successfully",
+      "checked": false
+    },
+    {
+      "text": "Test coverage for MCP endpoints > 80%",
+      "checked": false
+    },
+    {
+      "text": "Tests catch regressions in MCP protocol",
+      "checked": false
+    },
+    {
+      "text": "Tests are fast and reliable",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Create tests/integration/test_mcp_server.py",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Move test_mcp_client.py logic into pytest tests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add test for MCP initialize handshake",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add test for tools/list endpoint",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add tests for each tool (rag_query, agent_create, etc.)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add tests for error conditions",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add tests for authentication failures",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add tests for invalid JSON-RPC requests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add pytest fixtures for MCP client",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Configure pytest markers for integration tests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Publish pytest coverage report for MCP modules and attach summary",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add integration test job to CI configuration and verify it runs green",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:35",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Integration tests need running services (postgres, redis, crew-api)",
+    "May need docker-compose test configuration",
+    "Tests should be isolated and not affect each other"
+  ],
+  "next_steps": [
+    "Create test infrastructure",
+    "Port existing test_mcp_client.py to pytest",
+    "Add comprehensive test coverage"
+  ],
+  "references": [
+    "test_mcp_client.py - Existing basic tests to convert",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Future Work #8"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:48",
+      "text": "Integration coverage for MCP protocol was highlighted as missing automated tests.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Future Work #8"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "medium",
+    "estimated_hours": 12,
+    "related_files": [
+      "tests/integration/test_mcp_server.py",
+      "test_mcp_client.py"
+    ],
+    "depends_on": [
+      "2025-10-01-implement-mcp-rpc-protocol",
+      "2025-10-01-add-mcp-sse-streaming"
+    ]
+  }
+}

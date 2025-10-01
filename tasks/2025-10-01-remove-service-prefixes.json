@@ -1,0 +1,103 @@
+{
+  "id": "2025-10-01-remove-service-prefixes",
+  "title": "Remove service prefixes from all API routes",
+  "owner": "Assistant",
+  "status": "done",
+  "created_at": "2025-10-01 11:17",
+  "updated_at": "2025-10-01 11:17",
+  "progress_percent": 100,
+  "tags": ["api", "routes", "refactoring"],
+  "summary": "Removed service-specific prefixes from all API routes to provide cleaner, more intuitive endpoints.",
+  "success_criteria": [
+    {"text": "Lock API routes no longer have /lock prefix", "checked": true},
+    {"text": "Git API routes no longer have /git prefix", "checked": true},
+    {"text": "RAG API routes no longer have /rag prefix", "checked": true},
+    {"text": "Files API routes no longer have /files prefix", "checked": true},
+    {"text": "All services tested and working correctly", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Lock API shows clean routes: /generate, /build, /templates, etc.", "checked": true},
+    {"text": "Git API shows clean routes: /status, /branch, /commit, etc.", "checked": true},
+    {"text": "RAG API shows clean routes: /query, /reindex, /blobs/{sha}, etc.", "checked": true},
+    {"text": "Files API shows clean routes: /edit, /commit, /sha, etc.", "checked": true},
+    {"text": "All endpoints respond correctly without prefixes", "checked": true},
+    {"text": "Authentication still works as expected", "checked": true},
+    {"text": "Health endpoints accessible without authentication", "checked": true}
+  ],
+  "subtasks": [
+    "Remove /lock prefix from lock-api routes",
+    "Remove /git prefix from git-api routes",
+    "Remove /rag prefix from rag-api routes",
+    "Remove /files prefix from files-api routes",
+    "Fix duplicate /health endpoint conflict in RAG API",
+    "Restart all services to apply changes",
+    "Test all endpoints to verify functionality",
+    "Commit changes with comprehensive message"
+  ],
+  "todo": [
+    {"text": "Remove /lock prefix from lock-api routes", "status": "done", "date_started": "2025-10-01 11:15", "date_stopped": "2025-10-01 11:16"},
+    {"text": "Remove /git prefix from git-api routes", "status": "done", "date_started": "2025-10-01 11:16", "date_stopped": "2025-10-01 11:16"},
+    {"text": "Remove /rag prefix from rag-api routes", "status": "done", "date_started": "2025-10-01 11:16", "date_stopped": "2025-10-01 11:16"},
+    {"text": "Remove /files prefix from files-api routes", "status": "done", "date_started": "2025-10-01 11:16", "date_stopped": "2025-10-01 11:16"},
+    {"text": "Fix duplicate /health endpoint conflict in RAG API", "status": "done", "date_started": "2025-10-01 11:16", "date_stopped": "2025-10-01 11:16"},
+    {"text": "Restart all services to apply changes", "status": "done", "date_started": "2025-10-01 11:16", "date_stopped": "2025-10-01 11:16"},
+    {"text": "Test all endpoints to verify functionality", "status": "done", "date_started": "2025-10-01 11:16", "date_stopped": "2025-10-01 11:17"},
+    {"text": "Commit changes with comprehensive message", "status": "done", "date_started": "2025-10-01 11:17", "date_stopped": "2025-10-01 11:17"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-10-01 11:15", "text": "Task created - identified need to remove service prefixes from API routes"},
+    {"timestamp": "2025-10-01 11:16", "text": "Updated lock-api routes: removed /lock prefix from generate, build, templates, validate, go-version, install-deps, stats"},
+    {"timestamp": "2025-10-01 11:16", "text": "Updated git-api routes: removed /git prefix from status, branch, commit, push, pull, merge, history, revert, open_pr"},
+    {"timestamp": "2025-10-01 11:16", "text": "Updated rag-api routes: removed /rag prefix from query, reindex, blobs/{sha}, stats, and renamed duplicate /health to /health-detailed"},
+    {"timestamp": "2025-10-01 11:16", "text": "Updated files-api routes: removed /files prefix from edit, commit, sha"},
+    {"timestamp": "2025-10-01 11:16", "text": "Restarted all services (files-api, git-api, rag-api, lock-api) to apply route changes"},
+    {"timestamp": "2025-10-01 11:17", "text": "Tested all services - verified clean routes and proper functionality"},
+    {"timestamp": "2025-10-01 11:17", "text": "Committed changes with comprehensive commit message describing all route changes"}
+  ],
+  "decisions": [
+    "Removed all service prefixes to provide cleaner, more intuitive API endpoints",
+    "Renamed duplicate /health endpoint in RAG API to /health-detailed to avoid conflicts",
+    "Kept Crew API unchanged as it already had clean routes without prefixes"
+  ],
+  "lessons_learned": [
+    "Service prefixes were redundant since each service runs on a different port",
+    "Cleaner routes improve developer experience and API usability",
+    "Need to check for endpoint conflicts when removing prefixes (like duplicate /health)",
+    "All services maintained proper authentication and functionality after prefix removal"
+  ],
+  "issues_risks": [
+    "Potential breaking changes for existing clients - mitigated by clear documentation",
+    "Need to update any client code that was using prefixed routes"
+  ],
+  "next_steps": [
+    "Update API documentation to reflect new clean routes",
+    "Update any client libraries or examples that reference old prefixed routes",
+    "Consider versioning strategy if backward compatibility is needed"
+  ],
+  "references": [
+    "User request: 'Change all of the services to not have the service name in the routes'",
+    "Lock API example: /lock/generate → /generate",
+    "Git API example: /git/status → /status",
+    "RAG API example: /rag/query → /query",
+    "Files API example: /files/edit → /edit"
+  ],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "services_affected": ["lock-api", "git-api", "rag-api", "files-api"],
+    "total_routes_updated": 25,
+    "endpoint_conflicts_resolved": 1,
+    "services_restarted": 4
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 11:12",
+      "text": "Change all of the services to not have the service name in the routes. For example with the lock-api, I don't want to see the lock prefix in the routes:",
+      "context": "User identified that service prefixes in API routes were redundant and wanted cleaner endpoints"
+    }
+  ]
+}

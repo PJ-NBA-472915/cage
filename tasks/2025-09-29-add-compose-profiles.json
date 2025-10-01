@@ -1,0 +1,80 @@
+{
+  "id": "2025-09-29-add-compose-profiles",
+  "title": "Add Compose profiles",
+  "owner": "AI Agent",
+  "status": "done",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 19:56",
+  "progress_percent": 100,
+  "tags": ["docker", "compose", "observability"],
+  "summary": "Restructure docker-compose.yml so optional infrastructure like the observability stack (Grafana, Loki, Promtail) is wrapped in a profiles: [observability] section, allowing developers to run docker compose --profile observability up when needed.",
+  "success_criteria": [
+    {"text": "Observability stack wrapped in profiles: [observability]", "checked": true},
+    {"text": "Developers can run with --profile observability", "checked": true},
+    {"text": "Routine local work doesn't require full stack", "checked": true},
+    {"text": "Documentation explains profile usage", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Grafana service has profiles: [observability]", "checked": true},
+    {"text": "Loki service has profiles: [observability]", "checked": true},
+    {"text": "Promtail service has profiles: [observability]", "checked": true},
+    {"text": "docker compose up works without observability", "checked": true},
+    {"text": "docker compose --profile observability up works", "checked": true}
+  ],
+  "subtasks": [
+    "Examine current docker-compose.yml structure",
+    "Identify observability services",
+    "Add profiles: [observability] to observability services",
+    "Test both profile modes",
+    "Update documentation",
+    "Create example usage commands"
+  ],
+  "todo": [
+    {"text": "Examine current docker-compose.yml structure", "status": "done", "date_started": "2025-09-29 19:55", "date_stopped": "2025-09-29 19:55"},
+    {"text": "Identify observability services", "status": "done", "date_started": "2025-09-29 19:55", "date_stopped": "2025-09-29 19:55"},
+    {"text": "Add profiles: [observability] to observability services", "status": "done", "date_started": "2025-09-29 19:55", "date_stopped": "2025-09-29 19:55"},
+    {"text": "Test both profile modes", "status": "done", "date_started": "2025-09-29 19:55", "date_stopped": "2025-09-29 19:55"},
+    {"text": "Update documentation", "status": "done", "date_started": "2025-09-29 19:56", "date_stopped": "2025-09-29 19:56"},
+    {"text": "Create example usage commands", "status": "done", "date_started": "2025-09-29 19:56", "date_stopped": "2025-09-29 19:56"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 7"},
+    {"timestamp": "2025-09-29 19:55", "text": "Examined docker-compose.yml structure"},
+    {"timestamp": "2025-09-29 19:55", "text": "Identified observability services: loki, promtail, grafana, logrotate"},
+    {"timestamp": "2025-09-29 19:55", "text": "Added profiles: [observability] to all observability services"},
+    {"timestamp": "2025-09-29 19:55", "text": "Tested both profile modes - observability excluded by default"},
+    {"timestamp": "2025-09-29 19:56", "text": "Updated README.md with profile usage documentation"},
+    {"timestamp": "2025-09-29 19:56", "text": "Task completed successfully"}
+  ],
+  "decisions": [
+    "Wrapped observability services (loki, promtail, grafana, logrotate) in profiles: [observability]",
+    "Core services (postgres, redis, mcp, api services) remain in default profile",
+    "Updated README.md with comprehensive profile usage documentation",
+    "Tested both profile modes to ensure proper functionality"
+  ],
+  "lessons_learned": [
+    "Docker Compose profiles are perfect for optional infrastructure services",
+    "Observability stack can be excluded by default without breaking core functionality",
+    "Clear documentation is essential for team adoption of profile usage",
+    "Testing both profile modes ensures proper functionality"
+  ],
+  "issues_risks": [
+    "Risk: Breaking existing workflows that expect observability stack",
+    "Risk: Team confusion about when to use profiles"
+  ],
+  "next_steps": [
+    "Review current docker-compose.yml",
+    "Identify all observability-related services",
+    "Plan profile structure"
+  ],
+  "references": [
+    "Docker Compose profiles documentation",
+    "Observability stack best practices"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 7,
+    "priority": "medium",
+    "estimated_effort": "2 hours"
+  }
+}

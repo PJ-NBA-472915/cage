@@ -1,0 +1,40 @@
+{
+  "id": "2025-09-30-crew-jsonl-logging",
+  "title": "JSONL logging setup",
+  "owner": "Assistant",
+  "status": "in-progress",
+  "created_at": "2025-09-30 12:55",
+  "updated_at": "2025-09-30 12:55",
+  "progress_percent": 0,
+  "tags": ["crew", "logging", "jsonl"],
+  "summary": "Structured JSONL logs consistent with platform using existing utilities.",
+  "success_criteria": [
+    {"text": "jq -c . parses each log line", "checked": false},
+    {"text": "INFO for success, ERROR for failures", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Configure root logger with JSONL formatter", "checked": false},
+    {"text": "Fields: ts, level, service=\"crewai\", pod_id, request_id, route, actor, msg, error?, stack?", "checked": false},
+    {"text": "Write to stdout (container) and optionally to /var/log/cage/crewai-YYYY-MM-DD.jsonl", "checked": false}
+  ],
+  "subtasks": [
+    "Adapt existing JSONL logger for crew service",
+    "Configure logging in main.py",
+    "Test JSONL format output"
+  ],
+  "todo": [
+    {"text": "Adapt existing JSONL logger for crew service", "status": "in-progress", "date_started": "2025-09-30 12:55", "date_stopped": null},
+    {"text": "Configure logging in main.py", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test JSONL format output", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-30 12:55", "text": "Task created and started"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}

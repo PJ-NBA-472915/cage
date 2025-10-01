@@ -1,0 +1,44 @@
+{
+  "id": "2025-09-30-crew-in-memory-repos",
+  "title": "In-memory repositories (pluggable)",
+  "owner": "Assistant",
+  "status": "in-progress",
+  "created_at": "2025-09-30 13:10",
+  "updated_at": "2025-09-30 13:10",
+  "progress_percent": 0,
+  "tags": ["crew", "repositories", "pagination"],
+  "summary": "Minimal persistence layer with in-mem dicts & pagination.",
+  "success_criteria": [
+    {"text": "Agents/crews/runs survive in process", "checked": false},
+    {"text": "Listing supports limit/cursor", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Repo classes: AgentRepo, CrewRepo, RunRepo with CRUD", "checked": false},
+    {"text": "list(filter, limit, cursor) methods", "checked": false},
+    {"text": "Cursor: base64 of last created_at|id", "checked": false}
+  ],
+  "subtasks": [
+    "Create repos directory",
+    "Implement AgentRepo with CRUD and pagination",
+    "Implement CrewRepo with CRUD and pagination",
+    "Implement RunRepo with CRUD and pagination",
+    "Test repository functionality"
+  ],
+  "todo": [
+    {"text": "Create repos directory", "status": "in-progress", "date_started": "2025-09-30 13:10", "date_stopped": null},
+    {"text": "Implement AgentRepo with CRUD and pagination", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement CrewRepo with CRUD and pagination", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement RunRepo with CRUD and pagination", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test repository functionality", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-30 13:10", "text": "Task created and started"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}

@@ -1,0 +1,58 @@
+{
+  "id": "2025-09-30-crew-service-skeleton",
+  "title": "Create /crew service skeleton",
+  "owner": "Assistant",
+  "status": "completed",
+  "created_at": "2025-09-30 12:15",
+  "updated_at": "2025-09-30 12:47",
+  "progress_percent": 100,
+  "tags": ["crew", "fastapi", "skeleton"],
+  "summary": "Stand up a FastAPI app exposing only /crew routes with basic health and about endpoints.",
+  "success_criteria": [
+    {"text": "App runs: uvicorn src.crewai.main:app", "checked": true},
+    {"text": "/crew/health returns 200", "checked": true},
+    {"text": "/crew/about returns pod info", "checked": true},
+    {"text": "/openapi.json renders only /crew/* endpoints", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "FastAPI app created in main.py with lifespan hook", "checked": true},
+    {"text": "Router created with APIRouter(prefix=\"/crew\", tags=[\"crew\"])", "checked": true},
+    {"text": "Router mounted in main.py", "checked": true},
+    {"text": "GET /crew/health → {\"status\":\"ok\"}", "checked": true},
+    {"text": "GET /crew/about → pod info with pod_id, version, labels", "checked": true},
+    {"text": "At least one INFO log per request with route and request_id", "checked": true}
+  ],
+  "subtasks": [
+    "Create FastAPI app in main.py with lifespan hook",
+    "Create router.py with bare APIRouter",
+    "Mount router in main.py",
+    "Implement /crew/health endpoint",
+    "Implement /crew/about endpoint",
+    "Add basic logging"
+  ],
+  "todo": [
+    {"text": "Create FastAPI app in main.py with lifespan hook", "status": "done", "date_started": "2025-09-30 12:15", "date_stopped": "2025-09-30 12:20"},
+    {"text": "Create router.py with bare APIRouter", "status": "done", "date_started": "2025-09-30 12:20", "date_stopped": "2025-09-30 12:25"},
+    {"text": "Mount router in main.py", "status": "done", "date_started": "2025-09-30 12:25", "date_stopped": "2025-09-30 12:30"},
+    {"text": "Implement /crew/health endpoint", "status": "done", "date_started": "2025-09-30 12:30", "date_stopped": "2025-09-30 12:35"},
+    {"text": "Implement /crew/about endpoint", "status": "done", "date_started": "2025-09-30 12:35", "date_stopped": "2025-09-30 12:40"},
+    {"text": "Add basic logging", "status": "done", "date_started": "2025-09-30 12:40", "date_stopped": "2025-09-30 12:45"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-30 12:15", "text": "Task created and started"},
+    {"timestamp": "2025-09-30 12:20", "text": "Created FastAPI app with lifespan hook"},
+    {"timestamp": "2025-09-30 12:25", "text": "Created router.py with APIRouter"},
+    {"timestamp": "2025-09-30 12:30", "text": "Mounted router in main.py"},
+    {"timestamp": "2025-09-30 12:35", "text": "Implemented /crew/health endpoint"},
+    {"timestamp": "2025-09-30 12:40", "text": "Implemented /crew/about endpoint"},
+    {"timestamp": "2025-09-30 12:45", "text": "Added basic logging with request_id"},
+    {"timestamp": "2025-09-30 12:47", "text": "Tested all endpoints - all working correctly"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}

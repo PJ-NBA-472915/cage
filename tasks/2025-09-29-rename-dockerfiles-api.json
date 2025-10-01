@@ -1,0 +1,81 @@
+{
+  "id": "2025-09-29-rename-dockerfiles-api",
+  "title": "Rename dockerfiles/api to proper structure",
+  "owner": "AI Agent",
+  "status": "done",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 19:48",
+  "progress_percent": 100,
+  "tags": ["docker", "organization", "documentation"],
+  "summary": "Rename dockerfiles/api file to either dockerfiles/Dockerfile.api or place it under dockerfiles/api/Dockerfile to avoid confusion since 'api' looks like a directory but isn't.",
+  "success_criteria": [
+    {"text": "dockerfiles/api is renamed to proper structure", "checked": true},
+    {"text": "README added in dockerfiles/ explaining naming convention", "checked": true},
+    {"text": "Docker Compose references are updated", "checked": true},
+    {"text": "New contributors understand the structure", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "dockerfiles/api file is renamed appropriately", "checked": true},
+    {"text": "docker-compose.yml references updated", "checked": true},
+    {"text": "dockerfiles/README.md explains naming convention", "checked": true},
+    {"text": "All Docker builds still work", "checked": true}
+  ],
+  "subtasks": [
+    "Examine current dockerfiles/api file",
+    "Choose appropriate naming structure",
+    "Rename the file",
+    "Update docker-compose.yml references",
+    "Create dockerfiles/README.md",
+    "Test Docker builds"
+  ],
+  "todo": [
+    {"text": "Examine current dockerfiles/api file", "status": "done", "date_started": "2025-09-29 19:46", "date_stopped": "2025-09-29 19:46"},
+    {"text": "Choose appropriate naming structure", "status": "done", "date_started": "2025-09-29 19:46", "date_stopped": "2025-09-29 19:46"},
+    {"text": "Rename the file", "status": "done", "date_started": "2025-09-29 19:46", "date_stopped": "2025-09-29 19:46"},
+    {"text": "Update docker-compose.yml references", "status": "done", "date_started": "2025-09-29 19:46", "date_stopped": "2025-09-29 19:46"},
+    {"text": "Create dockerfiles/README.md", "status": "done", "date_started": "2025-09-29 19:46", "date_stopped": "2025-09-29 19:46"},
+    {"text": "Test Docker builds", "status": "done", "date_started": "2025-09-29 19:47", "date_stopped": "2025-09-29 19:48"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 3"},
+    {"timestamp": "2025-09-29 19:46", "text": "Examined dockerfiles structure - found api and mcp files"},
+    {"timestamp": "2025-09-29 19:46", "text": "Renamed dockerfiles/api to dockerfiles/api/Dockerfile"},
+    {"timestamp": "2025-09-29 19:46", "text": "Renamed dockerfiles/mcp to dockerfiles/mcp/Dockerfile"},
+    {"timestamp": "2025-09-29 19:46", "text": "Updated docker-compose.yml to reference new mcp path"},
+    {"timestamp": "2025-09-29 19:46", "text": "Created dockerfiles/README.md explaining naming convention"},
+    {"timestamp": "2025-09-29 19:47", "text": "Updated Dockerfiles to use UV instead of pip"},
+    {"timestamp": "2025-09-29 19:47", "text": "Fixed pyproject.toml package structure for hatchling"},
+    {"timestamp": "2025-09-29 19:48", "text": "Successfully tested Docker build - task completed"}
+  ],
+  "decisions": [
+    "Chose dockerfiles/service/Dockerfile structure over dockerfiles/Dockerfile.service",
+    "Updated Dockerfiles to use UV instead of pip for consistency",
+    "Added hatchling package configuration to pyproject.toml",
+    "Created comprehensive README.md explaining naming convention"
+  ],
+  "lessons_learned": [
+    "dockerfiles/service/Dockerfile structure is clearer than dockerfiles/Dockerfile.service",
+    "UV integration requires updating both Dockerfiles and pyproject.toml",
+    "hatchling needs explicit package configuration for src/ layout",
+    "README.md documentation is essential for team understanding"
+  ],
+  "issues_risks": [
+    "Risk: Breaking existing Docker Compose configurations",
+    "Risk: Team may have scripts that reference the old path"
+  ],
+  "next_steps": [
+    "Check current dockerfiles/api file structure",
+    "Review docker-compose.yml for references",
+    "Choose between dockerfiles/Dockerfile.api or dockerfiles/api/Dockerfile"
+  ],
+  "references": [
+    "Docker best practices",
+    "Docker Compose documentation"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 3,
+    "priority": "medium",
+    "estimated_effort": "2 hours"
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "id": "2025-10-01-enable-mcp-docker-healthcheck",
+  "title": "Enable Docker Healthcheck for MCP Service",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:15",
+  "updated_at": "2025-10-01 23:51",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "docker",
+    "infrastructure",
+    "medium"
+  ],
+  "summary": "The MCP service healthcheck is completely commented out in docker-compose.yml, preventing Docker from knowing if the service is healthy and breaking depends_on health conditions.",
+  "success_criteria": [
+    {
+      "text": "Healthcheck uncommented and enabled in docker-compose.yml",
+      "checked": false
+    },
+    {
+      "text": "Healthcheck successfully queries /mcp/health endpoint",
+      "checked": false
+    },
+    {
+      "text": "Docker reports service as healthy after startup",
+      "checked": false
+    },
+    {
+      "text": "Dependent services can use service_healthy condition",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "docker ps shows MCP service as (healthy)",
+      "checked": false
+    },
+    {
+      "text": "Healthcheck fails appropriately when service is down",
+      "checked": false
+    },
+    {
+      "text": "Startup time is reasonable with healthcheck enabled",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Uncomment healthcheck section in docker-compose.yml",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Update healthcheck to use correct /mcp/health endpoint",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Adjust interval and timeout settings if needed",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test healthcheck with docker-compose up",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Verify depends_on conditions work properly",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run docker compose up and capture docker ps health status for MCP service",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document healthcheck failure scenario and recovery steps in lessons learned",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:15",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Healthcheck may fail during initial startup - need appropriate start_period",
+    "Need to ensure curl is available in the container"
+  ],
+  "next_steps": [
+    "Enable healthcheck with proper configuration",
+    "Test with service restarts"
+  ],
+  "references": [
+    "docker-compose.yml:187-192 - Commented healthcheck",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Bug #4"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:49",
+      "text": "Healthcheck was commented out per review and needs to be re-enabled for Docker orchestration.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Bug #4"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "medium",
+    "estimated_hours": 1,
+    "related_files": [
+      "docker-compose.yml"
+    ],
+    "depends_on": [
+      "2025-09-30-docker-compose-debug-and-fix"
+    ]
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "id": "2025-10-01-add-mcp-api-documentation",
+  "title": "Add API Documentation for MCP Server Endpoints",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:30",
+  "updated_at": "2025-10-01 23:49",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "documentation",
+    "api",
+    "high-priority"
+  ],
+  "summary": "MCP server lacks comprehensive API documentation. Need to enable FastAPI automatic docs, add OpenAPI schema, and document all endpoints, tools, and configuration options.",
+  "success_criteria": [
+    {
+      "text": "FastAPI /docs endpoint enabled and accessible",
+      "checked": false
+    },
+    {
+      "text": "OpenAPI schema available at /openapi.json",
+      "checked": false
+    },
+    {
+      "text": "All endpoints documented with examples",
+      "checked": false
+    },
+    {
+      "text": "All MCP tools documented with schemas",
+      "checked": false
+    },
+    {
+      "text": "Configuration guide created",
+      "checked": false
+    },
+    {
+      "text": "Getting started guide created",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Developer can access /docs and understand all endpoints",
+      "checked": false
+    },
+    {
+      "text": "OpenAPI schema can be imported into Postman/Insomnia",
+      "checked": false
+    },
+    {
+      "text": "Documentation includes authentication examples",
+      "checked": false
+    },
+    {
+      "text": "Tool schemas match actual implementation",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Enable FastAPI docs_url in server.py",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add docstrings to all endpoint functions",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add request/response examples to endpoints",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document all MCP tools with schemas",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create docs/mcp-api-reference.md",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create docs/mcp-getting-started.md",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document authentication and security",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add examples for common use cases",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document error responses",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Capture /docs screenshot or HTML export and reference in changelog",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Export OpenAPI schema to docs/mcp-openapi.json and link from task",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:30",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Documentation needs to stay in sync with implementation",
+    "May need to add Pydantic models for better OpenAPI generation"
+  ],
+  "next_steps": [
+    "Enable /docs endpoint",
+    "Add comprehensive docstrings",
+    "Create getting started guide"
+  ],
+  "references": [
+    "src/cage/mcp/server.py - Server implementation",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Future Work #4 and Challenge #1"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:47",
+      "text": "Reviewer requested enabling FastAPI docs and writing comprehensive endpoint documentation for MCP.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Future Work #4"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_hours": 8,
+    "related_files": [
+      "src/cage/mcp/server.py",
+      "docs/mcp-api-reference.md",
+      "docs/mcp-getting-started.md"
+    ],
+    "depends_on": [
+      "2025-10-01-implement-mcp-rpc-protocol",
+      "2025-10-01-add-mcp-sse-streaming"
+    ]
+  }
+}

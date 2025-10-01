@@ -1,0 +1,174 @@
+{
+  "id": "2025-10-01-improve-mcp-developer-experience",
+  "title": "Improve MCP Developer Experience and Documentation",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:40",
+  "updated_at": "2025-10-01 23:52",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "devex",
+    "documentation",
+    "low-priority"
+  ],
+  "summary": "Improve developer experience by adding make targets, documenting profile usage, creating example .env file, and writing development setup guide. Address confusion around docker-compose --profile dev requirement.",
+  "success_criteria": [
+    {
+      "text": "Makefile with common MCP operations created",
+      "checked": false
+    },
+    {
+      "text": "Example .env.example file with all variables documented",
+      "checked": false
+    },
+    {
+      "text": "Development setup guide created",
+      "checked": false
+    },
+    {
+      "text": "Docker profile usage documented",
+      "checked": false
+    },
+    {
+      "text": "Troubleshooting guide created",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "New developer can start MCP service using make commands",
+      "checked": false
+    },
+    {
+      "text": "All environment variables are documented",
+      "checked": false
+    },
+    {
+      "text": "Common issues have documented solutions",
+      "checked": false
+    },
+    {
+      "text": "Setup time for new developers reduced",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Create Makefile with mcp-start, mcp-stop, mcp-logs targets",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add mcp-test target for running tests",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create .env.example with all MCP variables",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document POD_TOKEN, API_BASE_URL, etc.",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create docs/mcp-development-setup.md",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document docker-compose profile system",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create docs/mcp-troubleshooting.md",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add common error messages and solutions",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Update README with MCP quickstart",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Usability test Makefile and docs with a fresh environment and capture feedback",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add checklist ensuring README quickstart stays updated with new commands",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:40",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [
+    "Need to document docker-compose --profile dev requirement",
+    "Container networking confusion could be prevented with better docs"
+  ],
+  "issues_risks": [
+    "Makefile commands will drift if new services are added without updating docs",
+    "Onboarding material must balance Docker vs local workflows to avoid confusing contributors"
+  ],
+  "next_steps": [
+    "Create basic Makefile",
+    "Document environment variables",
+    "Write setup guide"
+  ],
+  "references": [
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Bug #9, Future Work #9, Challenges #2 and #4"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:50",
+      "text": "Review highlighted docker-compose --profile dev confusion and need for onboarding docs.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Challenges #2 & Future Work #9"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "low",
+    "estimated_hours": 6,
+    "related_files": [
+      "Makefile",
+      ".env.example",
+      "docs/mcp-development-setup.md",
+      "docs/mcp-troubleshooting.md"
+    ]
+  }
+}

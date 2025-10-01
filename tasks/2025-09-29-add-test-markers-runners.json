@@ -1,0 +1,68 @@
+{
+  "id": "2025-09-29-add-test-markers-runners",
+  "title": "Add test markers and runners",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 10:00",
+  "progress_percent": 0,
+  "tags": ["testing", "pytest", "ci"],
+  "summary": "Add pytest markers (@pytest.mark.unit, @pytest.mark.integration, @pytest.mark.api) to the test suite and set up tox or nox so that CI can selectively run different test layers.",
+  "success_criteria": [
+    {"text": "pytest markers added to test suite", "checked": false},
+    {"text": "tox or nox configured for test runners", "checked": false},
+    {"text": "CI can selectively run different test layers", "checked": false},
+    {"text": "Fast unit tests run by default", "checked": false},
+    {"text": "Heavier integration tests run on demand", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "@pytest.mark.unit markers added to unit tests", "checked": false},
+    {"text": "@pytest.mark.integration markers added to integration tests", "checked": false},
+    {"text": "@pytest.mark.api markers added to API tests", "checked": false},
+    {"text": "tox.ini or noxfile.py configured", "checked": false},
+    {"text": "CI can run pytest -m unit", "checked": false},
+    {"text": "CI can run pytest -m integration", "checked": false}
+  ],
+  "subtasks": [
+    "Examine current test suite structure",
+    "Add pytest markers to existing tests",
+    "Configure tox or nox for test runners",
+    "Update CI configuration",
+    "Document test running strategies",
+    "Test different marker combinations"
+  ],
+  "todo": [
+    {"text": "Examine current test suite structure", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add pytest markers to existing tests", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Configure tox or nox for test runners", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Update CI configuration", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Document test running strategies", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test different marker combinations", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 9"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Risk: Existing tests may not fit cleanly into marker categories",
+    "Risk: CI pipeline complexity may increase",
+    "Risk: Team may need to learn new test running commands"
+  ],
+  "next_steps": [
+    "Review current test structure",
+    "Choose between tox and nox",
+    "Define marker categories clearly"
+  ],
+  "references": [
+    "pytest markers documentation",
+    "tox documentation",
+    "nox documentation"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 9,
+    "priority": "medium",
+    "estimated_effort": "4 hours"
+  }
+}

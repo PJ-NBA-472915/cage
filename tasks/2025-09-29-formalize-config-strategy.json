@@ -1,0 +1,70 @@
+{
+  "id": "2025-09-29-formalize-config-strategy",
+  "title": "Formalise config strategy",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 10:00",
+  "progress_percent": 0,
+  "tags": ["configuration", "pydantic", "environment"],
+  "summary": "Flesh out config/ with environment-specific files (e.g., config/app.dev.toml, config/app.test.toml) and wire them into Pydantic settings classes, documenting that runtime configuration is validated at boot.",
+  "success_criteria": [
+    {"text": "Environment-specific config files created", "checked": false},
+    {"text": "Pydantic settings classes implemented", "checked": false},
+    {"text": "Runtime configuration validated at boot", "checked": false},
+    {"text": "Secrets come from environment variables", "checked": false},
+    {"text": "Repository ships only example configs", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "config/app.dev.toml exists", "checked": false},
+    {"text": "config/app.test.toml exists", "checked": false},
+    {"text": "config/app.prod.toml exists", "checked": false},
+    {"text": "Pydantic settings classes are implemented", "checked": false},
+    {"text": "Configuration validation works at startup", "checked": false},
+    {"text": "Example configs are provided", "checked": false}
+  ],
+  "subtasks": [
+    "Examine current config/ directory",
+    "Create environment-specific config files",
+    "Implement Pydantic settings classes",
+    "Wire configuration into applications",
+    "Add configuration validation",
+    "Create example config files",
+    "Document configuration strategy"
+  ],
+  "todo": [
+    {"text": "Examine current config/ directory", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Create environment-specific config files", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Implement Pydantic settings classes", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Wire configuration into applications", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add configuration validation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Create example config files", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Document configuration strategy", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 10"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Risk: Configuration changes may break existing deployments",
+    "Risk: Team may need to migrate existing configs",
+    "Risk: Complex configuration validation may slow startup"
+  ],
+  "next_steps": [
+    "Review current configuration approach",
+    "Define configuration schema",
+    "Plan migration strategy"
+  ],
+  "references": [
+    "Pydantic settings documentation",
+    "Configuration management best practices",
+    "Environment-specific configuration patterns"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 10,
+    "priority": "high",
+    "estimated_effort": "5 hours"
+  }
+}

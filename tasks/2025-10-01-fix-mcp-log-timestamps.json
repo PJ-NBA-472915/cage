@@ -1,0 +1,141 @@
+{
+  "id": "2025-10-01-fix-mcp-log-timestamps",
+  "title": "Fix Malformed Timestamp Format in MCP JSONL Logs",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-01 12:10",
+  "updated_at": "2025-10-01 23:48",
+  "progress_percent": 0,
+  "tags": [
+    "mcp",
+    "logging",
+    "bug",
+    "minor"
+  ],
+  "summary": "All MCP log timestamps show '.%fZ' instead of milliseconds because %f is not valid in strftime(). Need to format milliseconds separately and append to the timestamp string.",
+  "success_criteria": [
+    {
+      "text": "Log timestamps show proper milliseconds (e.g., 2025-10-01T10:45:37.123Z)",
+      "checked": false
+    },
+    {
+      "text": "Timestamps are in ISO 8601 format with UTC timezone",
+      "checked": false
+    },
+    {
+      "text": "All existing log entries use the new format",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Start MCP server and verify log timestamps are properly formatted",
+      "checked": false
+    },
+    {
+      "text": "Log parsing tools can correctly parse the timestamps",
+      "checked": false
+    },
+    {
+      "text": "Timestamp precision is milliseconds (3 digits)",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Update JsonlFormatter.format() method in src/cage/mcp/server.py",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Replace time.strftime with datetime formatting",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Extract milliseconds from record.created",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Format as ISO 8601 with milliseconds",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test log output format",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Verify compatibility with log aggregation tools",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Generate sample MCP logs after fix and attach snippet to changelog",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run log parsing tool to confirm new timestamp format is accepted",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-01 12:10",
+      "text": "Task created from MCP server review findings",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [
+    "Use millisecond precision (3 digits) to match standard logging practices",
+    "Keep UTC timezone indicator (Z) for clarity"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Log consumers or dashboards may need to be updated to the millisecond format; coordinate rollout with observability tooling",
+    "Ensure timestamp change is backward compatible with existing log retention policies"
+  ],
+  "next_steps": [
+    "Implement the fix using datetime.fromtimestamp()",
+    "Format as: dt.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'"
+  ],
+  "references": [
+    "src/cage/mcp/server.py:41 - JsonlFormatter.format() method",
+    "memory-bank/review/2025-10-01-mcp-server-review.md - Bug #7"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-01 12:45",
+      "text": "Review recorded malformed \".%fZ\" timestamps in MCP JSONL logs and requested millisecond formatting.",
+      "context": "memory-bank/review/2025-10-01-mcp-server-review.md - Bug #7"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "medium",
+    "estimated_hours": 1,
+    "related_files": [
+      "src/cage/mcp/server.py"
+    ]
+  }
+}

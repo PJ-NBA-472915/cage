@@ -1,0 +1,71 @@
+{
+  "id": "2025-09-29-clarify-memory-bank-docs",
+  "title": "Clarify memory-bank vs docs",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 10:00",
+  "progress_percent": 0,
+  "tags": ["organization", "documentation", "structure"],
+  "summary": "Move long-form reports, guides, and rules from memory-bank/ into a dedicated docs/ folder, leaving memory-bank/ for programmatic artefacts consumed by the system to reduce confusion between documentation and runtime knowledge assets.",
+  "success_criteria": [
+    {"text": "Long-form reports moved to docs/", "checked": false},
+    {"text": "Guides moved to docs/", "checked": false},
+    {"text": "Rules moved to docs/", "checked": false},
+    {"text": "memory-bank/ contains only programmatic artefacts", "checked": false},
+    {"text": "Clear separation between docs and runtime assets", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "docs/ directory exists", "checked": false},
+    {"text": "Reports moved from memory-bank/reports/ to docs/reports/", "checked": false},
+    {"text": "Guides moved from memory-bank/guides/ to docs/guides/", "checked": false},
+    {"text": "Rules moved from memory-bank/rules/ to docs/rules/", "checked": false},
+    {"text": "memory-bank/ contains only system-consumed artefacts", "checked": false},
+    {"text": "README.md updated to reflect new structure", "checked": false}
+  ],
+  "subtasks": [
+    "Examine current memory-bank/ structure",
+    "Create docs/ directory",
+    "Move reports/ to docs/reports/",
+    "Move guides/ to docs/guides/",
+    "Move rules/ to docs/rules/",
+    "Update references to moved files",
+    "Update documentation",
+    "Clean up memory-bank/ directory"
+  ],
+  "todo": [
+    {"text": "Examine current memory-bank/ structure", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Create docs/ directory", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Move reports/ to docs/reports/", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Move guides/ to docs/guides/", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Move rules/ to docs/rules/", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Update references to moved files", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Update documentation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Clean up memory-bank/ directory", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 12"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Risk: Breaking references to moved files",
+    "Risk: Team confusion during transition",
+    "Risk: Some files may belong in both locations"
+  ],
+  "next_steps": [
+    "Review memory-bank/ directory contents",
+    "Identify what should stay vs move",
+    "Plan migration strategy"
+  ],
+  "references": [
+    "Documentation organization best practices",
+    "Project structure conventions"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 12,
+    "priority": "medium",
+    "estimated_effort": "3 hours"
+  }
+}

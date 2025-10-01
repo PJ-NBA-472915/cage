@@ -1,0 +1,105 @@
+{
+  "id": "2025-09-30-docker-compose-debug-and-fix",
+  "title": "Debug and Fix Docker Compose Setup for All Services",
+  "owner": "Assistant",
+  "status": "in-progress",
+  "created_at": "2025-09-30 18:53",
+  "updated_at": "2025-09-30 18:53",
+  "progress_percent": 85,
+  "tags": ["docker", "debugging", "infrastructure", "services"],
+  "summary": "Comprehensive debugging and fixing of Docker Compose setup to ensure all API services start successfully. Fixed virtual environment issues, command overrides, and permissions problems.",
+  "success_criteria": [
+    {"text": "All API services (files-api, git-api, rag-api, lock-api, crew-api) start successfully and pass health checks", "checked": true},
+    {"text": "MCP server starts successfully and is accessible", "checked": false},
+    {"text": "All services use correct virtual environment paths", "checked": true},
+    {"text": "Docker Compose configuration is properly documented", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "All services respond to health check endpoints", "checked": true},
+    {"text": "No permission errors in service logs", "checked": true},
+    {"text": "Virtual environment paths are correctly configured", "checked": true},
+    {"text": "Docker Compose override file is properly configured", "checked": true}
+  ],
+  "subtasks": [
+    "Identify and fix Docker build issues with missing directories",
+    "Fix virtual environment path issues in Docker containers",
+    "Update docker-compose.yml commands to use correct Python paths",
+    "Fix docker-compose.override.yml command overrides",
+    "Test all service health endpoints",
+    "Debug MCP service startup issues"
+  ],
+  "todo": [
+    {"text": "Fix Docker build context issues with tasks/ and memory-bank/ directories", "status": "done", "date_started": "2025-09-30 17:06", "date_stopped": "2025-09-30 17:25"},
+    {"text": "Update .dockerignore files to allow required directories", "status": "done", "date_started": "2025-09-30 17:25", "date_stopped": "2025-09-30 17:30"},
+    {"text": "Fix Dockerfile COPY commands for crew-api service", "status": "done", "date_started": "2025-09-30 17:30", "date_stopped": "2025-09-30 17:32"},
+    {"text": "Update docker-compose.yml commands to use .venv/bin/python", "status": "done", "date_started": "2025-09-30 17:32", "date_stopped": "2025-09-30 17:34"},
+    {"text": "Fix docker-compose.override.yml command overrides", "status": "done", "date_started": "2025-09-30 18:50", "date_stopped": "2025-09-30 18:52"},
+    {"text": "Test all service health endpoints", "status": "done", "date_started": "2025-09-30 18:52", "date_stopped": "2025-09-30 18:52"},
+    {"text": "Debug MCP service startup issues", "status": "in-progress", "date_started": "2025-09-30 18:53", "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-30 17:06", "text": "Started Docker Compose debugging - identified missing directories in build context"},
+    {"timestamp": "2025-09-30 17:25", "text": "Fixed .dockerignore files to allow tasks/ and memory-bank/ directories"},
+    {"timestamp": "2025-09-30 17:30", "text": "Removed unnecessary COPY commands from crew-api Dockerfile"},
+    {"timestamp": "2025-09-30 17:32", "text": "Updated docker-compose.yml commands to use .venv/bin/python instead of system python"},
+    {"timestamp": "2025-09-30 17:34", "text": "Changed to uv run commands but encountered permission issues"},
+    {"timestamp": "2025-09-30 18:50", "text": "Discovered docker-compose.override.yml was overriding main commands"},
+    {"timestamp": "2025-09-30 18:52", "text": "Fixed docker-compose.override.yml commands to use .venv/bin/python"},
+    {"timestamp": "2025-09-30 18:52", "text": "Successfully started all API services - health checks passing"},
+    {"timestamp": "2025-09-30 18:53", "text": "Identified MCP service startup issue - needs further debugging"}
+  ],
+  "decisions": [
+    "Use .venv/bin/python instead of uv run to avoid permission issues with cache directories",
+    "Fix docker-compose.override.yml which was overriding main docker-compose.yml commands",
+    "Remove unnecessary COPY commands from Dockerfiles that were causing build failures",
+    "Update .dockerignore files to allow required directories for services"
+  ],
+  "lessons_learned": [
+    "Docker Compose override files can silently override main configuration - always check both files",
+    "uv run requires cache directory permissions that may not be available in restricted containers",
+    "Using .venv/bin/python directly is more reliable than uv run in containerized environments",
+    "Health checks in Docker Compose help identify which services are actually working",
+    "Container logs are essential for debugging startup issues"
+  ],
+  "issues_risks": [
+    "MCP service still failing with exit code 135 - needs investigation",
+    "Some services may have dependency issues that aren't immediately visible",
+    "Virtual environment paths may break if Dockerfile changes",
+    "Override file changes may not be obvious to other developers"
+  ],
+  "next_steps": [
+    "Debug MCP service startup issue - check if it's related to API_BASE_URL or missing dependencies",
+    "Test MCP service endpoints once it's running",
+    "Consider adding more comprehensive health checks",
+    "Document the final working configuration for future reference"
+  ],
+  "references": [
+    "docker-compose.yml - Main service definitions",
+    "docker-compose.override.yml - Development overrides",
+    "dockerfiles/*/Dockerfile - Service container definitions",
+    "Health endpoints: http://localhost:8010-8014/health"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "services_status": {
+      "files-api": {"status": "healthy", "port": 8010, "health_url": "http://localhost:8010/health"},
+      "git-api": {"status": "healthy", "port": 8011, "health_url": "http://localhost:8011/health"},
+      "rag-api": {"status": "healthy", "port": 8012, "health_url": "http://localhost:8012/health"},
+      "lock-api": {"status": "healthy", "port": 8013, "health_url": "http://localhost:8013/health"},
+      "crew-api": {"status": "healthy", "port": 8014, "health_url": "http://localhost:8014/health"},
+      "mcp": {"status": "failed", "port": 8765, "issue": "exit code 135, no logs"}
+    },
+    "environment_variables": {
+      "POD_TOKEN": "test-token-123",
+      "REPO_PATH": "/tmp/test-repo",
+      "OPENAI_API_KEY": "test-key"
+    },
+    "docker_commands": {
+      "start_all": "docker-compose --profile dev up -d",
+      "stop_all": "docker-compose --profile dev down",
+      "rebuild": "docker-compose --profile dev up --build --force-recreate -d",
+      "logs": "docker-compose logs [service-name]",
+      "status": "docker-compose ps"
+    }
+  }
+}

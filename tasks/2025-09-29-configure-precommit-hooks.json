@@ -1,0 +1,70 @@
+{
+  "id": "2025-09-29-configure-precommit-hooks",
+  "title": "Configure pre-commit hooks",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-09-29 10:00",
+  "updated_at": "2025-09-29 10:00",
+  "progress_percent": 0,
+  "tags": ["pre-commit", "code-quality", "linting"],
+  "summary": "Add a .pre-commit-config.yaml with ruff (lint + format), mypy (type checking), and simple hygiene checks like end-of-file-fixer and trailing-whitespace to enforce quality at commit-time.",
+  "success_criteria": [
+    {"text": ".pre-commit-config.yaml file created", "checked": false},
+    {"text": "ruff configured for linting and formatting", "checked": false},
+    {"text": "mypy configured for type checking", "checked": false},
+    {"text": "Hygiene checks (end-of-file-fixer, trailing-whitespace) added", "checked": false},
+    {"text": "Team can install and use pre-commit hooks", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": ".pre-commit-config.yaml exists", "checked": false},
+    {"text": "ruff hook is configured", "checked": false},
+    {"text": "mypy hook is configured", "checked": false},
+    {"text": "end-of-file-fixer hook is configured", "checked": false},
+    {"text": "trailing-whitespace hook is configured", "checked": false},
+    {"text": "pre-commit install works", "checked": false}
+  ],
+  "subtasks": [
+    "Create .pre-commit-config.yaml",
+    "Configure ruff for linting and formatting",
+    "Configure mypy for type checking",
+    "Add hygiene checks",
+    "Test pre-commit installation",
+    "Document setup process",
+    "Run pre-commit on existing code"
+  ],
+  "todo": [
+    {"text": "Create .pre-commit-config.yaml", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Configure ruff for linting and formatting", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Configure mypy for type checking", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Add hygiene checks", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test pre-commit installation", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Document setup process", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Run pre-commit on existing code", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-29 10:00", "text": "Task file created from feedback item 8"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Risk: Pre-commit hooks may fail on existing code",
+    "Risk: Team may need to fix linting issues before committing",
+    "Risk: Different team members may have different tool versions"
+  ],
+  "next_steps": [
+    "Review current code for linting issues",
+    "Choose appropriate ruff and mypy configurations",
+    "Plan gradual rollout strategy"
+  ],
+  "references": [
+    "pre-commit documentation",
+    "ruff documentation",
+    "mypy documentation"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "feedback_item": 8,
+    "priority": "high",
+    "estimated_effort": "3 hours"
+  }
+}

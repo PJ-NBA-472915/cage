@@ -1,0 +1,162 @@
+{
+  "id": "2025-09-30-normalise-status-codes-validation",
+  "title": "Normalise status codes and validation handling",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 11:45",
+  "progress_percent": 100,
+  "tags": ["file-api", "validation", "status-codes", "stability"],
+  "summary": "Audit endpoints to ensure success paths return 2xx/201/204 as appropriate, and failures map to the correct 4xx/5xx with the Problem Details schema. Convert Pydantic ValidationError and common library errors into 400/422 Problem responses with helpful errors fields.",
+  "success_criteria": [
+    {
+      "text": "No endpoint returns 200 on failure",
+      "checked": true
+    },
+    {
+      "text": "Validation errors are consistent across services",
+      "checked": true
+    },
+    {
+      "text": "Success paths return appropriate 2xx status codes",
+      "checked": true
+    },
+    {
+      "text": "Failure paths return appropriate 4xx/5xx status codes",
+      "checked": true
+    },
+    {
+      "text": "Pydantic ValidationError converted to 400/422 Problem responses",
+      "checked": true
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "All endpoints return correct status codes for success/failure",
+      "checked": true
+    },
+    {
+      "text": "Validation errors return 400 or 422 with Problem Details format",
+      "checked": true
+    },
+    {
+      "text": "Common library errors are properly mapped to HTTP status codes",
+      "checked": true
+    },
+    {
+      "text": "Error responses include helpful errors field for validation issues",
+      "checked": true
+    },
+    {
+      "text": "Status code usage is consistent across all file API services",
+      "checked": true
+    }
+  ],
+  "subtasks": [
+    "Audit all endpoints for correct status code usage",
+    "Map Pydantic ValidationError to appropriate HTTP status codes",
+    "Handle common library errors with proper status codes",
+    "Ensure validation errors include helpful errors field",
+    "Test status code consistency across all services",
+    "Update error handling to use Problem Details format"
+  ],
+  "todo": [
+    {
+      "text": "Audit all endpoints for correct status code usage",
+      "status": "done",
+      "date_started": "2025-09-30 11:33",
+      "date_stopped": "2025-09-30 11:35"
+    },
+    {
+      "text": "Map Pydantic ValidationError to appropriate HTTP status codes",
+      "status": "done",
+      "date_started": "2025-09-30 11:35",
+      "date_stopped": "2025-09-30 11:40"
+    },
+    {
+      "text": "Handle common library errors with proper status codes",
+      "status": "done",
+      "date_started": "2025-09-30 11:40",
+      "date_stopped": "2025-09-30 11:42"
+    },
+    {
+      "text": "Ensure validation errors include helpful errors field",
+      "status": "done",
+      "date_started": "2025-09-30 11:42",
+      "date_stopped": "2025-09-30 11:43"
+    },
+    {
+      "text": "Test status code consistency across all services",
+      "status": "done",
+      "date_started": "2025-09-30 11:43",
+      "date_stopped": "2025-09-30 11:44"
+    },
+    {
+      "text": "Update error handling to use Problem Details format",
+      "status": "done",
+      "date_started": "2025-09-30 11:44",
+      "date_stopped": "2025-09-30 11:45"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-09-30 10:33",
+      "text": "Task file created for status code normalization and validation handling"
+    },
+    {
+      "timestamp": "2025-09-30 11:33",
+      "text": "Started working on Task 4: Normalise status codes and validation handling"
+    },
+    {
+      "timestamp": "2025-09-30 11:35",
+      "text": "Completed audit of current status code usage - found inconsistencies and issues"
+    },
+    {
+      "timestamp": "2025-09-30 11:40",
+      "text": "Created standardized status code utilities and updated authentication handling"
+    },
+    {
+      "timestamp": "2025-09-30 11:42",
+      "text": "Updated all API services to use standardized error handling"
+    },
+    {
+      "timestamp": "2025-09-30 11:45",
+      "text": "Task 4 completed: Status codes normalized and validation handling standardized"
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Current endpoints may be returning incorrect status codes",
+    "Validation error handling may be inconsistent across services",
+    "Need to ensure backward compatibility for existing API clients"
+  ],
+  "next_steps": [
+    "Review current status code usage in file API endpoints",
+    "Identify common validation error patterns",
+    "Design consistent error handling approach"
+  ],
+  "references": [
+    "src/apps/files_api/main.py - Files API endpoints",
+    "src/apps/rag_api/main.py - RAG API endpoints",
+    "src/apps/lock_api/main.py - Lock API endpoints",
+    "HTTP status code standards and best practices"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_effort": "6",
+    "dependencies": ["2025-09-30-standardise-error-responses-problem-details"],
+    "related_tasks": [
+      "2025-09-30-standardise-error-responses-problem-details",
+      "2025-09-30-update-tighten-openapi-spec"
+    ]
+  }
+}

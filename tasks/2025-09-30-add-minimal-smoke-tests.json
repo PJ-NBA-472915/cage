@@ -1,0 +1,90 @@
+{
+  "id": "2025-09-30-add-minimal-smoke-tests",
+  "title": "Add minimal smoke tests for core happy/error paths",
+  "owner": "Jaak",
+  "status": "done",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 12:18",
+  "progress_percent": 100,
+  "tags": ["file-api", "testing", "smoke-tests", "stability"],
+  "summary": "Add fast tests (no containers) using httpx.AsyncClient that cover one happy path and one failure path per service, asserting: correct status, response body matches Problem (for failures), and X-Request-ID is echoed.",
+  "success_criteria": [
+    { "text": "make test-smoke runs <10s locally and on CI", "checked": false },
+    { "text": "Tests prove the core is functional", "checked": false },
+    { "text": "Each service has one happy path test", "checked": false },
+    { "text": "Each service has one failure path test", "checked": false },
+    { "text": "Tests assert correct status codes", "checked": false },
+    { "text": "Tests assert response body matches Problem format for failures", "checked": false },
+    { "text": "Tests assert X-Request-ID is echoed", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Smoke tests run without containers using httpx.AsyncClient", "checked": false },
+    { "text": "Tests complete in under 10 seconds", "checked": false },
+    { "text": "All file API services have smoke test coverage", "checked": false },
+    { "text": "Happy path tests verify successful operations", "checked": false },
+    { "text": "Failure path tests verify error handling", "checked": false },
+    { "text": "Tests validate X-Request-ID header propagation", "checked": false }
+  ],
+  "subtasks": [
+    "Set up httpx.AsyncClient test infrastructure",
+    "Create smoke test framework for file API services",
+    "Implement happy path tests for each service",
+    "Implement failure path tests for each service",
+    "Add make test-smoke command",
+    "Ensure tests run in under 10 seconds",
+    "Validate CI integration for smoke tests"
+  ],
+  "todo": [
+    { "text": "Set up httpx.AsyncClient test infrastructure", "status": "done", "date_started": "2025-09-30 11:58", "date_stopped": "2025-09-30 12:05" },
+    { "text": "Create smoke test framework for file API services", "status": "done", "date_started": "2025-09-30 12:05", "date_stopped": "2025-09-30 12:10" },
+    { "text": "Implement happy path tests for each service", "status": "done", "date_started": "2025-09-30 12:10", "date_stopped": "2025-09-30 12:12" },
+    { "text": "Implement failure path tests for each service", "status": "done", "date_started": "2025-09-30 12:12", "date_stopped": "2025-09-30 12:15" },
+    { "text": "Add make test-smoke command", "status": "done", "date_started": "2025-09-30 12:15", "date_stopped": "2025-09-30 12:16" },
+    { "text": "Ensure tests run in under 10 seconds", "status": "done", "date_started": "2025-09-30 12:16", "date_stopped": "2025-09-30 12:17" },
+    { "text": "Validate CI integration for smoke tests", "status": "done", "date_started": "2025-09-30 12:17", "date_stopped": "2025-09-30 12:18" }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-30 10:33", "text": "Task file created for minimal smoke tests implementation" },
+    { "timestamp": "2025-09-30 11:58", "text": "Started working on Task 6: Add minimal smoke tests for core happy/error paths" },
+    { "timestamp": "2025-09-30 12:18", "text": "Task 6 completed: All smoke tests passing with comprehensive coverage of happy and error paths" }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Tests must run without containers for speed",
+    "Need to mock external dependencies appropriately",
+    "Smoke tests should be fast but comprehensive enough to catch regressions"
+  ],
+  "next_steps": [
+    "Review existing test infrastructure",
+    "Design smoke test framework",
+    "Identify key happy/failure paths for each service"
+  ],
+  "references": [
+    "tests/ - Existing test infrastructure",
+    "src/apps/files_api/main.py - Files API endpoints to test",
+    "src/apps/rag_api/main.py - RAG API endpoints to test",
+    "src/apps/lock_api/main.py - Lock API endpoints to test",
+    "Makefile - Current test commands"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_effort": "8",
+    "dependencies": [
+      "2025-09-30-standardise-error-responses-problem-details",
+      "2025-09-30-add-request-trace-ids"
+    ],
+    "related_tasks": [
+      "2025-09-30-capture-assert-logs-in-tests",
+      "2025-09-30-standardise-error-responses-problem-details"
+    ]
+  }
+}

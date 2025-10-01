@@ -1,0 +1,87 @@
+{
+  "id": "2025-09-30-document-minimal-run-path",
+  "title": "Document a minimal run path",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-09-30 10:33",
+  "updated_at": "2025-09-30 10:33",
+  "progress_percent": 0,
+  "tags": ["file-api", "documentation", "runbook", "stability"],
+  "summary": "Update README.md with a \"Core Runbook\" section showing: (1) how to start the API(s) locally, (2) how to hit one happy path and one error path (curl examples), and (3) where the JSONL logs appear and how to inspect them (jq).",
+  "success_criteria": [
+    { "text": "README.md includes Core Runbook section", "checked": false },
+    { "text": "Documentation shows how to start APIs locally", "checked": false },
+    { "text": "Includes curl examples for happy path", "checked": false },
+    { "text": "Includes curl examples for error path", "checked": false },
+    { "text": "Shows where JSONL logs appear", "checked": false },
+    { "text": "Shows how to inspect logs with jq", "checked": false },
+    { "text": "New dev can follow steps to see working behavior within 5 minutes", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Core Runbook section is added to README.md", "checked": false },
+    { "text": "Local API startup instructions are clear and complete", "checked": false },
+    { "text": "curl examples work and demonstrate key functionality", "checked": false },
+    { "text": "Log location and inspection instructions are accurate", "checked": false },
+    { "text": "Documentation enables quick verification of system functionality", "checked": false }
+  ],
+  "subtasks": [
+    "Create Core Runbook section in README.md",
+    "Document local API startup procedures",
+    "Add curl examples for happy path endpoints",
+    "Add curl examples for error path endpoints",
+    "Document JSONL log locations and structure",
+    "Add jq commands for log inspection",
+    "Test documentation with fresh environment setup"
+  ],
+  "todo": [
+    { "text": "Create Core Runbook section in README.md", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Document local API startup procedures", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Add curl examples for happy path endpoints", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Add curl examples for error path endpoints", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Document JSONL log locations and structure", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Add jq commands for log inspection", "status": "not-started", "date_started": null, "date_stopped": null },
+    { "text": "Test documentation with fresh environment setup", "status": "not-started", "date_started": null, "date_stopped": null }
+  ],
+  "changelog": [
+    { "timestamp": "2025-09-30 10:33", "text": "Task file created for minimal run path documentation" }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Documentation must be accurate and up-to-date",
+    "curl examples must work with current API implementation",
+    "Log locations and formats must match actual implementation"
+  ],
+  "next_steps": [
+    "Review current README.md structure",
+    "Test local API startup procedures",
+    "Identify representative happy/error path examples"
+  ],
+  "references": [
+    "README.md - Current project documentation",
+    "src/apps/files_api/main.py - Files API endpoints",
+    "src/apps/rag_api/main.py - RAG API endpoints",
+    "src/apps/lock_api/main.py - Lock API endpoints",
+    "docker-compose.yml - Container startup configuration"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "low",
+    "estimated_effort": "3",
+    "dependencies": [
+      "2025-09-30-switch-to-structured-jsonl-logging",
+      "2025-09-30-add-minimal-smoke-tests"
+    ],
+    "related_tasks": [
+      "2025-09-30-switch-to-structured-jsonl-logging",
+      "2025-09-30-add-minimal-smoke-tests"
+    ]
+  }
+}

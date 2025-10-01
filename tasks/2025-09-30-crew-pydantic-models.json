@@ -1,0 +1,45 @@
+{
+  "id": "2025-09-30-crew-pydantic-models",
+  "title": "Pydantic domain models & DTOs",
+  "owner": "Assistant",
+  "status": "in-progress",
+  "created_at": "2025-09-30 13:05",
+  "updated_at": "2025-09-30 13:05",
+  "progress_percent": 0,
+  "tags": ["crew", "pydantic", "models"],
+  "summary": "Strong schemas for Agents, Crews, Runs, and requests.",
+  "success_criteria": [
+    {"text": "Models appear under OpenAPI components", "checked": false},
+    {"text": "Validation messages are clear", "checked": false}
+  ],
+  "acceptance_checks": [
+    {"text": "Agent model with id, name, role, config, created_at", "checked": false},
+    {"text": "Crew model with id, name, roles, labels, created_at", "checked": false},
+    {"text": "Run model with id, kind, agent_id, crew_id, status, task_ref, result_summary, artefacts, started_at, finished_at", "checked": false},
+    {"text": "DTOs: AgentCreate, CrewCreate, AgentInvoke, CrewRunRequest", "checked": false}
+  ],
+  "subtasks": [
+    "Create models directory",
+    "Define Agent model and DTOs",
+    "Define Crew model and DTOs",
+    "Define Run model and DTOs",
+    "Test model validation"
+  ],
+  "todo": [
+    {"text": "Create models directory", "status": "in-progress", "date_started": "2025-09-30 13:05", "date_stopped": null},
+    {"text": "Define Agent model and DTOs", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Define Crew model and DTOs", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Define Run model and DTOs", "status": "not-started", "date_started": null, "date_stopped": null},
+    {"text": "Test model validation", "status": "not-started", "date_started": null, "date_stopped": null}
+  ],
+  "changelog": [
+    {"timestamp": "2025-09-30 13:05", "text": "Task created and started"}
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}
