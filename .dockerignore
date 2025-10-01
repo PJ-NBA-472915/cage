@@ -1,0 +1,109 @@
+# Git
+.git
+.gitignore
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.pyw
+**/*.pyz
+**/venv/
+**/.venv/
+**/.pytest_cache/
+**/coverage/
+**/.coverage*
+
+# Virtual environments
+**/venv/
+**/.venv/
+**/env/
+**/.env/
+
+# IDE and editor files
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+**/*~
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Logs
+**/logs/
+**/*.log
+
+# Temporary files
+**/tmp/
+**/temp/
+**/.tmp/
+
+# Documentation and development files
+**/docs/
+**/CHANGELOG.md
+**/LICENSE
+**/CONTRIBUTING.md
+# Note: README.md is needed for pyproject.toml builds
+
+# Memory bank outputs
+**/memory-bank/outputs/
+**/memory-bank/reports/
+**/memory-bank/.venv/
+
+# Task files
+**/tasks/
+**/_archived_tasks/
+
+# Development tools
+**/.devbox/
+**/devbox.json
+**/devbox.lock
+
+# Local development
+**/local-dev/
+**/scrapbook/
+**/.scratchpad/
+
+# Test files
+**/tests/
+**/test_*.py
+**/*_test.py
+
+# Build artifacts
+**/build/
+**/dist/
+**/*.egg-info/
+
+# Node.js (if any)
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Docker
+**/Dockerfile*
+**/docker-compose*.yml
+**/docker-compose*.yaml
+**/.dockerignore
+
+# CI/CD
+**/.github/
+**/.gitlab-ci.yml
+**/Jenkinsfile
+
+# Environment files
+**/.env
+**/.env.*
+**/env.*
+
+# Secrets
+**/.secrets/
+**/secrets/
+
+# Cage specific
+**/.cage/
+**/coordination/
+**/test_coordination/

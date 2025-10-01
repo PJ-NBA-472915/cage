@@ -1,0 +1,128 @@
+# Pre-commit hooks configuration for Cage project
+# See https://pre-commit.com for more information
+
+repos:
+  # General file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        description: Remove trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        description: Ensure files end with a newline
+      - id: check-yaml
+        name: Check YAML
+        description: Check YAML files for syntax errors
+      - id: check-json
+        name: Check JSON
+        description: Check JSON files for syntax errors
+        exclude: ^\.cursor/argv\.json$
+      - id: check-toml
+        name: Check TOML
+        description: Check TOML files for syntax errors
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+        description: Check for files that contain merge conflict strings
+      - id: check-added-large-files
+        name: Check for large files
+        description: Prevent large files from being committed
+        args: ["--maxkb=1000"]
+      - id: check-case-conflict
+        name: Check for case conflicts
+        description: Check for files that would conflict in case-insensitive filesystems
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+        description: Check for files that contain merge conflict strings
+      - id: mixed-line-ending
+        name: Mixed Line Ending
+        description: Ensure files use consistent line endings
+        args: ["--fix=lf"]
+
+  # Python code formatting and linting
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        name: Black Python Formatter
+        description: Format Python code with Black
+        language_version: python3
+        args: [--line-length=88]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort Python Import Sorter
+        description: Sort Python imports with isort
+        args: [--profile=black, --line-length=88]
+
+  # Python linting with Ruff (fast alternative to flake8)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        name: Ruff Python Linter
+        description: Lint Python code with Ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        name: Ruff Python Formatter
+        description: Format Python code with Ruff
+
+  # Type checking with mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        name: MyPy Type Checker
+        description: Type check Python code with MyPy
+        additional_dependencies: [types-requests, types-redis, types-PyYAML]
+        args: [--ignore-missing-imports, --explicit-package-bases]
+
+  # Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        name: Bandit Security Linter
+        description: Check for common security issues
+        args: [--severity-level, high] # Only fail on high severity issues
+        exclude: ^tests/
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        name: Hadolint Dockerfile Linter
+        description: Lint Dockerfiles with Hadolint
+        files: \.dockerfile$
+
+  # YAML formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        name: Prettier YAML Formatter
+        description: Format YAML files with Prettier
+        types: [yaml]
+        exclude: ^(docker-compose\.yml|\.github/.*\.yml)$
+
+# Global configuration
+default_stages: [commit]
+fail_fast: false
+minimum_pre_commit_version: "3.0.0"
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

@@ -1,0 +1,109 @@
+# Docker Compose override file for development
+# This file is automatically loaded by docker-compose and overrides
+# settings from docker-compose.yml for development environment
+
+services:
+  # Override for development environment
+  files-api:
+    environment:
+      - ENVIRONMENT=development
+      - DEV_MODE=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    volumes:
+      # Add development-specific volume mounts
+      - ./config:/app/config:ro
+    command:
+      [
+        ".venv/bin/python",
+        "-m",
+        "uvicorn",
+        "src.apps.files_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+      ]
+
+  git-api:
+    environment:
+      - ENVIRONMENT=development
+      - DEV_MODE=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      [
+        ".venv/bin/python",
+        "-m",
+        "uvicorn",
+        "src.apps.git_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+      ]
+
+  rag-api:
+    environment:
+      - ENVIRONMENT=development
+      - DEV_MODE=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      [
+        ".venv/bin/python",
+        "-m",
+        "uvicorn",
+        "src.apps.rag_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+      ]
+
+  lock-api:
+    environment:
+      - ENVIRONMENT=development
+      - DEV_MODE=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      [
+        ".venv/bin/python",
+        "-m",
+        "uvicorn",
+        "src.apps.lock_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+      ]
+
+  mcp:
+    environment:
+      - ENVIRONMENT=development
+      - DEV_MODE=true
+      - LOG_LEVEL=DEBUG
+      - DEBUGPY_ENABLED=0
+    # volumes:
+    #   - ./config:/app/config:ro
+    # command:
+    #   [
+    #     ".venv/bin/python",
+    #     "-m",
+    #     "src.cage.mcp.server",
+    #     "--host",
+    #     "0.0.0.0",
+    #     "--port",
+    #     "8765",
+    #   ]

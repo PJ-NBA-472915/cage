@@ -1,0 +1,93 @@
+# Cage Pod - Environment Configuration Template
+# Copy this file to .env and customize for your environment
+
+# =============================================================================
+# CORE CONFIGURATION
+# =============================================================================
+
+# Pod authentication token (required)
+POD_TOKEN=your-pod-token-here
+
+# Repository path for file operations (required)
+REPO_PATH=/path/to/your/repository
+
+# =============================================================================
+# DATABASE CONFIGURATION
+# =============================================================================
+
+# PostgreSQL settings
+DB_PORT=5432
+DATABASE_URL=postgresql://postgres:password@postgres:5432/cage
+
+# Redis settings
+REDIS_URL=redis://redis:6379
+
+# =============================================================================
+# API CONFIGURATION
+# =============================================================================
+
+# API base URL for internal service communication
+API_BASE_URL=http://api:8000
+
+# Service reload settings (development)
+RELOAD=false
+
+# =============================================================================
+# EXTERNAL SERVICES
+# =============================================================================
+
+# OpenAI API key (required for RAG service)
+OPENAI_API_KEY=your-openai-api-key-here
+
+# =============================================================================
+# MCP SERVER CONFIGURATION
+# =============================================================================
+
+# MCP server settings
+MCP_PORT=8765
+MCP_TOKENS=test-mcp-token
+MCP_SESSION_TTL=3600
+MCP_RATE_MAX_CALLS=240
+
+# =============================================================================
+# DEBUGGING CONFIGURATION
+# =============================================================================
+
+# Debugpy settings for remote debugging
+DEBUGPY_ENABLED=0
+DEBUGPY_WAIT_FOR_CLIENT=0
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+
+# Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+LOG_LEVEL=INFO
+
+# Log format (json, text)
+LOG_FORMAT=text
+
+# =============================================================================
+# AGENT CONFIGURATION
+# =============================================================================
+
+# Agent configuration prefix (e.g., PLANNER_, IMPLEMENTER_, etc.)
+# Each agent can have its own configuration using this prefix
+
+# Example for Planner agent:
+# PLANNER_ROLE=Planner Agent
+# PLANNER_GOAL=Create detailed implementation plans
+# PLANNER_BACKSTORY=You are an expert planner...
+# PLANNER_VERBOSE=true
+# PLANNER_MAX_ITER=10
+# PLANNER_TEMPERATURE=0.7
+
+# =============================================================================
+# DEVELOPMENT CONFIGURATION
+# =============================================================================
+
+# Development mode (enables additional logging, debugging, etc.)
+DEV_MODE=false
+
+# Test mode (disables certain features for testing)
+TEST_MODE=false

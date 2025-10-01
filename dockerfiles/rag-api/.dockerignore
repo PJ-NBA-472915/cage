@@ -1,0 +1,17 @@
+# Service-specific .dockerignore for rag-api
+
+# Exclude other services
+../files-api/
+../git-api/
+../lock-api/
+../mcp/
+../api/
+
+# Exclude main project files not needed for this service
+../../src/cage/
+../../src/apps/crew_api/
+../../tests/
+../../logs/
+../../.git/
+# Note: README.md is needed for pyproject.toml builds
+../../DEBUG.md

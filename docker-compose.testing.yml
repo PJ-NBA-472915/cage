@@ -1,0 +1,114 @@
+# Docker Compose configuration for testing environment
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.testing.yml up
+
+version: "3.8"
+
+services:
+  # Testing overrides
+  files-api:
+    environment:
+      - ENVIRONMENT=testing
+      - DEV_MODE=false
+      - TEST_MODE=true
+      - LOG_LEVEL=WARNING
+      - RELOAD=false
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "src.apps.files_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+      ]
+
+  git-api:
+    environment:
+      - ENVIRONMENT=testing
+      - DEV_MODE=false
+      - TEST_MODE=true
+      - LOG_LEVEL=WARNING
+      - RELOAD=false
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "src.apps.git_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+      ]
+
+  rag-api:
+    environment:
+      - ENVIRONMENT=testing
+      - DEV_MODE=false
+      - TEST_MODE=true
+      - LOG_LEVEL=WARNING
+      - RELOAD=false
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "src.apps.rag_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+      ]
+
+  lock-api:
+    environment:
+      - ENVIRONMENT=testing
+      - DEV_MODE=false
+      - TEST_MODE=true
+      - LOG_LEVEL=WARNING
+      - RELOAD=false
+    volumes:
+      - ./config:/app/config:ro
+    command:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "src.apps.lock_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+      ]
+
+  mcp:
+    environment:
+      - ENVIRONMENT=testing
+      - DEV_MODE=false
+      - TEST_MODE=true
+      - LOG_LEVEL=WARNING
+      - DEBUGPY_ENABLED=0
+    volumes:
+      - ./config:/app/config:ro
+
+  # Testing database with test data
+  postgres:
+    environment:
+      - POSTGRES_DB=cage_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5433:5432" # Different port for testing
+
+  # Testing Redis
+  redis:
+    ports:
+      - "6380:6379" # Different port for testing
