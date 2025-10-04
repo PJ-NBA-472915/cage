@@ -48,27 +48,30 @@ COPY --from=builder /app/.venv /app/.venv
 # Copy application source
 COPY src ./src
 COPY scripts ./scripts
+COPY README.md ./
 
 # Install debug tools (debugpy for remote debugging)
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install debugpy
 
-# Create logs directory
-RUN mkdir -p /app/logs
+# Create cage group and users with proper permissions
+RUN groupadd -r cage && \
+    useradd -r -g cage worker && \
+    useradd -r -g cage system && \
+    mkdir -p /app/logs /work/repo /home/worker/.cache/uv /home/system/.cache/uv && \
+    chown -R worker:cage /work/repo /home/worker && \
+    chown -R system:cage /home/system && \
+    chgrp cage /app/logs && \
+    chmod 775 /app/logs && \
+    chmod 750 /work/repo
 
 # ==============================================================================
 # Files API Service
 # ==============================================================================
 FROM runtime-base AS files-api
 
-# Create dedicated user for files API with restricted access
-RUN groupadd -r filesapi && \
-    useradd -r -g filesapi -s /bin/bash filesapi && \
-    mkdir -p /work/repo /app/logs /app/data && \
-    chown -R filesapi:filesapi /work /app && \
-    chmod 755 /work /work/repo /app /app/logs
-
-USER filesapi
+# Files API runs as worker user (has repo write access)
+USER worker
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
@@ -82,18 +85,13 @@ CMD ["uv", "run", "uvicorn", "src.apps.files_api.main:app", "--host", "0.0.0.0",
 # ==============================================================================
 FROM runtime-base AS git-api
 
-# Create non-root user
-RUN groupadd -r worker && \
-    useradd -r -g worker worker && \
-    mkdir -p /app/logs /app/repos && \
-    chown -R worker:worker /app
-
 # Configure Git for the container
 ARG GIT_EMAIL=cage-agent@example.com
 ARG GIT_NAME="Cage Agent"
 RUN git config --global user.email "${GIT_EMAIL}" && \
     git config --global user.name "${GIT_NAME}"
 
+# Git API runs as worker user (has repo write access)
 USER worker
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
@@ -108,12 +106,7 @@ CMD ["uv", "run", "uvicorn", "src.apps.git_api.main:app", "--host", "0.0.0.0", "
 # ==============================================================================
 FROM runtime-base AS rag-api
 
-# Create non-root user
-RUN groupadd -r worker && \
-    useradd -r -g worker worker && \
-    mkdir -p /app/logs /app/data /app/embeddings && \
-    chown -R worker:worker /app
-
+# RAG API runs as worker user (has repo write access)
 USER worker
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
@@ -147,12 +140,11 @@ RUN go version && \
     go env -w GOPROXY=https://proxy.golang.org,direct && \
     go env -w GOSUMDB=sum.golang.org
 
-# Create non-root user
-RUN groupadd -r worker && \
-    useradd -r -g worker worker && \
-    mkdir -p /app/logs /app/generated /app/templates /go/src /go/bin /go/pkg && \
-    chown -R worker:worker /app /go
+# Create Go directories and set permissions
+RUN mkdir -p /app/logs /app/generated /app/templates /go/src /go/bin /go/pkg && \
+    chown -R worker:cage /app /go
 
+# Lock API runs as worker user (has repo write access)
 USER worker
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
@@ -178,12 +170,7 @@ ARG GIT_NAME="Cage Agent"
 RUN git config --global user.email "${GIT_EMAIL}" && \
     git config --global user.name "${GIT_NAME}"
 
-# Create non-root user
-RUN groupadd -r worker && \
-    useradd -r -g worker worker && \
-    mkdir -p /app/logs && \
-    chown -R worker:worker /app
-
+# Crew API runs as worker user (has repo write access)
 USER worker
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
@@ -201,12 +188,8 @@ FROM runtime-base AS mcp
 # Ensure entrypoint script is executable
 RUN chmod +x ./scripts/start-mcp.sh
 
-# Create non-root user
-RUN groupadd -r worker && \
-    useradd -r -g worker worker && \
-    chown -R worker:worker /app
-
-USER worker
+# MCP service runs as system user (read-only access to /app, no repo access)
+USER system
 
 EXPOSE 8765 5679
 

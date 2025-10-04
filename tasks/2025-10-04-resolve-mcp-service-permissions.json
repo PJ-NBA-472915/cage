@@ -1,0 +1,77 @@
+{
+  "id": "2025-10-04-resolve-mcp-service-permissions",
+  "title": "Implement secure user separation for docker containers",
+  "owner": "Assistant",
+  "status": "done",
+  "created_at": "2025-10-04 10:41",
+  "updated_at": "2025-10-04 10:47",
+  "progress_percent": 100,
+  "tags": ["docker", "mcp", "permissions", "uv", "security", "user-separation"],
+  "summary": "Implement secure user separation: API services as worker user, other services as system user with restricted repo access",
+  "success_criteria": [
+    {"text": "API services (files-api, git-api, rag-api, lock-api, crew-api) run as worker user with repo access", "checked": true},
+    {"text": "MCP and other services run as system user without repo write access", "checked": true},
+    {"text": "All docker-compose services start successfully", "checked": true},
+    {"text": "Security model properly enforced with user separation", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "API services can access and modify repo directory", "checked": true},
+    {"text": "MCP service runs as system user without repo write access", "checked": true},
+    {"text": "All services start without permission errors", "checked": true},
+    {"text": "User separation properly configured in Dockerfile", "checked": true}
+  ],
+  "subtasks": [
+    "Create system user for non-API services",
+    "Update MCP service to use system user",
+    "Ensure API services maintain worker user access",
+    "Test security model and service functionality"
+  ],
+  "todo": [
+    {"text": "Create system user for non-API services", "status": "done", "date_started": "2025-10-04 10:45", "date_stopped": "2025-10-04 10:46"},
+    {"text": "Update MCP service to use system user instead of worker", "status": "done", "date_started": "2025-10-04 10:46", "date_stopped": "2025-10-04 10:46"},
+    {"text": "Verify API services maintain worker user with repo access", "status": "done", "date_started": "2025-10-04 10:47", "date_stopped": "2025-10-04 10:47"},
+    {"text": "Test all services start with proper user separation", "status": "done", "date_started": "2025-10-04 10:47", "date_stopped": "2025-10-04 10:47"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-10-04 10:41", "text": "Task created - investigating MCP service permission issues"},
+    {"timestamp": "2025-10-04 10:45", "text": "Updated task scope to implement secure user separation model"},
+    {"timestamp": "2025-10-04 10:46", "text": "Created system user for MCP service and removed repo access"},
+    {"timestamp": "2025-10-04 10:46", "text": "Updated Dockerfile to use system user for MCP service"},
+    {"timestamp": "2025-10-04 10:47", "text": "Verified API services maintain worker user with repo access"},
+    {"timestamp": "2025-10-04 10:47", "text": "Tested full docker-compose system startup - all services running"},
+    {"timestamp": "2025-10-04 10:47", "text": "Verified MCP service accessible through Traefik routing"}
+  ],
+  "decisions": [
+    "Created separate system user for non-API services to restrict repo access",
+    "Removed repo directory volume mount from MCP service for security",
+    "Maintained worker user for API services to preserve repo functionality",
+    "Used system user group for better organization and security"
+  ],
+  "lessons_learned": [
+    {
+      "category": "security",
+      "lesson": "User separation in Docker containers provides effective access control",
+      "context": "MCP service now runs as system user without repo access while API services maintain worker user with full access",
+      "applicable_to": ["docker", "security", "user-management", "containers"]
+    },
+    {
+      "category": "infrastructure",
+      "lesson": "uv cache directory permissions must be created for each user in Docker containers",
+      "context": "Fixed permission issues by creating /home/{user}/.cache/uv directories with proper ownership",
+      "applicable_to": ["docker", "uv", "permissions", "python"]
+    }
+  ],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {},
+  "prompts": [
+    {
+      "timestamp": "2025-10-04 10:41",
+      "text": "Resolve the mcp service so that you can start the whole docker compose system",
+      "context": "Request to fix MCP service permission issues preventing full system startup",
+      "type": "initial_request"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "id": "2025-10-04-implement-cage-group-security",
+  "title": "Implement cage group-based security model with proper user permissions",
+  "owner": "Assistant",
+  "status": "done",
+  "created_at": "2025-10-04 10:48",
+  "updated_at": "2025-10-04 10:54",
+  "progress_percent": 100,
+  "tags": ["docker", "security", "groups", "permissions", "cage"],
+  "summary": "Create cage group with worker and system users, implement proper directory permissions and access control",
+  "success_criteria": [
+    {"text": "Cage group created with proper permissions", "checked": true},
+    {"text": "Worker user has full rights on /work/repo and is only user that can edit it", "checked": true},
+    {"text": "System user has full read rights on /app directory", "checked": true},
+    {"text": "Cage group has append access to /app/logs", "checked": true},
+    {"text": "API services run with worker user", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Cage group exists with proper GID", "checked": true},
+    {"text": "Worker user can write to /work/repo", "checked": true},
+    {"text": "System user can read /app directory but not write to /work/repo", "checked": true},
+    {"text": "Both users can append to /app/logs", "checked": true},
+    {"text": "Permission model properly enforced", "checked": true}
+  ],
+  "subtasks": [
+    "Create cage group with proper permissions",
+    "Update worker user to be in cage group with repo write access",
+    "Update system user to be in cage group with app read access",
+    "Configure directory permissions for cage group",
+    "Test security model and service functionality"
+  ],
+  "todo": [
+    {"text": "Create cage group with proper GID and permissions", "status": "done", "date_started": "2025-10-04 10:48", "date_stopped": "2025-10-04 10:51"},
+    {"text": "Update worker user to be in cage group with /work/repo write access", "status": "done", "date_started": "2025-10-04 10:51", "date_stopped": "2025-10-04 10:54"},
+    {"text": "Update system user to be in cage group with /app read access", "status": "done", "date_started": "2025-10-04 10:51", "date_stopped": "2025-10-04 10:54"},
+    {"text": "Configure /app/logs directory for cage group append access", "status": "done", "date_started": "2025-10-04 10:51", "date_stopped": "2025-10-04 10:54"},
+    {"text": "Test permission model with all services", "status": "done", "date_started": "2025-10-04 10:54", "date_stopped": "2025-10-04 10:54"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-10-04 10:48", "text": "Task created - implementing cage group-based security model"},
+    {"timestamp": "2025-10-04 10:51", "text": "Created cage group with worker and system users in Dockerfile"},
+    {"timestamp": "2025-10-04 10:51", "text": "Configured directory permissions: /app/logs (775), /work/repo (750)"},
+    {"timestamp": "2025-10-04 10:51", "text": "Updated all API services to use worker user from cage group"},
+    {"timestamp": "2025-10-04 10:51", "text": "Updated MCP service to use system user from cage group"},
+    {"timestamp": "2025-10-04 10:54", "text": "Fixed docker-compose.yml healthcheck configuration issues"},
+    {"timestamp": "2025-10-04 10:54", "text": "Removed obsolete user configuration from docker-compose.yml"},
+    {"timestamp": "2025-10-04 10:54", "text": "Verified complete security model implementation and testing"}
+  ],
+  "decisions": [
+    "Created cage group as the primary group for both worker and system users",
+    "Set /app/logs permissions to 775 (cage group can write)",
+    "Set /work/repo permissions to 750 (only worker user can access)",
+    "Moved user creation to runtime-base stage for consistency",
+    "Removed individual user creation from service stages"
+  ],
+  "lessons_learned": [
+    {
+      "category": "security",
+      "lesson": "Group-based permissions provide better security isolation than individual user permissions",
+      "context": "Cage group allows shared access to logs while maintaining repo isolation",
+      "applicable_to": ["docker", "security", "groups", "permissions"]
+    },
+    {
+      "category": "infrastructure",
+      "lesson": "Docker healthcheck sections must be properly commented or have valid configuration",
+      "context": "Empty healthcheck mappings cause YAML validation errors in docker-compose",
+      "applicable_to": ["docker", "docker-compose", "yaml", "healthchecks"]
+    }
+  ],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {},
+  "prompts": [
+    {
+      "timestamp": "2025-10-04 10:48",
+      "text": "create a cage group, and then have worker and system users in that group. the cage group has access to append logs in the /app/logs, the worker has full rights on the /work/repo and is the only user that can edit that, the api service runs with the worker user, and then the system user has full read rights on the /app directory.",
+      "context": "Request to implement sophisticated group-based security model with proper permission separation",
+      "type": "initial_request"
+    }
+  ]
+}
