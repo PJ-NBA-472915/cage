@@ -5,9 +5,18 @@
       "Bash(curl:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(make:*)",
+      "Bash(make slice-cage:*)",
+      "Bash(make verify-cage:*)"
     ],
     "deny": [],
     "ask": []
+  },
+  "mcpServers": {
+    "cage": {
+      "url": "http://localhost:8765/mcp/rpc",
+      "transport": "http"
+    }
   }
-}Use
+}

@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "Cage": {
+    "cage": {
       "url": "http://localhost:8765/mcp/rpc",
       "transport": "http"
     }

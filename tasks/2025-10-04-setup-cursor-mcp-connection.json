@@ -1,0 +1,92 @@
+{
+  "id": "2025-10-04-setup-cursor-mcp-connection",
+  "title": "Setup MCP connection to cage MCP server in Cursor configuration",
+  "owner": "Assistant",
+  "status": "done",
+  "created_at": "2025-10-04 10:26",
+  "updated_at": "2025-10-04 10:27",
+  "progress_percent": 100,
+  "tags": ["cursor", "mcp", "configuration"],
+  "summary": "Configure Cursor to connect to the cage MCP server for enhanced AI agent capabilities",
+  "success_criteria": [
+    {"text": "Cursor MCP configuration updated with correct cage server details", "checked": true},
+    {"text": "MCP server connection verified and working", "checked": true},
+    {"text": "All available MCP tools accessible through Cursor", "checked": true}
+  ],
+  "acceptance_checks": [
+    {"text": "Cursor can discover cage MCP server tools", "checked": true},
+    {"text": "MCP server responds to health checks", "checked": true},
+    {"text": "Configuration matches cage MCP server endpoints", "checked": true}
+  ],
+  "subtasks": [
+    "Analyze current MCP configuration",
+    "Verify cage MCP server is running",
+    "Update Cursor MCP configuration",
+    "Test MCP connection and tools"
+  ],
+  "todo": [
+    {"text": "Analyze current MCP configuration files", "status": "done", "date_started": "2025-10-04 10:26", "date_stopped": "2025-10-04 10:27"},
+    {"text": "Check if cage MCP server is running", "status": "done", "date_started": "2025-10-04 10:26", "date_stopped": "2025-10-04 10:27"},
+    {"text": "Update .claude/settings.local.json with correct MCP configuration", "status": "done", "date_started": "2025-10-04 10:27", "date_stopped": "2025-10-04 10:27"},
+    {"text": "Verify MCP server connection and available tools", "status": "done", "date_started": "2025-10-04 10:27", "date_stopped": "2025-10-04 10:27"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-10-04 10:26", "text": "Task created - analyzing current MCP configuration"},
+    {"timestamp": "2025-10-04 10:27", "text": "Verified MCP server is running on port 8765 with 12+ tools available"},
+    {"timestamp": "2025-10-04 10:27", "text": "Updated .claude/settings.local.json with correct MCP endpoint /mcp/rpc"},
+    {"timestamp": "2025-10-04 10:27", "text": "Updated .cursor/mcp.json for consistency with lowercase server name"},
+    {"timestamp": "2025-10-04 10:27", "text": "Verified MCP server health and tool discovery endpoints working"},
+    {"timestamp": "2025-10-04 10:27", "text": "Task completed - MCP connection successfully configured for Cursor"},
+    {"timestamp": "2025-10-04 10:30", "text": "Updated task file with all user prompts and prepared for commit"}
+  ],
+  "decisions": [
+    "Used /mcp/rpc endpoint for JSON-RPC protocol compatibility",
+    "Standardized server name to lowercase 'cage' for consistency",
+    "Maintained HTTP transport for local development"
+  ],
+  "lessons_learned": [
+    {
+      "category": "technical",
+      "lesson": "MCP server endpoints require /rpc suffix for JSON-RPC protocol",
+      "context": "Testing revealed /mcp endpoint returns basic info, /mcp/rpc provides full JSON-RPC functionality",
+      "applicable_to": ["mcp", "cursor", "configuration"]
+    },
+    {
+      "category": "process", 
+      "lesson": "Cursor supports both .claude/settings.local.json and .cursor/mcp.json for MCP configuration",
+      "context": "Found existing configuration in both files with slightly different formats",
+      "applicable_to": ["cursor", "mcp", "configuration"]
+    }
+  ],
+  "issues_risks": [],
+  "next_steps": [],
+  "references": [],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {},
+  "prompts": [
+    {
+      "timestamp": "2025-10-04 10:26",
+      "text": "set up a mcp connection to the cage mcp server in the cursor configuration for this repo",
+      "context": "Initial request to configure MCP connection",
+      "type": "initial_request"
+    },
+    {
+      "timestamp": "2025-10-04 10:27",
+      "text": "create an agent through the mcp server",
+      "context": "Testing MCP functionality after successful configuration",
+      "type": "follow_up"
+    },
+    {
+      "timestamp": "2025-10-04 10:27",
+      "text": "list the agents",
+      "context": "Verifying agent creation through MCP server",
+      "type": "follow_up"
+    },
+    {
+      "timestamp": "2025-10-04 10:27",
+      "text": "update the task file with all of the prompts, close that, and commit",
+      "context": "Completing task documentation and committing changes",
+      "type": "follow_up"
+    }
+  ]
+}
