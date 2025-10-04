@@ -1,0 +1,229 @@
+{
+  "id": "2025-10-04-build-monitoring-dashboard",
+  "title": "Build Monitoring Dashboard Application for Cage Platform",
+  "owner": "claude",
+  "status": "planned",
+  "created_at": "2025-10-04 00:00",
+  "updated_at": "2025-10-04 00:00",
+  "progress_percent": 0,
+  "tags": ["monitoring", "dashboard", "ui", "fastapi", "microservice"],
+  "summary": "Create a new monitoring dashboard application (monitor-api) as part of the cage platform that provides real-time visibility into platform health, service status, task progress, and system metrics. The dashboard will display current operations across all microservices and track task execution progress with a clean, navigable UI.",
+
+  "success_criteria": [
+    {
+      "text": "New monitor-api service created with FastAPI structure matching other cage services",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Dashboard UI displays real-time health status of all 6 microservices (files-api, git-api, rag-api, lock-api, crew-api, mcp)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Task progress tracking integrated showing active tasks from tasks/_status.json",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Service integrated into docker-compose.yml with appropriate profile and port (8015)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Dashboard accessible via browser with clear navigation and metric display",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "All health checks, logs, and authentication aligned with cage platform patterns",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    }
+  ],
+
+  "acceptance_checks": [
+    {
+      "text": "User can navigate to monitor dashboard and see service health status",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Dashboard shows current task progress with percentage completion",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "UI provides clear visual indicators for service status (running/stopped/error)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Service starts successfully with docker-compose --profile dev up",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    }
+  ],
+
+  "subtasks": [],
+
+  "todo": [
+    {
+      "text": "Create monitor-api service structure in src/apps/monitor_api/ following cage patterns",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Implement FastAPI application with health check endpoint",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create service health aggregation endpoint polling all 6 microservices",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Build task status integration reading tasks/_status.json",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Design and implement HTML/CSS dashboard UI with Jinja2 templates",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add real-time updates via Server-Sent Events or WebSocket",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Integrate structured JSONL logging following cage utils patterns",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add Bearer token authentication using shared auth utilities",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create Dockerfile for monitor-api service",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Update docker-compose.yml with monitor-api service on port 8015",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add monitor-api to CLAUDE.md documentation with commands and health check",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test dashboard displays all services and task progress correctly",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+
+  "changelog": [
+    {
+      "timestamp": "2025-10-04 00:00",
+      "text": "Task created for building monitoring dashboard application",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+
+  "decisions": [
+    "Use port 8015 for monitor-api to continue the 801x pattern for cage services",
+    "Implement dashboard as FastAPI service with Jinja2 templates for server-side rendering",
+    "Poll service health endpoints rather than push-based metrics initially for simplicity",
+    "Read tasks/_status.json directly for task progress tracking",
+    "Use Server-Sent Events for real-time updates to keep UI simple and responsive"
+  ],
+
+  "lessons_learned": [],
+
+  "issues_risks": [
+    "Need to handle service unavailability gracefully when polling health endpoints",
+    "Real-time updates may require careful rate limiting to avoid overwhelming services",
+    "Task file structure may evolve; dashboard should handle schema changes gracefully"
+  ],
+
+  "next_steps": [
+    "Get user approval to proceed with task implementation",
+    "Create monitor-api service structure following cage architecture patterns",
+    "Begin with basic service health aggregation before adding UI components"
+  ],
+
+  "references": [
+    "src/apps/files_api/ - reference service structure",
+    "src/cage/utils/jsonl_logger.py - logging patterns",
+    "src/cage/utils/auth.py - authentication patterns",
+    "tasks/_status.json - task status source",
+    "docker-compose.yml - service integration"
+  ],
+
+  "prompts": [
+    {
+      "timestamp": "2025-10-04 00:00",
+      "text": "start a task to build another application that builds a basic monitoring platform as another app for the cage platform. For now the user does not need to interact with the UI apart from choosing what to show, but navigating to that should show a clear dashboard about what is currently happening in the cage platform and what the progress of the current tasks is.",
+      "context": "User requesting new monitoring dashboard application for cage platform",
+      "type": "initial_request"
+    }
+  ],
+
+  "locks": [],
+
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+
+  "metadata": {
+    "service_name": "monitor-api",
+    "service_port": 8015,
+    "technology_stack": ["FastAPI", "Jinja2", "Server-Sent Events", "Python 3.11+"],
+    "estimated_complexity": "medium",
+    "dependencies": ["all cage microservices", "tasks/_status.json"]
+  }
+}

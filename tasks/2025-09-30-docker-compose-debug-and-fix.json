@@ -4,21 +4,50 @@
   "owner": "Assistant",
   "status": "in-progress",
   "created_at": "2025-09-30 18:53",
-  "updated_at": "2025-09-30 18:53",
-  "progress_percent": 85,
-  "tags": ["docker", "debugging", "infrastructure", "services"],
-  "summary": "Comprehensive debugging and fixing of Docker Compose setup to ensure all API services start successfully. Fixed virtual environment issues, command overrides, and permissions problems.",
+  "updated_at": "2025-10-02 10:22",
+  "progress_percent": 60,
+  "tags": [
+    "docker",
+    "debugging",
+    "infrastructure",
+    "services"
+  ],
+  "summary": "Docker Compose work restored most API services but the MCP container still lacks a Dockerfile. Base compose commands are back to using uv run, so we need to realign entrypoints and rebuild the MCP image before declaring the stack fixed.",
   "success_criteria": [
-    {"text": "All API services (files-api, git-api, rag-api, lock-api, crew-api) start successfully and pass health checks", "checked": true},
-    {"text": "MCP server starts successfully and is accessible", "checked": false},
-    {"text": "All services use correct virtual environment paths", "checked": true},
-    {"text": "Docker Compose configuration is properly documented", "checked": true}
+    {
+      "text": "All API services (files-api, git-api, rag-api, lock-api, crew-api) start successfully and pass health checks",
+      "checked": true
+    },
+    {
+      "text": "MCP server starts successfully and is accessible",
+      "checked": false
+    },
+    {
+      "text": "All services use correct virtual environment paths",
+      "checked": false
+    },
+    {
+      "text": "Docker Compose configuration is properly documented",
+      "checked": true
+    }
   ],
   "acceptance_checks": [
-    {"text": "All services respond to health check endpoints", "checked": true},
-    {"text": "No permission errors in service logs", "checked": true},
-    {"text": "Virtual environment paths are correctly configured", "checked": true},
-    {"text": "Docker Compose override file is properly configured", "checked": true}
+    {
+      "text": "All services respond to health check endpoints",
+      "checked": false
+    },
+    {
+      "text": "No permission errors in service logs",
+      "checked": true
+    },
+    {
+      "text": "Virtual environment paths are correctly configured",
+      "checked": false
+    },
+    {
+      "text": "Docker Compose override file is properly configured",
+      "checked": true
+    }
   ],
   "subtasks": [
     "Identify and fix Docker build issues with missing directories",
@@ -29,24 +58,108 @@
     "Debug MCP service startup issues"
   ],
   "todo": [
-    {"text": "Fix Docker build context issues with tasks/ and memory-bank/ directories", "status": "done", "date_started": "2025-09-30 17:06", "date_stopped": "2025-09-30 17:25"},
-    {"text": "Update .dockerignore files to allow required directories", "status": "done", "date_started": "2025-09-30 17:25", "date_stopped": "2025-09-30 17:30"},
-    {"text": "Fix Dockerfile COPY commands for crew-api service", "status": "done", "date_started": "2025-09-30 17:30", "date_stopped": "2025-09-30 17:32"},
-    {"text": "Update docker-compose.yml commands to use .venv/bin/python", "status": "done", "date_started": "2025-09-30 17:32", "date_stopped": "2025-09-30 17:34"},
-    {"text": "Fix docker-compose.override.yml command overrides", "status": "done", "date_started": "2025-09-30 18:50", "date_stopped": "2025-09-30 18:52"},
-    {"text": "Test all service health endpoints", "status": "done", "date_started": "2025-09-30 18:52", "date_stopped": "2025-09-30 18:52"},
-    {"text": "Debug MCP service startup issues", "status": "in-progress", "date_started": "2025-09-30 18:53", "date_stopped": null}
+    {
+      "text": "Fix Docker build context issues with tasks/ and memory-bank/ directories",
+      "status": "done",
+      "date_started": "2025-09-30 17:06",
+      "date_stopped": "2025-09-30 17:25"
+    },
+    {
+      "text": "Update .dockerignore files to allow required directories",
+      "status": "done",
+      "date_started": "2025-09-30 17:25",
+      "date_stopped": "2025-09-30 17:30"
+    },
+    {
+      "text": "Fix Dockerfile COPY commands for crew-api service",
+      "status": "done",
+      "date_started": "2025-09-30 17:30",
+      "date_stopped": "2025-09-30 17:32"
+    },
+    {
+      "text": "Update docker-compose.yml commands to use .venv/bin/python",
+      "status": "done",
+      "date_started": "2025-09-30 17:32",
+      "date_stopped": "2025-09-30 17:34"
+    },
+    {
+      "text": "Fix docker-compose.override.yml command overrides",
+      "status": "done",
+      "date_started": "2025-09-30 18:50",
+      "date_stopped": "2025-09-30 18:52"
+    },
+    {
+      "text": "Test all service health endpoints",
+      "status": "done",
+      "date_started": "2025-09-30 18:52",
+      "date_stopped": "2025-09-30 18:52"
+    },
+    {
+      "text": "Debug MCP service startup issues",
+      "status": "blocked",
+      "date_started": "2025-09-30 18:53",
+      "date_stopped": null
+    },
+    {
+      "text": "Create dockerfiles/mcp Dockerfile and ensure image builds",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Align docker-compose commands with packaged virtualenv entrypoints",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Re-run docker compose up --build to validate stack including MCP",
+      "status": "blocked",
+      "date_started": null,
+      "date_stopped": null
+    }
   ],
   "changelog": [
-    {"timestamp": "2025-09-30 17:06", "text": "Started Docker Compose debugging - identified missing directories in build context"},
-    {"timestamp": "2025-09-30 17:25", "text": "Fixed .dockerignore files to allow tasks/ and memory-bank/ directories"},
-    {"timestamp": "2025-09-30 17:30", "text": "Removed unnecessary COPY commands from crew-api Dockerfile"},
-    {"timestamp": "2025-09-30 17:32", "text": "Updated docker-compose.yml commands to use .venv/bin/python instead of system python"},
-    {"timestamp": "2025-09-30 17:34", "text": "Changed to uv run commands but encountered permission issues"},
-    {"timestamp": "2025-09-30 18:50", "text": "Discovered docker-compose.override.yml was overriding main commands"},
-    {"timestamp": "2025-09-30 18:52", "text": "Fixed docker-compose.override.yml commands to use .venv/bin/python"},
-    {"timestamp": "2025-09-30 18:52", "text": "Successfully started all API services - health checks passing"},
-    {"timestamp": "2025-09-30 18:53", "text": "Identified MCP service startup issue - needs further debugging"}
+    {
+      "timestamp": "2025-09-30 17:06",
+      "text": "Started Docker Compose debugging - identified missing directories in build context"
+    },
+    {
+      "timestamp": "2025-09-30 17:25",
+      "text": "Fixed .dockerignore files to allow tasks/ and memory-bank/ directories"
+    },
+    {
+      "timestamp": "2025-09-30 17:30",
+      "text": "Removed unnecessary COPY commands from crew-api Dockerfile"
+    },
+    {
+      "timestamp": "2025-09-30 17:32",
+      "text": "Updated docker-compose.yml commands to use .venv/bin/python instead of system python"
+    },
+    {
+      "timestamp": "2025-09-30 17:34",
+      "text": "Changed to uv run commands but encountered permission issues"
+    },
+    {
+      "timestamp": "2025-09-30 18:50",
+      "text": "Discovered docker-compose.override.yml was overriding main commands"
+    },
+    {
+      "timestamp": "2025-09-30 18:52",
+      "text": "Fixed docker-compose.override.yml commands to use .venv/bin/python"
+    },
+    {
+      "timestamp": "2025-09-30 18:52",
+      "text": "Successfully started all API services - health checks passing"
+    },
+    {
+      "timestamp": "2025-09-30 18:53",
+      "text": "Identified MCP service startup issue - needs further debugging"
+    },
+    {
+      "timestamp": "2025-10-02 10:22",
+      "text": "2025-10-02 \u2014 Reviewed repository: dockerfiles/mcp missing and base compose commands use uv run; reopening Docker Compose fixes."
+    }
   ],
   "decisions": [
     "Use .venv/bin/python instead of uv run to avoid permission issues with cache directories",
@@ -65,13 +178,14 @@
     "MCP service still failing with exit code 135 - needs investigation",
     "Some services may have dependency issues that aren't immediately visible",
     "Virtual environment paths may break if Dockerfile changes",
-    "Override file changes may not be obvious to other developers"
+    "Override file changes may not be obvious to other developers",
+    "MCP image cannot build because dockerfiles/mcp/Dockerfile is missing in the repository.",
+    "Need to verify uv run usage does not reintroduce permission issues inside containers."
   ],
   "next_steps": [
-    "Debug MCP service startup issue - check if it's related to API_BASE_URL or missing dependencies",
-    "Test MCP service endpoints once it's running",
-    "Consider adding more comprehensive health checks",
-    "Document the final working configuration for future reference"
+    "Add a dockerfiles/mcp Dockerfile that installs MCP dependencies inside the image.",
+    "Decide on a consistent runtime command strategy (.venv python vs uv run) across compose files.",
+    "Run docker compose up --build after fixes to confirm health checks and capture logs."
   ],
   "references": [
     "docker-compose.yml - Main service definitions",
@@ -79,15 +193,44 @@
     "dockerfiles/*/Dockerfile - Service container definitions",
     "Health endpoints: http://localhost:8010-8014/health"
   ],
-  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
   "metadata": {
     "services_status": {
-      "files-api": {"status": "healthy", "port": 8010, "health_url": "http://localhost:8010/health"},
-      "git-api": {"status": "healthy", "port": 8011, "health_url": "http://localhost:8011/health"},
-      "rag-api": {"status": "healthy", "port": 8012, "health_url": "http://localhost:8012/health"},
-      "lock-api": {"status": "healthy", "port": 8013, "health_url": "http://localhost:8013/health"},
-      "crew-api": {"status": "healthy", "port": 8014, "health_url": "http://localhost:8014/health"},
-      "mcp": {"status": "failed", "port": 8765, "issue": "exit code 135, no logs"}
+      "files-api": {
+        "status": "untested",
+        "port": 8010,
+        "health_url": "http://localhost:8010/health"
+      },
+      "git-api": {
+        "status": "untested",
+        "port": 8011,
+        "health_url": "http://localhost:8011/health"
+      },
+      "rag-api": {
+        "status": "untested",
+        "port": 8012,
+        "health_url": "http://localhost:8012/health"
+      },
+      "lock-api": {
+        "status": "untested",
+        "port": 8013,
+        "health_url": "http://localhost:8013/health"
+      },
+      "crew-api": {
+        "status": "untested",
+        "port": 8014,
+        "health_url": "http://localhost:8014/health"
+      },
+      "mcp": {
+        "status": "failed",
+        "port": 8765,
+        "issue": "dockerfiles/mcp/Dockerfile missing; container cannot build"
+      }
     },
     "environment_variables": {
       "POD_TOKEN": "test-token-123",

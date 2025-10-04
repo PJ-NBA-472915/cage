@@ -1,0 +1,127 @@
+{
+  "id": "2025-10-02-create-mcp-dockerfile",
+  "title": "Create Dedicated MCP Dockerfile and Build Process",
+  "owner": "Assistant",
+  "status": "planned",
+  "created_at": "2025-10-02 13:40",
+  "updated_at": "2025-10-02 13:40",
+  "progress_percent": 0,
+  "tags": [
+    "docker",
+    "mcp",
+    "infrastructure"
+  ],
+  "summary": "Add a dockerfiles/mcp/Dockerfile that installs MCP server dependencies and prepares the packaged virtual environment expected by start-mcp.sh.",
+  "success_criteria": [
+    {
+      "text": "docker compose --profile dev build completes for the mcp service without errors",
+      "checked": false
+    },
+    {
+      "text": "MCP container image contains .venv/bin/python and required dependencies",
+      "checked": false
+    },
+    {
+      "text": "start-mcp.sh runs inside the container without missing-module failures",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "docker compose --profile dev build mcp completes without errors",
+      "checked": false
+    },
+    {
+      "text": "docker compose --profile dev run --rm mcp python -c 'import fastapi, httpx, mcp' succeeds",
+      "checked": false
+    },
+    {
+      "text": "docker compose --profile dev run --rm mcp ls -la .venv/bin/python shows virtualenv exists",
+      "checked": false
+    },
+    {
+      "text": "docker compose --profile dev run --rm mcp /app/scripts/start-mcp.sh exits 0 or runs without import errors",
+      "checked": false
+    },
+    {
+      "text": "DOCKERFILE.md or README includes instructions to rebuild MCP image",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "1. Examine src/cage/mcp/ to identify all Python import dependencies",
+    "2. Check pyproject.toml for MCP-related dependency group or requirements",
+    "3. Create dockerfiles/mcp/ directory if it doesn't exist",
+    "4. Write dockerfiles/mcp/Dockerfile with python:3.11-slim base",
+    "5. Add system dependencies (git, build-essential, etc.) to Dockerfile",
+    "6. Install uv in Dockerfile",
+    "7. Copy pyproject.toml and uv.lock into image",
+    "8. Run uv sync to create .venv with MCP dependencies",
+    "9. Set working directory and environment variables (PYTHONPATH, PATH)",
+    "10. Update docker-compose.yml mcp service to use build: dockerfiles/mcp",
+    "11. Run docker compose --profile dev build mcp and verify success",
+    "12. Test import of key modules inside container",
+    "13. Run start-mcp.sh inside container to confirm no module errors",
+    "14. Document build process in repository documentation"
+  ],
+  "todo": [
+    {
+      "text": "Gather dependency list for MCP server (FastAPI, httpx, mcp, etc.)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Implement dockerfiles/mcp/Dockerfile with virtualenv prebuild",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run docker compose --profile dev build mcp to verify image creation",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document MCP image build steps in repo docs",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-02 13:40",
+      "text": "Task file created to track MCP Dockerfile work."
+    }
+  ],
+  "decisions": [
+    "Select a base Python image compatible with project tooling and MCP runtime."
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Missing dependencies may only surface at runtime; ensure thorough import checks."
+  ],
+  "next_steps": [
+    "Audit start-mcp.sh to confirm expected file paths inside the container.",
+    "List Python package requirements for MCP runtime."
+  ],
+  "references": [
+    "docker-compose.yml (mcp service definition)",
+    "scripts/start-mcp.sh",
+    "src/cage/mcp/server.py"
+  ],
+  "prompts": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "related_services": [
+      "mcp"
+    ]
+  }
+}

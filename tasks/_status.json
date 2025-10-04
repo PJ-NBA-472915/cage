@@ -3,14 +3,26 @@
     {
       "title": "Debug and Fix Docker Compose Setup for All Services",
       "status": "in-progress",
-      "progress_percent": 85,
-      "updated_at": "2025-09-30 18:53",
-      "latest_work": "2025-09-30 18:53 — Identified MCP service startup issue - needs further debugging",
+      "progress_percent": 60,
+      "updated_at": "2025-10-02 10:22",
+      "latest_work": "2025-10-02 10:22 \u2014 Reviewed docker-compose configuration; MCP build references missing dockerfiles/mcp Dockerfile and base commands reverted to uv run. Need new MCP image and alignment between compose commands and service entrypoints.",
       "remaining_todo": [
         {
-          "text": "Debug MCP service startup issues",
+          "text": "Recreate MCP service build with a dedicated Dockerfile and dependency install",
           "status": "in-progress",
           "date_started": "2025-09-30 18:53",
+          "date_stopped": null
+        },
+        {
+          "text": "Align docker-compose commands with container entrypoints (.venv vs uv run)",
+          "status": "not-started",
+          "date_started": null,
+          "date_stopped": null
+        },
+        {
+          "text": "Re-run docker compose up to confirm all services including MCP boot cleanly",
+          "status": "blocked",
+          "date_started": null,
           "date_stopped": null
         }
       ]
@@ -20,27 +32,27 @@
     {
       "title": "Normalise Status Codes and Validation Handling",
       "done_on": "2025-09-30 17:00",
-      "summary": "2025-09-30 17:00 — Completed status code standardization across all API services"
+      "summary": "2025-09-30 17:00 \u2014 Completed status code standardization across all API services"
     },
     {
       "title": "Update and Tighten the OpenAPI Spec",
       "done_on": "2025-09-30 16:45",
-      "summary": "2025-09-30 16:45 — Enhanced OpenAPI specifications with Problem Details and examples"
+      "summary": "2025-09-30 16:45 \u2014 Enhanced OpenAPI specifications with Problem Details and examples"
     },
     {
       "title": "Standardise Error Responses as Problem Details",
       "done_on": "2025-09-30 16:30",
-      "summary": "2025-09-30 16:30 — Implemented RFC 7807 Problem Details across all services"
+      "summary": "2025-09-30 16:30 \u2014 Implemented RFC 7807 Problem Details across all services"
     },
     {
       "title": "Add Request/Trace IDs and Propagate Them",
       "done_on": "2025-09-30 16:15",
-      "summary": "2025-09-30 16:15 — Enhanced request ID middleware with context propagation"
+      "summary": "2025-09-30 16:15 \u2014 Enhanced request ID middleware with context propagation"
     },
     {
       "title": "Switch to Structured JSONL Logging",
       "done_on": "2025-09-30 16:00",
-      "summary": "2025-09-30 16:00 — Implemented structured JSONL logging across all API services"
+      "summary": "2025-09-30 16:00 \u2014 Implemented structured JSONL logging across all API services"
     }
   ]
 }

@@ -1,19 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mv:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(docker-compose up:*)",
       "Bash(docker-compose:*)",
-      "Bash(docker logs:*)",
       "Bash(curl:*)",
-      "Bash(docker exec:*)",
-      "Bash(pushd:*)",
-      "Bash(popd:*)",
-      "Bash(git log:*)",
-      "Bash(git rm:*)",
-      "Bash(git reset:*)"
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

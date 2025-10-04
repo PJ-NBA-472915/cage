@@ -54,6 +54,31 @@
           },
           "checked": {
             "type": "boolean"
+          },
+          "verified_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verified_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "manual_test",
+              "automated_test",
+              "code_review",
+              "user_approval",
+              null
+            ]
           }
         },
         "additionalProperties": false
@@ -73,6 +98,31 @@
           },
           "checked": {
             "type": "boolean"
+          },
+          "verified_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verified_by": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "manual_test",
+              "automated_test",
+              "code_review",
+              "user_approval",
+              null
+            ]
           }
         },
         "additionalProperties": false
@@ -149,7 +199,50 @@
       }
     },
     "decisions": { "type": "array", "items": { "type": "string" } },
-    "lessons_learned": { "type": "array", "items": { "type": "string" } },
+    "lessons_learned": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "required": [
+              "category",
+              "lesson",
+              "context",
+              "applicable_to"
+            ],
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "technical",
+                  "process",
+                  "tooling",
+                  "communication",
+                  "infrastructure"
+                ]
+              },
+              "lesson": {
+                "type": "string"
+              },
+              "context": {
+                "type": "string"
+              },
+              "applicable_to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
     "issues_risks": { "type": "array", "items": { "type": "string" } },
     "next_steps": { "type": "array", "items": { "type": "string" } },
     "references": { "type": "array", "items": { "type": "string" } },
@@ -161,7 +254,8 @@
         "required": [
           "timestamp",
           "text",
-          "context"
+          "context",
+          "type"
         ],
         "properties": {
           "timestamp": {
@@ -172,6 +266,17 @@
           },
           "context": {
             "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "initial_request",
+              "clarification",
+              "feedback",
+              "approval",
+              "rejection",
+              "follow_up"
+            ]
           }
         },
         "additionalProperties": false

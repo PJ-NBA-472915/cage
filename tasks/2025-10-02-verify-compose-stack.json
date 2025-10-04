@@ -1,0 +1,146 @@
+{
+  "id": "2025-10-02-verify-compose-stack",
+  "title": "Verify Docker Compose Stack After MCP Fixes",
+  "owner": "Assistant",
+  "status": "planned",
+  "created_at": "2025-10-02 13:40",
+  "updated_at": "2025-10-02 13:40",
+  "progress_percent": 0,
+  "tags": [
+    "docker",
+    "testing",
+    "validation"
+  ],
+  "summary": "After implementing the MCP Dockerfile and command alignment, rebuild and run the compose stack to confirm every service starts and passes its health checks.",
+  "success_criteria": [
+    {
+      "text": "docker compose --profile dev up --build completes without errors",
+      "checked": false
+    },
+    {
+      "text": "Health checks for files-api, git-api, rag-api, lock-api, crew-api, and mcp report healthy",
+      "checked": false
+    },
+    {
+      "text": "MCP service responds to a basic tool-list request",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "docker compose --profile dev ps shows all services with 'Up' or 'Up (healthy)' status",
+      "checked": false
+    },
+    {
+      "text": "curl http://localhost:8000/health returns 200 OK for files-api",
+      "checked": false
+    },
+    {
+      "text": "curl http://localhost:8001/health returns 200 OK for git-api",
+      "checked": false
+    },
+    {
+      "text": "curl http://localhost:8002/health returns 200 OK for rag-api",
+      "checked": false
+    },
+    {
+      "text": "curl http://localhost:8003/health returns 200 OK for lock-api",
+      "checked": false
+    },
+    {
+      "text": "curl http://localhost:8004/health returns 200 OK for crew-api",
+      "checked": false
+    },
+    {
+      "text": "curl -X POST http://localhost:8005 -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"id\":1}' returns valid MCP response",
+      "checked": false
+    },
+    {
+      "text": "docker compose --profile dev logs mcp | grep -i 'error\\|exception\\|traceback' returns empty",
+      "checked": false
+    },
+    {
+      "text": "docker compose --profile dev logs | grep 'Uvicorn running' shows all 6 services started",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "1. Ensure prerequisite tasks (MCP Dockerfile, command alignment) are completed",
+    "2. Stop any running containers: docker compose --profile dev down",
+    "3. Clean up old images: docker compose --profile dev down --rmi local",
+    "4. Rebuild all services: docker compose --profile dev build --no-cache",
+    "5. Start stack in detached mode: docker compose --profile dev up -d",
+    "6. Wait 30 seconds for services to initialize",
+    "7. Check service status: docker compose --profile dev ps",
+    "8. Test files-api health endpoint with curl",
+    "9. Test git-api health endpoint with curl",
+    "10. Test rag-api health endpoint with curl",
+    "11. Test lock-api health endpoint with curl",
+    "12. Test crew-api health endpoint with curl",
+    "13. Test MCP service with tools/list JSON-RPC request",
+    "14. Check logs for each service for startup errors: docker compose --profile dev logs <service>",
+    "15. Verify no restart loops: docker compose --profile dev ps shows stable uptime",
+    "16. Document any remaining issues or warnings in task changelog",
+    "17. Update parent task (2025-09-30-docker-compose-debug-and-fix) status to 100% if all pass"
+  ],
+  "todo": [
+    {
+      "text": "Run docker compose --profile dev up --build",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Validate API health endpoints (files, git, rag, lock, crew)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Exercise MCP endpoint with tools/list request",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Summarize results and update related task files",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-02 13:40",
+      "text": "Task created to track full stack verification after fixes."
+    }
+  ],
+  "decisions": [
+    "Dependent on outcomes of MCP Dockerfile and command alignment tasks."
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Further hidden issues may emerge once MCP image exists; allocate time for iterative debugging."
+  ],
+  "next_steps": [
+    "Wait for prerequisite tasks to reach review/done status before executing verification."
+  ],
+  "references": [
+    "tasks/2025-09-30-docker-compose-debug-and-fix.json",
+    "scripts/start-mcp.sh",
+    "Health endpoints documentation (README)"
+  ],
+  "prompts": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "prerequisites": [
+      "2025-10-02-create-mcp-dockerfile",
+      "2025-10-02-align-compose-commands"
+    ]
+  }
+}
