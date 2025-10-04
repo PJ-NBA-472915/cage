@@ -6,6 +6,41 @@ networks:
     driver: bridge
 
 services:
+  # Traefik Reverse Proxy
+  traefik:
+    image: traefik:v3.0
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@localhost}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --log.level=INFO
+      - --accesslog=true
+    networks:
+      - cage-internal
+      - cage-external
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-letsencrypt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+    restart: unless-stopped
+    profiles:
+      - dev
+      - prod
+
   # PostgreSQL database with pgvector extension
   postgres:
     image: pgvector/pgvector:pg15
@@ -173,6 +208,17 @@ services:
     ports:
       - "${MCP_PORT:-8765}:8765"
       - "5679:5679"  # debugpy debug port
+    labels:
+      - "traefik.enable=true"
+      # HTTP routing
+      - "traefik.http.routers.mcp.rule=Host(`mcp.localhost`)"
+      - "traefik.http.routers.mcp.entrypoints=web"
+      - "traefik.http.services.mcp.loadbalancer.server.port=8765"
+      # HTTPS routing with Let's Encrypt
+      - "traefik.http.routers.mcp-secure.rule=Host(`mcp.localhost`)"
+      - "traefik.http.routers.mcp-secure.entrypoints=websecure"
+      - "traefik.http.routers.mcp-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.mcp-secure.service=mcp"
     environment:
       - POD_TOKEN=${POD_TOKEN:-test-mcp-token}
       - API_BASE_URL=http://crew-api:8000
@@ -281,6 +327,17 @@ services:
       - cage-external
     ports:
       - '3000:3000'
+    labels:
+      - "traefik.enable=true"
+      # HTTP routing
+      - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      # HTTPS routing with Let's Encrypt
+      - "traefik.http.routers.grafana-secure.rule=Host(`grafana.localhost`)"
+      - "traefik.http.routers.grafana-secure.entrypoints=websecure"
+      - "traefik.http.routers.grafana-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.grafana-secure.service=grafana"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -316,3 +373,5 @@ volumes:
   promtail-positions:
   grafana-data:
   logrotate-status:
+  # Traefik volumes
+  traefik-letsencrypt:
