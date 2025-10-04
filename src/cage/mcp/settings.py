@@ -12,7 +12,10 @@ class MCPSettings:
 
     def __init__(self) -> None:
         # API configuration
-        self.api_base_url: str = os.getenv("API_BASE_URL", "http://api:8000")
+        self.api_base_url: str = os.getenv("API_BASE_URL", "http://crew-api:8000")
+        self.files_api_base_url: str = os.getenv("FILES_API_BASE_URL", "http://files-api:8000")
+        self.git_api_base_url: str = os.getenv("GIT_API_BASE_URL", "http://git-api:8000")
+        self.rag_api_base_url: str = os.getenv("RAG_API_BASE_URL", "http://rag-api:8000")
         self.pod_token: str = os.getenv("POD_TOKEN", "test-mcp-token")
         self.api_timeout_s: int = int(os.getenv("API_TIMEOUT_S", "30"))
 

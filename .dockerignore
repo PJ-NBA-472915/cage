@@ -1,21 +1,22 @@
 # Git
 .git
 .gitignore
+.gitattributes
 
-# Python
+# Python - exclude build artifacts and cache
 **/__pycache__/
 **/*.pyc
 **/*.pyo
 **/*.pyd
 **/*.pyw
 **/*.pyz
-**/venv/
-**/.venv/
 **/.pytest_cache/
 **/coverage/
 **/.coverage*
+**/.ruff_cache/
+**/.mypy_cache/
 
-# Virtual environments
+# Virtual environments - exclude local venvs (built in container)
 **/venv/
 **/.venv/
 **/env/
@@ -83,8 +84,8 @@
 **/yarn-debug.log*
 **/yarn-error.log*
 
-# Docker
-**/Dockerfile*
+# Docker - exclude docker configs but keep our new Dockerfile
+**/dockerfiles/
 **/docker-compose*.yml
 **/docker-compose*.yaml
 **/.dockerignore
@@ -107,3 +108,6 @@
 **/.cage/
 **/coordination/
 **/test_coordination/
+
+# Claude Code
+**/.claude/

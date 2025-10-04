@@ -3,9 +3,11 @@
     "allow": [
       "Bash(docker-compose:*)",
       "Bash(curl:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(docker compose:*)"
     ],
     "deny": [],
     "ask": []
   }
-}
+}Use

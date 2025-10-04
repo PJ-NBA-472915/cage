@@ -137,7 +137,7 @@ def register_mcp_tools(mcp: Server):
     """Register all MCP tools with the server."""
     logger = logging.getLogger(__name__)
 
-    # Define available tools
+    # Define available tools - ONLY crew/agent/run management (no direct file/git access)
     tools = [
         {
             "name": "rag_query",
@@ -464,7 +464,7 @@ def register_mcp_tools(mcp: Server):
 
             # Call RAG API
             result = await make_api_request(
-                "/rag/query", method="POST", data=data, request_id=request_id
+                "/rag/query", method="POST", data=data, request_id=request_id, base_url=settings.rag_api_base_url
             )
 
             # Format response as human-readable summary
@@ -1454,6 +1454,7 @@ async def make_api_request(
     method: str = "GET",
     data: Optional[Dict[str, Any]] = None,
     request_id: Optional[str] = None,
+    base_url: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Make an HTTP request to the Cage API.
@@ -1463,6 +1464,7 @@ async def make_api_request(
         method: HTTP method (GET, POST, etc.)
         data: Request body data (for POST/PUT)
         request_id: Request ID for correlation
+        base_url: Base URL for the API (defaults to crew-api)
 
     Returns:
         Response JSON data
@@ -1477,8 +1479,12 @@ async def make_api_request(
     if not request_id:
         request_id = _request_id()
 
+    # Use provided base_url or default to crew-api
+    if not base_url:
+        base_url = settings.api_base_url
+
     # Build URL
-    url = settings.api_base_url.rstrip("/") + "/" + endpoint.lstrip("/")
+    url = base_url.rstrip("/") + "/" + endpoint.lstrip("/")
 
     # Prepare headers
     headers = {
