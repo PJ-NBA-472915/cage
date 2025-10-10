@@ -95,11 +95,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
     #   start_period: 5s
     profiles:
       - dev
@@ -123,11 +118,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
     #   start_period: 5s
     profiles:
       - dev
@@ -155,11 +145,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
     #   start_period: 5s
     profiles:
       - dev
@@ -186,11 +171,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
     #   start_period: 5s
     profiles:
       - dev
@@ -244,11 +224,6 @@ services:
         condition: service_healthy
       rag-api:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "sh", "-c", "curl -X POST http://localhost:8765/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/list\"}' --max-time 10 --write-out '%{http_code}' --output /dev/null --silent | grep -q '400'"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
     #   start_period: 15s
     profiles:
       - dev
@@ -295,11 +270,11 @@ services:
     volumes:
       - ./logging-stack/loki/config.yml:/etc/loki/config.yml:ro
       - loki-data:/loki
-    # healthcheck:
-    #   test: ['CMD', 'wget', '-qO-', 'http://localhost:3100/ready']
-    #   interval: 15s
-    #   timeout: 3s
-    #   retries: 20
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      interval: 15s
+      timeout: 3s
+      retries: 20
     restart: unless-stopped
     profiles: [observability]
 
