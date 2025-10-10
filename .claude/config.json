@@ -1,0 +1,309 @@
+{
+  "name": "Cage Development Configuration",
+  "description": "Permissive configuration for Cage pod-based multi-agent repository service",
+  "version": "1.0.0",
+  "permissions": {
+    "bash": {
+      "enabled": true,
+      "allow_all": true,
+      "blocked_commands": [
+        "sudo",
+        "su",
+        "pkexec",
+        "doas"
+      ],
+      "blocked_patterns": [
+        "^sudo\\s+.*",
+        "^su\\s+.*",
+        "^pkexec\\s+.*",
+        "^doas\\s+.*"
+      ],
+      "auto_approve": {
+        "enabled": true,
+        "patterns": [
+          "^docker-compose\\s+.*",
+          "^docker\\s+compose\\s+.*",
+          "^make\\s+.*",
+          "^uv\\s+.*",
+          "^pytest\\s+.*",
+          "^python\\s+-m\\s+pytest.*",
+          "^git\\s+.*",
+          "^curl\\s+.*",
+          "^ls\\s+.*",
+          "^cat\\s+.*",
+          "^grep\\s+.*",
+          "^find\\s+.*",
+          "^tree\\s+.*",
+          "^ps\\s+.*",
+          "^netstat\\s+.*",
+          "^lsof\\s+.*",
+          "^tail\\s+.*",
+          "^head\\s+.*",
+          "^jq\\s+.*",
+          "^black\\s+.*",
+          "^ruff\\s+.*",
+          "^mypy\\s+.*",
+          "^uvicorn\\s+.*",
+          "^python\\s+-m\\s+uvicorn.*"
+        ]
+      }
+    },
+    "file_operations": {
+      "read": {
+        "enabled": true,
+        "auto_approve": true,
+        "excluded_paths": [
+          ".env",
+          "*.key",
+          "*.pem",
+          "*.p12",
+          "*.pfx",
+          "**/secrets/**",
+          "**/credentials/**",
+          "**/.ssh/**"
+        ]
+      },
+      "write": {
+        "enabled": true,
+        "auto_approve": true,
+        "excluded_paths": [
+          ".env",
+          "*.key",
+          "*.pem",
+          "*.p12",
+          "*.pfx",
+          "**/secrets/**",
+          "**/credentials/**",
+          "**/.ssh/**",
+          "/etc/**",
+          "/sys/**",
+          "/proc/**"
+        ],
+        "allowed_extensions": [
+          ".py",
+          ".md",
+          ".json",
+          ".yaml",
+          ".yml",
+          ".toml",
+          ".txt",
+          ".sh",
+          ".sql",
+          ".js",
+          ".ts",
+          ".go",
+          ".rs",
+          ".c",
+          ".cpp",
+          ".h",
+          ".hpp",
+          ".java",
+          ".dockerfile",
+          ".dockerignore",
+          ".gitignore",
+          ".env.example",
+          ".env.template"
+        ]
+      },
+      "delete": {
+        "enabled": true,
+        "auto_approve": false,
+        "excluded_paths": [
+          ".env",
+          "*.key",
+          "*.pem",
+          "**/secrets/**",
+          "**/credentials/**",
+          "**/.git/**",
+          "/etc/**",
+          "/sys/**",
+          "/proc/**"
+        ]
+      }
+    },
+    "git": {
+      "enabled": true,
+      "auto_approve": {
+        "read_operations": true,
+        "write_operations": false
+      },
+      "allowed_operations": [
+        "status",
+        "diff",
+        "log",
+        "show",
+        "branch",
+        "checkout",
+        "add",
+        "commit",
+        "push",
+        "pull",
+        "fetch",
+        "merge",
+        "rebase",
+        "stash",
+        "tag",
+        "reset",
+        "revert"
+      ],
+      "blocked_operations": [
+        "push --force",
+        "reset --hard HEAD~",
+        "clean -fdx"
+      ]
+    },
+    "docker": {
+      "enabled": true,
+      "auto_approve": {
+        "inspect_operations": true,
+        "build_operations": true,
+        "run_operations": true,
+        "stop_operations": true
+      },
+      "allowed_operations": [
+        "ps",
+        "logs",
+        "inspect",
+        "build",
+        "up",
+        "down",
+        "restart",
+        "exec",
+        "run",
+        "images",
+        "volume",
+        "network",
+        "compose"
+      ],
+      "blocked_operations": [
+        "system prune -a --volumes",
+        "rm -f $(docker ps -aq)",
+        "rmi -f $(docker images -q)"
+      ]
+    },
+    "network": {
+      "enabled": true,
+      "auto_approve": {
+        "http_requests": true,
+        "localhost_only": false
+      },
+      "allowed_protocols": [
+        "http",
+        "https"
+      ],
+      "allowed_domains": [
+        "*"
+      ],
+      "blocked_domains": []
+    },
+    "package_management": {
+      "enabled": true,
+      "auto_approve": {
+        "install": false,
+        "update": false,
+        "list": true
+      },
+      "allowed_managers": [
+        "uv",
+        "pip",
+        "npm",
+        "yarn",
+        "go",
+        "cargo"
+      ],
+      "blocked_managers": [
+        "apt",
+        "apt-get",
+        "yum",
+        "dnf",
+        "pacman",
+        "brew"
+      ]
+    }
+  },
+  "safety": {
+    "require_confirmation_for": [
+      "Deleting multiple files",
+      "Modifying system files",
+      "Force pushing to git",
+      "Removing Docker volumes",
+      "Installing new packages"
+    ],
+    "prevent": [
+      "Running commands with sudo",
+      "Modifying files in /etc, /sys, /proc",
+      "Exposing secrets or credentials",
+      "Destructive operations without confirmation"
+    ]
+  },
+  "project_specific": {
+    "cage": {
+      "preferred_commands": {
+        "start_services": "docker-compose --profile dev up -d",
+        "stop_services": "docker-compose --profile dev down",
+        "run_tests": "uv run pytest tests/ -v",
+        "view_logs": "docker-compose --profile dev logs -f",
+        "health_check": "make health-check"
+      },
+      "environment_variables": {
+        "required": [
+          "POD_TOKEN",
+          "REPO_PATH"
+        ],
+        "optional": [
+          "OPENAI_API_KEY",
+          "MCP_PORT",
+          "RELOAD"
+        ]
+      },
+      "auto_start_services": false,
+      "auto_run_tests_before_commit": false
+    }
+  },
+  "workflow": {
+    "git_commit": {
+      "auto_approve": false,
+      "require_tests_pass": false,
+      "require_linting_pass": false,
+      "commit_message_template": "feat: {description}\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
+    },
+    "pull_request": {
+      "auto_approve": false,
+      "require_tests_pass": false,
+      "default_base_branch": "main"
+    },
+    "code_review": {
+      "auto_suggest_improvements": true,
+      "check_for_common_issues": true,
+      "enforce_style_guide": false
+    }
+  },
+  "editor": {
+    "formatting": {
+      "auto_format": false,
+      "formatters": {
+        "python": "black",
+        "javascript": "prettier",
+        "typescript": "prettier",
+        "go": "gofmt",
+        "rust": "rustfmt"
+      }
+    },
+    "linting": {
+      "auto_lint": false,
+      "linters": {
+        "python": "ruff",
+        "javascript": "eslint",
+        "typescript": "eslint"
+      }
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "log_level": "INFO",
+    "log_file": ".claude/logs/agent-activity.log",
+    "log_commands": true,
+    "log_file_operations": true,
+    "log_git_operations": true
+  }
+}

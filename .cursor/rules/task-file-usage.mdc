@@ -1,0 +1,396 @@
+---
+description: Always drive work from a single tasks/[taskname].json file; confirm the task first; keep it live-updated with progress, todos, changelog, and lessons; support a repo-wide In-Progress Tracker and a concise machine-readable Status Report.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Cursor Task Orchestration Rule (JSON-based)
+
+You must orchestrate every task via a `tasks/[current-date]-[taskname].json` file. Before any code or content changes, propose the task and get explicit confirmation.
+
+## Process
+
+### Overview
+- Always begin by creating a task file under tasks/[current date]-[taskname].json.
+- Fill it with your initial understanding of the task, including assumptions and open questions.
+- Work with the user in iterations to clarify the task and refine requirements.
+- Once the user confirms the task definition, begin executing the work directly in the task file.
+- As you work, record actions taken, progress updates, and lessons learned.
+- Continuously check your progress against the requirements.
+- Deliver the results and ensure that the task file captures the definition, progress, and outcomes.
+
+> Get the current date from the system with the 'date "+%Y-%m-%d"' command for file names.
+> Get the current date and time from the system with the 'date "+%Y-%m-%d %H:%M"' command for todo item timestamps.
+
+### Goals
+1. Easy to interpret — Clear for both agent and user.
+2. Reproducible steps — Standardised so any agent can follow it.
+3. Consistent results — Reliable outcomes every time.
+
+### Flow Diagram
+
+```txt
+flowchart TD
+
+  A[Start] --> B[Create tasks/[current date]-[taskname].json file]
+  B --> C[Write initial understanding of task]
+  C --> D[Iterate with user to clarify requirements]
+  D --> E{User confirms task definition?}
+  E -- No --> C
+  E -- Yes --> F[Work on the task file directly]
+  F --> G[Record actions, progress, lessons learned]
+  G --> H[Check progress against requirements]
+  H --> I{Requirements met?}
+  I -- No --> F
+  I -- Yes --> J[Deliver results & close task]
+  J --> K[End]
+```
+
+## 1) Confirmation Gate (do this first, before any work)
+- Pause and present a concise Task Proposal for confirmation. Ask:
+  1) Is this the correct task?
+  2) Are these success criteria and acceptance checks correct?
+  3) Is this the right breakdown into subtasks?
+- Do not start implementation until the user replies Confirm (minor edits OK; re-propose if scope meaningfully changes).
+
+Proposal format to present in chat (prior to work):
+- Task name: `<short, specific title>`
+- Goal: `<1–2 sentence outcome>`
+- Deliverables: `<list of concrete artefacts>`
+- Success criteria: `<objective checks/measurements>`
+- Acceptance checks: `<bulleted checks user can tick>`
+- Subtasks: `<numbered list of independent steps>`
+- Estimated effort: `<fibonacci numbers up to 13 or rough hours>`
+- Risks/assumptions: `<brief list>`
+
+## 2) Task File Location & Naming
+- Create or update: `tasks/[taskname].json`.
+- Prefer a slugged name, e.g. `tasks/2025-08-19-refactor-auth-guards.json`.
+- If a file already exists for the same task, append updates rather than creating duplicates (do not create duplicates with the same `id`).
+
+## 3) File Structure (JSON, must keep this structure)
+When the task is confirmed, generate a JSON file that conforms to `tasks/_schema.json`. Compute `progress_percent` from the To-Do checklist.
+
+Minimal example:
+
+```json
+{
+  "id": "2025-08-23-switch-task-files-to-json",
+  "title": "Switch task orchestration from Markdown to JSON",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-08-23 18:11",
+  "updated_at": "2025-08-23 18:11",
+  "progress_percent": 0,
+  "tags": ["cursor", "task"],
+  "summary": "Short description.",
+  "success_criteria": [{"text": "…", "checked": false}],
+  "acceptance_checks": [{"text": "…", "checked": false}],
+  "subtasks": ["…"],
+  "todo": [{"text": "…", "status": "not-started", "date_started": null, "date_stopped": null}],
+  "changelog": [{"timestamp": "2025-08-23 18:11", "text": "File created."}],
+  "decisions": ["…"],
+  "lessons_learned": ["…"],
+  "issues_risks": ["…"],
+  "next_steps": ["…"],
+  "references": ["…"],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {}
+}
+```
+## Collaboration
+
+!!WHEN WORKING ON THE TASK, **file locks** AND **change logs** MUST BE WRITTEN AT ALL TIMES TO AVOID CONFLICTS WITH OTHER AGENTS.
+
+
+
+### Change Log Requirement
+- Each agent must write a log entry before making changes.
+- The log entry must include:
+  - Relative file path
+  - Line numbers to be changed
+  - A short description of the intended change
+
+### Locking Protocol
+- Before modifying a file, the agent must check the task file for existing locks.
+- If the file is already locked:
+  - If possible, continue with another part of the task.
+  - Otherwise, wait 10 seconds and retry.
+  - Retry up to 5 times before aborting the task.
+
+### Lock Lifecycle
+- When acquiring a lock, the agent appends a new log entry with:
+  - File path
+  - Line numbers
+  - Change description
+  - Lock start timestamp (no completion date yet)
+- After completing the change, the agent must:
+  - Append a completion date to the lock entry.
+
+### Lock Status Indicators
+- **Active lock**: no completion date → file is in use.
+- **Released lock**: completion date present → change is complete, file is available.
+
+## In-Progress Tracker (repo-wide)
+
+You should be able to query this repo at any time and get a snapshot focused on unfinished work.
+
+Collection rules
+- Scan all `tasks/*.json` files.
+- Extract: title, status, progress_percent, updated_at, the most recent changelog entry, and all To-Do items with status not equal to "done" with their timing information.
+- Sort active tasks by updated_at descending (most recently updated first).
+- For "Recently Completed", take up to 3 tasks with status: done, sorted by updated_at descending.
+- Include todo item start/stop timing in progress reporting where relevant.
+
+Report Format
+When asked for status, progress, or tracker, write/update `tasks/_status.json` and also present a human-readable summary in chat.
+
+`tasks/_status.json` structure (example):
+
+```json
+{
+  "active_tasks": [
+    {
+      "title": "Task Title",
+      "status": "in-progress",
+      "progress_percent": 42,
+      "updated_at": "2025-08-23 18:11",
+      "latest_work": "2025-08-23 18:05 — Fixed flake8 issues",
+      "remaining_todo": [
+        {"text": "Step 1", "status": "not-started", "date_started": "2025-08-24 08:00", "date_stopped": null}, 
+        {"text": "Step 2", "status": "not-started", "date_started": null, "date_stopped": null},
+        {"text": "Step 3", "status": "blocked", "date_started": "2025-08-24 09:00", "date_stopped": null}
+      ]
+    }
+  ],
+  "recently_completed": [
+    {
+      "title": "Another Task",
+      "done_on": "2025-08-22 19:19",
+      "summary": "2025-08-22 19:19 — Finished and verified."
+    }
+  ]
+}
+```
+
+## Live Updates Policy (throughout execution)
+- Always update updated_at, status, progress_percent, and relevant sections immediately after each meaningful action (commit, refactor, fix, test run, tool install, etc.).
+- Progress calculation: derive progress_percent from To-Do (status="done" ÷ total × 100, rounded to whole numbers). Keep Success Criteria and Acceptance Checks in sync.
+- Log each meaningful change in changelog with timestamp and one-line rationale.
+- Add short entries to Lessons Learned as insights emerge.
+- If blocked, set status: "blocked" and record the blocker in Issues / Risks with a proposed mitigation.
+- When starting work on a todo item, immediately set `date_started` field with current timestamp.
+- When completing a todo item, immediately update its status to `done` and set `date_stopped` field with current timestamp.
+- When a todo item is blocked or fails, update status to `blocked` or `failed` accordingly and record reasons in appropriate sections.
+
+## User Interaction Logging (MANDATORY)
+- **CRITICAL**: Every task MUST log ALL user interactions in the `prompts` array. Empty `prompts[]` arrays are not acceptable.
+- **IMMEDIATE LOGGING**: Log each user prompt/request immediately when received, before responding.
+- Each prompt entry MUST include:
+  - `timestamp`: Current timestamp from `date "+%Y-%m-%d %H:%M"` command
+  - `text`: The exact user prompt/request (verbatim)
+  - `context`: Brief description of what was being worked on when the prompt was received
+  - `type`: One of `initial_request`, `clarification`, `feedback`, `approval`, `rejection`, `follow_up`
+- The `prompts` array provides a chronological record of all user interactions during task execution
+- This complements the `changelog` section which tracks agent actions and system changes
+- **QUALITY GATE**: Tasks with empty `prompts[]` arrays cannot be marked `done`
+- Example prompt entry:
+  ```json
+  {
+    "timestamp": "2025-08-23 18:30",
+    "text": "Can you add error handling to the database connection?",
+    "context": "Working on database integration module",
+    "type": "clarification"
+  }
+  ```
+
+## Structured Lessons Learned (MANDATORY)
+- **CRITICAL**: Every task MUST capture at least one lesson in `lessons_learned[]`
+- **CATEGORISATION**: Each lesson must be categorized for institutional knowledge
+- **STRUCTURED FORMAT**: Use consistent format for lessons learned
+
+### Lesson Structure
+Each lesson entry MUST include:
+- `category`: One of `technical`, `process`, `tooling`, `communication`, `infrastructure`
+- `lesson`: Specific insight or knowledge gained
+- `context`: Brief description of when/where this was learned
+- `applicable_to`: Array of tags indicating where this lesson applies
+
+Example lesson entry:
+```json
+{
+  "category": "technical",
+  "lesson": "Docker volume permissions require explicit user mapping in docker-compose.yml",
+  "context": "MCP container startup failures due to permission denied errors",
+  "applicable_to": ["docker", "containers", "permissions", "mcp"]
+}
+```
+
+### Lesson Categories
+- **technical**: Code, architecture, configuration insights
+- **process**: Workflow, methodology, collaboration patterns  
+- **tooling**: Development tools, automation, CI/CD insights
+- **communication**: User interaction, documentation, feedback patterns
+- **infrastructure**: Deployment, monitoring, environment setup
+
+## Subtask Discipline
+- Break the main task into small, independently verifiable subtasks.
+- Before starting a subtask, add its steps to To-Do.
+- After finishing a subtask, tick its items, update progress_percent, and add a changelog entry.
+- **CAPTURE LESSONS**: Record insights immediately as they emerge during subtask completion.
+
+## Todo Item Status and Date Management
+- Each todo item must track `status`, `date_started` and `date_stopped` fields.
+- Todo item status values: `not-started`, `done`, `blocked`, `failed`.
+- When starting work on a todo item, set `date_started` using the current timestamp from `date "+%Y-%m-%d %H:%M"` (status can remain `not-started` until completion).
+- When completing a todo item successfully, set status to `done` and set `date_stopped` using the current timestamp from `date "+%Y-%m-%d %H:%M"`.
+- When a todo item is blocked, set status to `blocked` and record the blocker in Issues/Risks.
+- When a todo item fails, set status to `failed` and set `date_stopped` with timestamp, then record the failure reason.
+- Always use the terminal `date` command to get accurate timestamps - never hardcode or guess times.
+- Todo items with status `not-started` should have `date_started: null` and `date_stopped: null` (unless work has begun).
+- Todo items with status `not-started` but work in progress should have `date_started` populated and `date_stopped: null`.
+- Todo items with status `done` or `failed` should have both `date_started` and `date_stopped` populated.
+- Todo items with status `blocked` may have `date_started` populated but `date_stopped: null` until resolved.
+
+## Quantifying Progress
+- progress_percent must equal the percentage of To-Do items with status="done" (done ÷ total × 100, rounded to whole numbers).
+- If the plan changes (scope added/removed), update Subtasks and To-Do first, then re-compute progress.
+- Do not manually fudge the percentage.
+- Items with status `blocked` or `failed` do not count toward progress completion.
+
+## File Hygiene
+- Prefer amending the existing `tasks/[current date]-[taskname].json` rather than creating new files mid-stream.
+- Keep a consistent field order for readability.
+- Use UK English.
+- Be concise; avoid filler.
+
+## Completion Checklist (MANDATORY)
+Before a task can be marked `done`, ALL of the following MUST be completed:
+
+### Pre-Completion Validation
+1. **All Success Criteria Verified**: Every success criterion must be `checked: true` with verification evidence
+2. **All Acceptance Checks Completed**: Every acceptance check must be `checked: true` with verification evidence  
+3. **All Todo Items Done**: Every todo item must have `status: "done"` with proper timestamps
+4. **User Prompts Logged**: At least one user prompt must be logged in `prompts[]` array
+5. **Verification Evidence Captured**: Each checked criterion must have evidence in `lessons_learned` or `changelog`
+6. **Lessons Learned Recorded**: At least one lesson must be captured in `lessons_learned[]`
+
+### Verification Evidence Requirements
+For each `checked: true` success criterion and acceptance check, you MUST provide:
+- `verified_at`: Timestamp when verification occurred
+- `evidence`: Specific, reproducible evidence (command output, test results, etc.)
+- `verified_by`: Method used (`manual_test`, `automated_test`, `code_review`, `user_approval`)
+
+Example verification evidence:
+```json
+{
+  "text": "Service responds to health checks",
+  "checked": true,
+  "verified_at": "2025-10-02 15:30",
+  "evidence": "curl http://localhost:8000/health returned 200 OK",
+  "verified_by": "automated_test"
+}
+```
+
+### Completion Process
+- When all Acceptance Checks are checked (true) and all To-Do items have status="done":
+- **VERIFY**: All items in completion checklist are satisfied
+- Set task status: "done" and progress_percent: 100.
+- Ensure all completed todo items have both `date_started` and `date_stopped` properly set.
+- Add a final changelog entry noting completion with verification summary.
+- Summarise outcomes in `summary` and capture final Lessons Learned.
+- **QUALITY GATE**: Tasks failing completion checklist cannot be marked `done`
+
+## Status Validation & Quality Gates
+
+### Automated Status Transition Rules
+Tasks MUST follow these status transition rules:
+
+#### Planned → In-Progress
+- **Trigger**: First todo item started (`date_started` populated)
+- **Validation**: User confirmation received (logged in `prompts[]`)
+- **Quality Gate**: Cannot transition without user confirmation
+
+#### In-Progress → Done  
+- **Trigger**: All todos complete AND completion checklist satisfied
+- **Validation**: All success criteria and acceptance checks verified with evidence
+- **Quality Gate**: Cannot transition without verification evidence
+
+#### Blocked → In-Progress
+- **Trigger**: Blocker resolved (recorded in `issues_risks[]`)
+- **Validation**: Mitigation implemented and tested
+- **Quality Gate**: Cannot transition without resolution evidence
+
+### Quality Gates (Automated Validation)
+Every task MUST pass these quality gates:
+
+1. **Schema Validation**: Task file conforms to `tasks/_schema.json`
+2. **Completion Checklist**: All mandatory items satisfied before `done` status
+3. **Prompt Logging**: At least one user prompt logged in `prompts[]`
+4. **Verification Evidence**: Each checked criterion has evidence
+5. **Timestamp Accuracy**: All timestamps use `date "+%Y-%m-%d %H:%M"` format
+6. **Status Consistency**: Status matches actual task state
+
+### Stale Task Detection & Automated Triage
+- **Stale In-Progress**: No updates for >7 days → flag for triage
+- **Stale Planned**: No updates for >14 days → request prioritization  
+- **Stale Blocked**: No updates for >30 days → escalate to user
+
+#### Automated Triage Process
+Daily triage should identify and flag:
+
+1. **Stale Tasks** (by `updated_at` date):
+   - In-progress >7 days: Add to triage queue
+   - Planned >14 days: Request prioritization
+   - Blocked >30 days: Escalate to user
+
+2. **Quality Issues**:
+   - Tasks marked `done` with unchecked acceptance criteria
+   - Tasks with empty `prompts[]` arrays
+   - Tasks missing verification evidence
+
+3. **Status Inconsistencies**:
+   - Tasks with `done` status but incomplete todos
+   - Tasks with `in-progress` status but no recent activity
+   - Tasks with mismatched progress percentages
+
+#### Triage Actions
+- **Flag**: Add to `quality_issues` in status dashboard
+- **Notify**: Include in status reports and summaries
+- **Escalate**: For critical issues, notify user immediately
+- **Track**: Maintain triage history in task metadata
+
+## Status & Report Triggers (Enhanced)
+When the user types any of: status, tracker, progress, what's in progress, or asks for a report:
+1. Generate the tracker from all JSON tasks (spec above).
+2. Save/update it at `tasks/_status.json` with quality gate status.
+3. Post a concise human-readable summary in chat.
+4. Include quality issues and stale tasks in the summary.
+5. If no active tasks exist, state "No active tasks. Latest completed:" and show the short list.
+
+### Enhanced Status Dashboard
+The `tasks/_status.json` should include:
+```json
+{
+  "active_tasks": [...],
+  "stale_tasks": [...],
+  "quality_issues": [
+    {
+      "task_id": "2025-09-26-logging-stack-setup",
+      "issue": "missing_verification_evidence",
+      "severity": "high"
+    }
+  ],
+  "verification_pending": [...],
+  "prompts_missing": [...]
+}
+```
+
+---
+
+## Migration Note
+Legacy Markdown task files in `tasks/*.md` are deprecated. Use `memory-bank/scripts/migrate-tasks-to-json.py` to convert them. New tasks must be created as `.json` and validated against `tasks/_schema.json`.
+
+## Blank task template (JSON)
+See `tasks/_blank_task.json` for the canonical template and `tasks/_schema.json` for validation.

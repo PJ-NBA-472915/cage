@@ -1,0 +1,44 @@
+---
+description: Always run artisan commands in the workspace docker container
+alwaysApply: true
+---
+
+# Artisan Commands in Docker Container
+
+All Laravel artisan commands must be executed within the workspace docker container, not directly on the host system.
+
+## Required Format
+
+**Always** run artisan commands using docker-compose exec:
+
+```bash
+docker-compose exec workspace php artisan <command>
+```
+
+## Examples
+
+- ✅ **Do**: `docker-compose exec --profile workspace workspace php artisan migrate`
+- ✅ **Do**: `docker-compose exec --profile workspace workspace php artisan make:controller UserController`
+- ✅ **Do**: `docker-compose exec --profile workspace workspace php artisan tinker`
+- ✅ **Do**: `docker-compose exec --profile workspace workspace php artisan test`
+- ✅ **Do**: `docker-compose exec --profile workspace workspace php artisan queue:work`
+
+- ❌ **Don't**: `php artisan migrate` (runs on host)
+- ❌ **Don't**: `./artisan migrate` (runs on host)
+- ❌ **Don't**: `devbox run php artisan migrate` (bypasses container)
+
+## Why This Matters
+
+The workspace container provides:
+- Proper PHP environment with correct version and extensions
+- Database connectivity to the containerized PostgreSQL
+- Access to containerized services (memcached, mailpit)
+- Consistent environment matching production
+- Proper file permissions and volume mounts
+
+## Container Information
+
+- **Container Name**: `workspace`
+- **Service Name**: `workspace` (from docker-compose.yaml)
+- **PHP Version**: 8.4 (configurable via PHP_VERSION env var)
+- **Working Directory**: `/workspace` (mounted from project root)
