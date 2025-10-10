@@ -63,7 +63,10 @@ RUN groupadd -r cage && \
     chown -R system:cage /home/system && \
     chgrp cage /app/logs && \
     chmod 775 /app/logs && \
-    chmod 750 /work/repo
+    chmod 750 /work/repo && \
+    # Make app directory writable by cage group for uv operations \
+    chgrp -R cage /app && \
+    chmod -R g+w /app
 
 # ==============================================================================
 # Files API Service

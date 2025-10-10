@@ -228,7 +228,9 @@ services:
       - DEBUGPY_ENABLED=${DEBUGPY_ENABLED:-0}
       - DEBUGPY_WAIT_FOR_CLIENT=${DEBUGPY_WAIT_FOR_CLIENT:-0}
     volumes:
-      - .:/app
+      # Mount only necessary directories, not .venv or build artifacts
+      - ./src:/app/src
+      - ./scripts:/app/scripts
     depends_on:
       postgres:
         condition: service_healthy
@@ -266,7 +268,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests
-      - ./pyproject.toml:/app/pyproject.toml:ro
+      # Do not mount pyproject.toml or uv.lock - they're in the image
       - ${REPO_PATH}:/work/repo
       - ./logs/api/crew:/app/logs
     depends_on:
@@ -274,12 +276,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 5s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     profiles:
       - dev
       - prod
