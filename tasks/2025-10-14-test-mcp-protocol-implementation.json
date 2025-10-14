@@ -2,10 +2,10 @@
   "id": "2025-10-14-test-mcp-protocol-implementation",
   "title": "Test MCP Protocol Implementation via JSON-RPC",
   "owner": "Jaak",
-  "status": "planned",
+  "status": "completed",
   "created_at": "2025-10-14 09:30",
-  "updated_at": "2025-10-14 09:30",
-  "progress_percent": 0,
+  "updated_at": "2025-10-14 10:00",
+  "progress_percent": 100,
   "tags": ["mcp", "protocol", "testing", "integration"],
   "summary": "Create comprehensive integration tests to verify the MCP JSON-RPC protocol is correctly implemented at the /mcp/rpc endpoint. Tests should verify initialize, tools/list, and tools/call methods work correctly and return proper JSON-RPC 2.0 responses.",
   "success_criteria": [
@@ -157,6 +157,12 @@
       "text": "Task created to verify MCP protocol implementation",
       "lock_id": null,
       "file_path": null
+    },
+    {
+      "timestamp": "2025-10-14 10:00",
+      "text": "Created comprehensive test suite in tests/integration/test_mcp_protocol.py with 9 tests covering initialize, tools/list, tools/call, and error handling",
+      "lock_id": null,
+      "file_path": "tests/integration/test_mcp_protocol.py"
     }
   ],
   "decisions": [],
