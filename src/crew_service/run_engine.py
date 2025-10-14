@@ -14,6 +14,7 @@ from typing import Dict
 from uuid import UUID
 
 from src.cage.models import TaskManager
+from src.cage.tools.crew_tool import ModularCrewTool
 from src.models.crewai import Run, TaskSpec
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,12 @@ class RunEngine:
         tasks_dir = self.repo_path / "tasks"
         self.task_manager = TaskManager(tasks_dir=tasks_dir)
         logger.info(f"TaskManager initialized with tasks_dir: {tasks_dir}")
+
+        # Initialize ModularCrewTool with EditorTool integration
+        self.crew_tool = ModularCrewTool(
+            repo_path=self.repo_path, task_manager=self.task_manager
+        )
+        logger.info("ModularCrewTool initialized with EditorTool integration")
 
     async def execute_agent_run(self, run: Run, agent_id: UUID, task: TaskSpec) -> Run:
         """Execute a single agent run."""
