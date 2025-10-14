@@ -2,10 +2,10 @@
   "id": "2025-10-01-implement-mcp-rpc-protocol",
   "title": "Implement Full MCP JSON-RPC Protocol in /mcp/rpc Endpoint",
   "owner": "Jaak",
-  "status": "planned",
+  "status": "completed",
   "created_at": "2025-10-01 12:00",
-  "updated_at": "2025-10-01 23:45",
-  "progress_percent": 0,
+  "updated_at": "2025-10-14 09:45",
+  "progress_percent": 100,
   "tags": [
     "mcp",
     "protocol",
@@ -152,6 +152,12 @@
       "text": "Task created from MCP server review findings",
       "lock_id": null,
       "file_path": null
+    },
+    {
+      "timestamp": "2025-10-14 09:45",
+      "text": "MCP RPC protocol fully implemented in src/cage/mcp/server.py - includes initialize, tools/list, and tools/call methods with proper JSON-RPC 2.0 compliance and error handling",
+      "lock_id": null,
+      "file_path": "src/cage/mcp/server.py"
     }
   ],
   "decisions": [],
