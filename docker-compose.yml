@@ -234,6 +234,7 @@ services:
     build:
       context: .
       target: crew-api
+    user: root
     networks:
       - cage-internal
     environment:

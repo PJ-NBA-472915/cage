@@ -8,7 +8,12 @@
       "Bash(docker compose:*)",
       "Bash(make:*)",
       "Bash(make slice-cage:*)",
-      "Bash(make verify-cage:*)"
+      "Bash(make verify-cage:*)",
+      "Bash(for f in tasks/2025-10-14-mcp-file-ops-*.json)",
+      "Bash(jq:*)",
+      "Bash(done)",
+      "Bash(do [ -f \"$f\" ])",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
