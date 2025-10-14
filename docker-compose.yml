@@ -234,7 +234,6 @@ services:
     build:
       context: .
       target: crew-api
-    user: root
     networks:
       - cage-internal
     environment:
@@ -245,8 +244,9 @@ services:
       - ./src:/app/src
       - ./tests:/app/tests
       # Do not mount pyproject.toml or uv.lock - they're in the image
-      - ${REPO_PATH}:/work/repo
-      - ./logs/api/crew:/app/logs
+      - ${REPO_PATH}:/work/repo:ro
+      - ./logs/api/crew:/app/logs/crew-api
+      - crew-tasks:/work/repo/tasks
     depends_on:
       postgres:
         condition: service_healthy
@@ -351,3 +351,5 @@ volumes:
   logrotate-status:
   # Traefik volumes
   traefik-letsencrypt:
+  # Crew API volumes
+  crew-tasks:

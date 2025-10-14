@@ -58,11 +58,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN groupadd -r cage && \
     useradd -r -g cage worker && \
     useradd -r -g cage system && \
-    mkdir -p /app/logs /work/repo /home/worker/.cache/uv /home/system/.cache/uv && \
+    mkdir -p /app/logs/crewai /work/repo /home/worker/.cache/uv /home/system/.cache/uv && \
     chown -R worker:cage /work/repo /home/worker && \
     chown -R system:cage /home/system && \
     chgrp cage /app/logs && \
     chmod 775 /app/logs && \
+    chown -R worker:cage /app/logs/crewai && \
+    chmod 775 /app/logs/crewai && \
     chmod 750 /work/repo && \
     # Make app directory writable by cage group for uv operations \
     chgrp -R cage /app && \
