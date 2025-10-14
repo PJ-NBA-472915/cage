@@ -1,0 +1,260 @@
+{
+  "id": "2025-10-14-e2e-test-mcp-file-operations",
+  "title": "End-to-End Test: Create and Edit Files Through MCP Service",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14 09:30",
+  "updated_at": "2025-10-14 09:30",
+  "progress_percent": 0,
+  "tags": ["mcp", "e2e", "testing", "files", "isolation"],
+  "summary": "Create end-to-end integration test that uses MCP server to invoke a crew/agent that creates and edits files in an isolated test repository. This verifies the complete workflow: MCP client → crew tools → agent execution → file operations → Git commits. Test must enforce isolation constraint - no direct file changes allowed, only through MCP.",
+  "success_criteria": [
+    {
+      "text": "Test creates isolated repo in .scratchpad/ for testing",
+      "checked": false
+    },
+    {
+      "text": "Test uses MCP JSON-RPC to create an agent via agent_create tool",
+      "checked": false
+    },
+    {
+      "text": "Test uses MCP JSON-RPC to invoke agent with file creation task",
+      "checked": false
+    },
+    {
+      "text": "Agent successfully creates file in isolated test repo (verified on disk)",
+      "checked": false
+    },
+    {
+      "text": "Test uses MCP JSON-RPC to invoke agent with file editing task",
+      "checked": false
+    },
+    {
+      "text": "Agent successfully edits existing file in test repo (verified on disk)",
+      "checked": false
+    },
+    {
+      "text": "Test verifies NO files created/modified in main Cage repo",
+      "checked": false
+    },
+    {
+      "text": "Test verifies Git commits are created for file changes",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "New test file created: tests/integration/test_mcp_e2e_files.py",
+      "checked": false
+    },
+    {
+      "text": "Test creates and cleans up .scratchpad/mcp-e2e-test/ directory",
+      "checked": false
+    },
+    {
+      "text": "Test demonstrates full workflow without any direct file manipulation",
+      "checked": false
+    },
+    {
+      "text": "Test includes assertions that main repo is unchanged",
+      "checked": false
+    },
+    {
+      "text": "Test can run multiple times without conflicts (idempotent cleanup)",
+      "checked": false
+    },
+    {
+      "text": "Test documents the complete request/response flow with comments",
+      "checked": false
+    },
+    {
+      "text": "Test works with both local and Docker MCP service",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Create tests/integration/test_mcp_e2e_files.py file",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add fixture to create isolated test repo in .scratchpad/",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add fixture to configure REPO_PATH env var for test",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add fixture to track main repo state (git status before/after)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_e2e_create_file_via_mcp() - full file creation workflow",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_e2e_edit_file_via_mcp() - full file editing workflow",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_e2e_isolation_enforcement() - verify no main repo changes",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add helper function to call MCP tools and wait for completion",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add helper function to poll run status until completed/failed",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add assertions to verify file content matches expectations",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add assertions to verify Git commits were created",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add cleanup logic to remove test repo after test completes",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test with simple file (README.md) creation task",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test with code file (Python module) creation task",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test with file editing task (update existing file)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Verify test works locally with services running",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Verify test works in Docker environment",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document test in README or testing guide",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-14 09:30",
+      "text": "Task created to verify end-to-end MCP file operations",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [
+    "Use .scratchpad/mcp-e2e-test/ for isolated test repository to avoid conflicts",
+    "Poll run status with timeout to wait for async agent execution",
+    "Verify Git commits to ensure provenance tracking is working"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Async nature of crew execution requires polling with timeout",
+    "Test may be slow if agent execution takes significant time",
+    "Need to handle agent failures gracefully in test",
+    "May need to increase timeouts for CI/CD environments",
+    "Test repo cleanup must be robust to avoid accumulating test data",
+    "Need to ensure services are properly configured to use test repo path"
+  ],
+  "next_steps": [
+    "Ensure 2025-10-14-test-mcp-protocol-implementation is passing first",
+    "Review isolation-guide.md for best practices on test repo setup",
+    "Determine appropriate timeout values for agent execution",
+    "Decide on simple vs complex file operations for initial test"
+  ],
+  "references": [
+    "memory-bank/guides/isolation-guide.md - Isolation system documentation",
+    "memory-bank/scenarios/testing-protocol.md - Testing protocol constraints",
+    "memory-bank/scenarios/note-taking-app-scenario.md - Example application scenario",
+    "hello_world_mcp.py - Example MCP workflow to adapt",
+    "tests/test_crew_smoke.py - Pattern for crew testing",
+    "tasks/2025-10-14-test-mcp-protocol-implementation.json - Prerequisite task",
+    "tasks/2025-10-01-implement-mcp-rpc-protocol.json - MCP protocol implementation"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-14 09:30",
+      "text": "User requested: Create two separate tasks for testing the actual MCP protocol usage of the implementation and then a second task to do an e2e test to see if you can create and edit files through the mcp service.",
+      "context": "Following up on MCP server testing report - second of two tasks"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_hours": 8,
+    "depends_on": [
+      "2025-10-01-implement-mcp-rpc-protocol",
+      "2025-10-14-test-mcp-protocol-implementation"
+    ],
+    "related_files": [
+      "src/cage/mcp/server.py",
+      "src/apps/crew_api/main.py",
+      "src/apps/files_api/main.py",
+      "tests/integration/test_mcp_e2e_files.py"
+    ],
+    "test_type": "e2e",
+    "requires_services": [
+      "mcp",
+      "crew-api",
+      "files-api",
+      "git-api",
+      "postgres",
+      "redis"
+    ]
+  }
+}

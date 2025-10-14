@@ -1,0 +1,206 @@
+{
+  "id": "2025-10-14-test-mcp-protocol-implementation",
+  "title": "Test MCP Protocol Implementation via JSON-RPC",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14 09:30",
+  "updated_at": "2025-10-14 09:30",
+  "progress_percent": 0,
+  "tags": ["mcp", "protocol", "testing", "integration"],
+  "summary": "Create comprehensive integration tests to verify the MCP JSON-RPC protocol is correctly implemented at the /mcp/rpc endpoint. Tests should verify initialize, tools/list, and tools/call methods work correctly and return proper JSON-RPC 2.0 responses.",
+  "success_criteria": [
+    {
+      "text": "Test can successfully call initialize method and receive server capabilities",
+      "checked": false
+    },
+    {
+      "text": "Test can call tools/list and receive all 13 registered MCP tools",
+      "checked": false
+    },
+    {
+      "text": "Test can call tools/call with rag_query and receive results",
+      "checked": false
+    },
+    {
+      "text": "Test can call tools/call with agent_create and receive agent ID",
+      "checked": false
+    },
+    {
+      "text": "Test verifies proper JSON-RPC 2.0 response format for all methods",
+      "checked": false
+    },
+    {
+      "text": "Test verifies error handling for invalid method names",
+      "checked": false
+    },
+    {
+      "text": "Test verifies error handling for malformed requests",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "New test file created: tests/integration/test_mcp_protocol.py",
+      "checked": false
+    },
+    {
+      "text": "All tests pass when MCP server is running",
+      "checked": false
+    },
+    {
+      "text": "Tests verify JSON-RPC 2.0 compliance (jsonrpc, id, result/error fields)",
+      "checked": false
+    },
+    {
+      "text": "Tests work with both http://localhost:8765/mcp/rpc and Docker network URLs",
+      "checked": false
+    },
+    {
+      "text": "Tests document expected request/response format for each method",
+      "checked": false
+    },
+    {
+      "text": "CI/CD can run these tests automatically",
+      "checked": false
+    }
+  ],
+  "subtasks": [],
+  "todo": [
+    {
+      "text": "Review MCP protocol specification for JSON-RPC 2.0 requirements",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create tests/integration/test_mcp_protocol.py file",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_mcp_initialize() - verify initialize handshake",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_mcp_tools_list() - verify all 13 tools are returned",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_mcp_tools_call_rag_query() - test RAG tool",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_mcp_tools_call_agent_create() - test agent creation",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_mcp_tools_call_crew_run() - test crew execution",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_mcp_invalid_method() - test error handling",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Write test_mcp_malformed_request() - test error handling",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add fixtures for MCP client and test helpers",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Document test setup requirements in test docstrings",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run tests against local MCP server and verify all pass",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run tests against Docker MCP service and verify all pass",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Add test to CI/CD pipeline configuration",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-14 09:30",
+      "text": "Task created to verify MCP protocol implementation",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Tests will fail if task 2025-10-01-implement-mcp-rpc-protocol is not completed first",
+    "May need to mock external dependencies (OpenAI for RAG) in some tests",
+    "Need to ensure test cleanup doesn't leave orphaned agents/crews/runs",
+    "Tests should be idempotent and not depend on execution order"
+  ],
+  "next_steps": [
+    "Wait for or verify that 2025-10-01-implement-mcp-rpc-protocol.json is complete",
+    "Review existing test patterns in tests/test_crew_smoke.py for consistency",
+    "Check if pytest-asyncio is needed for async HTTP client tests"
+  ],
+  "references": [
+    "memory-bank/review/2025-10-01-mcp-server-review.md - MCP RPC endpoint issue",
+    "memory-bank/guides/features/mcp-server.md - MCP server documentation",
+    "test_mcp_client.py - Existing basic test suite",
+    "hello_world_mcp.py - Example MCP workflow",
+    "tests/test_crew_smoke.py - Pattern for crew service testing",
+    "tasks/2025-10-01-implement-mcp-rpc-protocol.json - Prerequisite task"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-14 09:30",
+      "text": "User requested: Create two separate tasks for testing the actual MCP protocol usage of the implementation and then a second task to do an e2e test to see if you can create and edit files through the mcp service.",
+      "context": "Following up on MCP server testing report"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "priority": "high",
+    "estimated_hours": 6,
+    "depends_on": ["2025-10-01-implement-mcp-rpc-protocol"],
+    "related_files": [
+      "src/cage/mcp/server.py",
+      "tests/integration/test_mcp_protocol.py"
+    ]
+  }
+}
