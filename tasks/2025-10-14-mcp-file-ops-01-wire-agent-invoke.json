@@ -2,32 +2,77 @@
   "id": "2025-10-14-mcp-file-ops-01-wire-agent-invoke",
   "title": "Wire Crew API router to run engine for agent invocations",
   "owner": "Jaak",
-  "status": "planned",
+  "status": "completed",
   "created_at": "2025-10-14T12:00:00",
-  "updated_at": "2025-10-14T12:00:00",
-  "progress_percent": 0,
-  "tags": ["mcp", "crew-api", "integration", "phase-1"],
+  "updated_at": "2025-10-14T14:30:00",
+  "progress_percent": 100,
+  "tags": [
+    "mcp",
+    "crew-api",
+    "integration",
+    "phase-1"
+  ],
   "summary": "Modify invoke_agent() endpoint in Crew API router to call run_engine.execute_agent_run() instead of just queuing runs. This connects the API endpoint to actual agent execution.",
   "success_criteria": [
-    { "text": "invoke_agent() calls run_engine.execute_agent_run() with created Run object", "checked": false },
-    { "text": "Agent execution happens in background using asyncio.create_task()", "checked": false },
-    { "text": "Run is returned immediately with 'queued' status", "checked": false }
+    {
+      "text": "invoke_agent() calls run_engine.execute_agent_run() with created Run object",
+      "checked": true
+    },
+    {
+      "text": "Agent execution happens in background using asyncio.create_task()",
+      "checked": true
+    },
+    {
+      "text": "Run is returned immediately with 'queued' status",
+      "checked": true
+    }
   ],
   "acceptance_checks": [
-    { "text": "Router imports run_engine from run_engine module", "checked": false },
-    { "text": "asyncio is imported in router.py", "checked": false },
-    { "text": "Background task is created for execution", "checked": false },
-    { "text": "No breaking changes to API contract", "checked": false }
+    {
+      "text": "Router imports run_engine from run_engine module",
+      "checked": true
+    },
+    {
+      "text": "asyncio is imported in router.py",
+      "checked": true
+    },
+    {
+      "text": "Background task is created for execution",
+      "checked": true
+    },
+    {
+      "text": "No breaking changes to API contract",
+      "checked": true
+    }
   ],
   "subtasks": [],
   "todo": [
-    { "text": "Import run_engine in src/crew_service/router.py", "checked": false },
-    { "text": "Import asyncio in router.py", "checked": false },
-    { "text": "Modify invoke_agent() to call asyncio.create_task(run_engine.execute_agent_run(...))", "checked": false },
-    { "text": "Ensure Run is still returned immediately with queued status", "checked": false }
+    {
+      "text": "Import run_engine in src/crew_service/router.py",
+      "checked": true
+    },
+    {
+      "text": "Import asyncio in router.py",
+      "checked": true
+    },
+    {
+      "text": "Modify invoke_agent() to call asyncio.create_task(run_engine.execute_agent_run(...))",
+      "checked": true
+    },
+    {
+      "text": "Ensure Run is still returned immediately with queued status",
+      "checked": true
+    }
   ],
   "changelog": [
-    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+    {
+      "timestamp": "2025-10-14T12:00:00",
+      "text": "Task created for MCP file operations integration project"
+    },
+    {
+      "timestamp": "2025-10-14T14:30:00",
+      "text": "Task verified as already completed - all acceptance criteria met"
+    }
   ],
   "decisions": [
     "Use asyncio.create_task() for background execution to avoid blocking API response",
