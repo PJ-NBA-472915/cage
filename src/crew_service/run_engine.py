@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict
 from uuid import UUID
 
+from src.cage.models import TaskManager
 from src.models.crewai import Run, TaskSpec
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,11 @@ class RunEngine:
         repo_path_str = os.getenv("REPO_PATH", "/work/repo")
         self.repo_path = Path(repo_path_str)
         logger.info(f"RunEngine initialized with repo_path: {self.repo_path}")
+
+        # Initialize TaskManager for task tracking
+        tasks_dir = self.repo_path / "tasks"
+        self.task_manager = TaskManager(tasks_dir=tasks_dir)
+        logger.info(f"TaskManager initialized with tasks_dir: {tasks_dir}")
 
     async def execute_agent_run(self, run: Run, agent_id: UUID, task: TaskSpec) -> Run:
         """Execute a single agent run."""
