@@ -4,6 +4,7 @@ CrewAI Router
 Main router for all crew endpoints.
 """
 
+import asyncio
 import logging
 import os
 from uuid import UUID
@@ -12,6 +13,7 @@ from fastapi import APIRouter, Request
 
 from src.cage.utils.jsonl_logger import log_with_context
 from src.crew_service.middleware_request_id import get_current_request_id
+from src.crew_service.run_engine import run_engine
 from src.models.crewai import (
     Agent,
     AgentCreate,
@@ -186,6 +188,9 @@ async def invoke_agent(request: Request, agent_id: UUID, invoke_data: AgentInvok
         status="queued",
     )
     runs_db[run.id] = run
+
+    # Execute agent run in background
+    asyncio.create_task(run_engine.execute_agent_run(run, agent_id, invoke_data.task))
 
     return run
 
