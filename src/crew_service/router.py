@@ -303,6 +303,12 @@ async def run_crew(request: Request, crew_id: UUID, run_data: CrewRunRequest):
     )
     runs_db[run.id] = run
 
+    # Execute crew run in background with strategy
+    strategy = run_data.strategy if hasattr(run_data, "strategy") else "sequential"
+    asyncio.create_task(
+        run_engine.execute_crew_run(run, crew_id, run_data.task, strategy)
+    )
+
     return run
 
 
