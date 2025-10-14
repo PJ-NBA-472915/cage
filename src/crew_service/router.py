@@ -13,7 +13,7 @@ from fastapi import APIRouter, Request
 
 from src.cage.utils.jsonl_logger import log_with_context
 from src.crew_service.middleware_request_id import get_current_request_id
-from src.crew_service.run_engine import run_engine
+from src.crew_service.run_engine import RunEngine
 from src.models.crewai import (
     Agent,
     AgentCreate,
@@ -34,6 +34,9 @@ logger = logging.getLogger(__name__)
 agents_db = {}
 crews_db = {}
 runs_db = {}
+
+# Initialize run engine with runs_db
+run_engine = RunEngine(runs_db=runs_db)
 
 # Create router without prefix (standalone service)
 router = APIRouter(tags=["crew"])
@@ -189,8 +192,10 @@ async def invoke_agent(request: Request, agent_id: UUID, invoke_data: AgentInvok
     )
     runs_db[run.id] = run
 
-    # Execute agent run in background
-    asyncio.create_task(run_engine.execute_agent_run(run, agent_id, invoke_data.task))
+    # Execute agent run in background with agent role
+    asyncio.create_task(
+        run_engine.execute_agent_run(run, agent_id, agent.role, invoke_data.task)
+    )
 
     return run
 
