@@ -61,6 +61,10 @@ class JsonlFormatter(logging.Formatter):
 
 def setup_logging():
     """Setup JSONL logging configuration."""
+    import os
+    from pathlib import Path
+    from logging.handlers import TimedRotatingFileHandler
+
     # Create logger
     logger = logging.getLogger()
     logger.setLevel(getattr(logging, settings.log_level.upper()))
@@ -72,10 +76,32 @@ def setup_logging():
     # Create JSONL formatter
     formatter = JsonlFormatter(service_name=settings.service_name)
 
-    # Create stdout handler
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    # Setup file logging (to be picked up by Promtail)
+    log_dir = Path(os.environ.get("LOG_DIR", "/app/logs"))
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create service subdirectory
+    service_dir = log_dir / "mcp"
+    service_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create log file with .jsonl extension
+    log_file = service_dir / "mcp.jsonl"
+
+    # Create rotating file handler (daily rotation)
+    file_handler = TimedRotatingFileHandler(
+        filename=str(log_file),
+        when="midnight",
+        interval=1,
+        backupCount=30,  # Keep 30 days of logs
+        encoding="utf-8",
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    # Also keep stdout handler for container logs
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(formatter)
+    logger.addHandler(stdout_handler)
 
 
 def create_cli_parser() -> argparse.ArgumentParser:

@@ -9,133 +9,195 @@ positions:
   filename: /tmp/positions.yaml
 
 scrape_configs:
-  # API logs (daily files)
-  - job_name: cage-api-logs
+  # Files API logs (JSONL format)
+  - job_name: cage-files-api-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
-          component: api
-          __path__: /var/log/cage/api/*.log
+          service: files-api
+          __path__: /var/log/cage/files-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
-            timestamp: timestamp
+            ts: ts
             level: level
-            message: message
+            service: service
+            request_id: request_id
+            route: route
+            msg: msg
+            error: error
             file: file
             line: line
-            event: event
-            method: method
-            url: url
-            path: path
-            status_code: status_code
-            duration_ms: duration_ms
-            client_ip: client_ip
+            func: func
       - labels:
           level:
-          file:
-          event:
-          method:
-          status_code:
+          service:
+          route:
       - timestamp:
-          source: timestamp
-          format: "2006-01-02 15:04:05,000"
+          source: ts
+          format: "2006-01-02T15:04:05.000Z"
           action_on_failure: fudge
       - output:
-          source: message
+          source: msg
 
-  # CrewAI logs (daily files)
-  - job_name: cage-crewai-logs
+  # Git API logs (JSONL format)
+  - job_name: cage-git-api-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
-          component: crewai
-          __path__: /var/log/cage/crewai/*.log
+          service: git-api
+          __path__: /var/log/cage/git-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
-            timestamp: timestamp
+            ts: ts
             level: level
-            component: component
-            message: message
+            service: service
+            request_id: request_id
+            route: route
+            msg: msg
+            error: error
             file: file
             line: line
+            func: func
       - labels:
           level:
-          component:
-          file:
+          service:
+          route:
       - timestamp:
-          source: timestamp
-          format: "2006-01-02 15:04:05,000"
+          source: ts
+          format: "2006-01-02T15:04:05.000Z"
           action_on_failure: fudge
       - output:
-          source: message
+          source: msg
 
-  # Management logs (daily files)
-  - job_name: cage-manage-logs
+  # RAG API logs (JSONL format)
+  - job_name: cage-rag-api-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
-          component: manage
-          __path__: /var/log/cage/manage/*.log
+          service: rag-api
+          __path__: /var/log/cage/rag-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
-            timestamp: timestamp
+            ts: ts
             level: level
-            message: message
+            service: service
+            request_id: request_id
+            route: route
+            msg: msg
+            error: error
             file: file
             line: line
-            status: status
-            date: date
+            func: func
       - labels:
           level:
-          file:
-          status:
+          service:
+          route:
       - timestamp:
-          source: timestamp
-          format: "2006-01-02 15:04:05,000"
+          source: ts
+          format: "2006-01-02T15:04:05.000Z"
           action_on_failure: fudge
       - output:
-          source: message
+          source: msg
 
-  # MCP logs (daily files)
+  # Lock API logs (JSONL format)
+  - job_name: cage-lock-api-logs
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: cage-logs
+          service: lock-api
+          __path__: /var/log/cage/lock-api/**/*.jsonl
+    pipeline_stages:
+      - json:
+          expressions:
+            ts: ts
+            level: level
+            service: service
+            request_id: request_id
+            route: route
+            msg: msg
+            error: error
+            file: file
+            line: line
+            func: func
+      - labels:
+          level:
+          service:
+          route:
+      - timestamp:
+          source: ts
+          format: "2006-01-02T15:04:05.000Z"
+          action_on_failure: fudge
+      - output:
+          source: msg
+
+  # Crew API logs (JSONL format)
+  - job_name: cage-crew-api-logs
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: cage-logs
+          service: crew-api
+          __path__: /var/log/cage/crew-api/**/*.jsonl
+    pipeline_stages:
+      - json:
+          expressions:
+            ts: ts
+            level: level
+            service: service
+            request_id: request_id
+            route: route
+            msg: msg
+            error: error
+            file: file
+            line: line
+            func: func
+      - labels:
+          level:
+          service:
+          route:
+      - timestamp:
+          source: ts
+          format: "2006-01-02T15:04:05.000Z"
+          action_on_failure: fudge
+      - output:
+          source: msg
+
+  # MCP Server logs (JSONL format)
   - job_name: cage-mcp-logs
     static_configs:
       - targets: [localhost]
         labels:
           job: cage-logs
-          component: mcp
-          __path__: /var/log/cage/mcp/*.log
+          service: mcp
+          __path__: /var/log/cage/mcp/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
-            timestamp: timestamp
+            ts: ts
             level: level
-            message: message
-            file: file
-            line: line
             service: service
-            event: event
-            method: method
-            url: url
-            path: path
-            status_code: status_code
-            duration_ms: duration_ms
-            client_ip: client_ip
+            request_id: request_id
+            route: route
+            msg: msg
+            error: error
+            tool: tool
+            actor: actor
+            status: status
       - labels:
           level:
-          file:
           service:
-          event:
-          method:
-          status_code:
+          route:
+          tool:
       - timestamp:
-          source: timestamp
-          format: "2006-01-02 15:04:05,000"
+          source: ts
+          format: "2006-01-02T15:04:05.000Z"
           action_on_failure: fudge
       - output:
-          source: message
+          source: msg

@@ -91,7 +91,7 @@ services:
       # Mount the repository with restricted access
       - ${REPO_PATH}:/work/repo
       # Mount logs directory for the service to write logs
-      - ./logs/api/files:/app/logs
+      - ./logs/files-api:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -115,6 +115,8 @@ services:
       - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml:ro
       - ${REPO_PATH}:/work/repo
+      # Mount logs directory for the service to write logs
+      - ./logs/git-api:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -140,6 +142,8 @@ services:
       - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml:ro
       - ${REPO_PATH}:/work/repo
+      # Mount logs directory for the service to write logs
+      - ./logs/rag-api:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -168,6 +172,8 @@ services:
       - ./pyproject.toml:/app/pyproject.toml:ro
       - ${REPO_PATH}:/work/repo
       - go_cache:/go
+      # Mount logs directory for the service to write logs
+      - ./logs/lock-api:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -211,6 +217,8 @@ services:
       # Mount only necessary directories, not .venv or build artifacts
       - ./src:/app/src
       - ./scripts:/app/scripts
+      # Mount logs directory for the service to write logs
+      - ./logs/mcp:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -245,7 +253,8 @@ services:
       - ./tests:/app/tests
       # Do not mount pyproject.toml or uv.lock - they're in the image
       - ${REPO_PATH}:/work/repo:ro
-      - ./logs/api/crew:/app/logs/crew-api
+      # Mount logs directory for the service to write logs
+      - ./logs/crew-api:/app/logs
       - crew-tasks:/work/repo/tasks
     depends_on:
       postgres:
