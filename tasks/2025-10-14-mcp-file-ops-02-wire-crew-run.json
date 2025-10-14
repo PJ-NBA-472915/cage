@@ -1,0 +1,92 @@
+{
+  "id": "2025-10-14-mcp-file-ops-02-wire-crew-run",
+  "title": "Wire Crew API router to run engine for crew runs",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "crew-api", "integration", "phase-1"],
+  "summary": "Modify run_crew() endpoint in Crew API router to call run_engine.execute_crew_run() instead of just queuing runs. This enables actual crew execution with multiple agents.",
+  "success_criteria": [
+    { "text": "run_crew() calls run_engine.execute_crew_run() with created Run object", "checked": false },
+    { "text": "Crew execution happens in background using asyncio.create_task()", "checked": false },
+    { "text": "Run is returned immediately with 'queued' status", "checked": false },
+    { "text": "Strategy parameter is passed through to run engine", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Background task is created for crew execution", "checked": false },
+    { "text": "crew_id and task are passed to execute_crew_run", "checked": false },
+    { "text": "Strategy defaults to 'sequential' if not provided", "checked": false },
+    { "text": "No breaking changes to API contract", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Modify run_crew() in src/crew_service/router.py", "checked": false },
+    { "text": "Call asyncio.create_task(run_engine.execute_crew_run(...))", "checked": false },
+    { "text": "Pass crew_id, run, task, and strategy parameters", "checked": false },
+    { "text": "Ensure Run is still returned immediately", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Use same background execution pattern as agent invocations",
+    "Pass strategy parameter through to run engine for future extensibility"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Multiple agents in crew may have complex execution requirements",
+    "Strategy parameter needs to be validated or defaulted"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 03 (add REPO_PATH configuration)"
+  ],
+  "references": [
+    "src/crew_service/router.py::run_crew() (line 276-301)",
+    "src/crew_service/run_engine.py::execute_crew_run() (line 76-140)"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Wire crew run to run engine",
+    "assumptions": [
+      "run_engine already imported from task 01",
+      "Crew object exists in crews_db before run is created",
+      "Strategy parameter will be used by run engine"
+    ],
+    "steps": [
+      "Modify run_crew endpoint",
+      "Create background task for execute_crew_run",
+      "Extract strategy from run_data or default to 'sequential'",
+      "Pass all required parameters to run engine"
+    ],
+    "commit_message": "feat(crew-api): wire crew run to run engine\n\nConnect run_crew endpoint to run_engine.execute_crew_run() for\nactual crew execution. Supports strategy parameter for workflow.\n\nRelated to MCP file operations integration (task 02/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "1",
+    "task_number": "02",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-01-wire-agent-invoke"]
+  }
+}

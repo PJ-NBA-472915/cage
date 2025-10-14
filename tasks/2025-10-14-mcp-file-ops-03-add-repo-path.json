@@ -1,0 +1,91 @@
+{
+  "id": "2025-10-14-mcp-file-ops-03-add-repo-path",
+  "title": "Add REPO_PATH environment configuration to run engine",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "run-engine", "configuration", "phase-1"],
+  "summary": "Configure RunEngine to read REPO_PATH from environment and store it as an instance variable. This path is needed to initialize ModularCrewTool with the correct repository location.",
+  "success_criteria": [
+    { "text": "RunEngine.__init__() reads REPO_PATH from environment", "checked": false },
+    { "text": "REPO_PATH is stored as self.repo_path instance variable", "checked": false },
+    { "text": "Path is converted to pathlib.Path object", "checked": false },
+    { "text": "Appropriate error handling if REPO_PATH not set", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "os module imported in run_engine.py", "checked": false },
+    { "text": "pathlib.Path imported", "checked": false },
+    { "text": "REPO_PATH retrieved with sensible default", "checked": false },
+    { "text": "Instance variable accessible by other methods", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Import os and Path in src/crew_service/run_engine.py", "checked": false },
+    { "text": "Add repo_path initialization in RunEngine.__init__()", "checked": false },
+    { "text": "Get REPO_PATH from environment with default '/work/repo'", "checked": false },
+    { "text": "Convert to Path object and store as self.repo_path", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Default to '/work/repo' to match docker-compose.yml configuration",
+    "Use pathlib.Path for consistent path handling across codebase"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "REPO_PATH must match mounted volume in docker container",
+    "Path validation might be needed for security"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 04 (initialize TaskManager)"
+  ],
+  "references": [
+    "src/crew_service/run_engine.py::RunEngine.__init__() (line 32-34)",
+    "docker-compose.yml volume mounts for REPO_PATH"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Add REPO_PATH configuration",
+    "assumptions": [
+      "REPO_PATH environment variable will be set in deployment",
+      "Path points to writable repository directory",
+      "Default path '/work/repo' exists in container"
+    ],
+    "steps": [
+      "Add import statements for os and pathlib.Path",
+      "Read REPO_PATH from environment in __init__",
+      "Convert to Path object",
+      "Store as instance variable"
+    ],
+    "commit_message": "feat(run-engine): add REPO_PATH configuration\n\nConfigure RunEngine to read repository path from environment.\nNeeded for ModularCrewTool initialization.\n\nRelated to MCP file operations integration (task 03/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "1",
+    "task_number": "03",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration"
+  }
+}

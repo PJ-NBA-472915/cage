@@ -1,0 +1,106 @@
+{
+  "id": "2025-10-14-mcp-file-ops-11-test-crew-run",
+  "title": "Test crew_run endpoint creates and executes crews with file operations",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "testing", "crew", "phase-3"],
+  "summary": "End-to-end test that calling crew_run through MCP executes a multi-agent crew workflow with file operations through the full pipeline (plan → implement → review → commit).",
+  "success_criteria": [
+    { "text": "Can create planner and implementer agents through MCP", "checked": false },
+    { "text": "Can create crew with agent role mappings", "checked": false },
+    { "text": "Can run crew with file modification task", "checked": false },
+    { "text": "Crew executes all agents sequentially", "checked": false },
+    { "text": "Files are modified in repository", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "crew_create returns crew with correct agent assignments", "checked": false },
+    { "text": "crew_run returns run with queued status", "checked": false },
+    { "text": "run_get shows status transitions through workflow", "checked": false },
+    { "text": "Plan is created in .cage/runs/{run_id}/plan.json", "checked": false },
+    { "text": "Files are modified as specified in task", "checked": false },
+    { "text": "All agents (planner, implementer, reviewer) receive EditorTool", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Create planner agent via MCP", "checked": false },
+    { "text": "Create implementer agent via MCP", "checked": false },
+    { "text": "Create crew with role mappings (planner, implementer)", "checked": false },
+    { "text": "Run crew with task to create and edit files", "checked": false },
+    { "text": "Poll run status until complete", "checked": false },
+    { "text": "Verify plan file exists", "checked": false },
+    { "text": "Verify files were created/modified", "checked": false },
+    { "text": "Check git status shows changes", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Test with minimal crew (planner + implementer) first",
+    "Use sequential strategy for predictable execution order",
+    "Verify intermediate artifacts (plan file) exist"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Crew execution takes longer - may need higher timeout",
+    "Multiple agents may have different error modes",
+    "Plan creation might fail if agents misconfigured",
+    "GitTool may need separate testing"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 12 (verify file persistence)"
+  ],
+  "references": [
+    "tests/integration/test_mcp_e2e_files.py::test_e2e_create_crew_and_run",
+    "src/cage/tools/crew_tool.py::apply_plan() workflow"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Test crew workflow end-to-end",
+    "assumptions": [
+      "Task 10 passed successfully",
+      "Multi-agent execution works correctly",
+      "Plan and apply workflow is functional"
+    ],
+    "steps": [
+      "Create multiple agents via MCP",
+      "Create crew with agent role assignments",
+      "Define task: create Python file and update README",
+      "Run crew with task",
+      "Poll status with higher timeout (120s)",
+      "Verify plan.json created",
+      "Verify all requested files exist",
+      "Check file content matches requirements"
+    ],
+    "commit_message": "test(mcp): add e2e test for crew file operations\n\nValidate that crew_run executes multi-agent workflow.\nTests plan creation, implementation, and file persistence.\n\nRelated to MCP file operations integration (task 11/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "3",
+    "task_number": "11",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-10-test-agent-invoke"]
+  }
+}

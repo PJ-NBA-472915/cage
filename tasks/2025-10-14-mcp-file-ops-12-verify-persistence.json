@@ -1,0 +1,101 @@
+{
+  "id": "2025-10-14-mcp-file-ops-12-verify-persistence",
+  "title": "Verify file operations persist to repository working tree",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "testing", "persistence", "phase-3"],
+  "summary": "Verify that file operations performed by agents actually persist to the repository working tree and are visible through git status. Ensures EditorTool writes are durable.",
+  "success_criteria": [
+    { "text": "Files created by agents exist in REPO_PATH", "checked": false },
+    { "text": "File content matches what agents were instructed to create", "checked": false },
+    { "text": "git status shows files as untracked or modified", "checked": false },
+    { "text": "File permissions are correct for repository", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Can read file content from REPO_PATH", "checked": false },
+    { "text": "File hash matches EditorTool post_hash", "checked": false },
+    { "text": "git status output includes the files", "checked": false },
+    { "text": "Files are readable by other processes", "checked": false },
+    { "text": "Directory structure created correctly", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "After agent/crew execution, list files in REPO_PATH", "checked": false },
+    { "text": "Read file content and verify correctness", "checked": false },
+    { "text": "Run git status in REPO_PATH", "checked": false },
+    { "text": "Verify files appear in git output", "checked": false },
+    { "text": "Check file permissions (should be writable)", "checked": false },
+    { "text": "Verify subdirectories created if needed", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Test both file creation and modification operations",
+    "Verify both flat files and files in subdirectories",
+    "Check git integration separately from file persistence"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Docker volume mounts may have permission issues",
+    "Files might be created but not visible due to caching",
+    "Git may need configuration (user.name, user.email)",
+    "Working tree might be dirty from previous tests"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 13 (update E2E tests)"
+  ],
+  "references": [
+    "src/cage/tools/editor_tool.py::_write_file() (line 214-227)",
+    "docker-compose.yml REPO_PATH volume mount"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Verify file persistence",
+    "assumptions": [
+      "Tasks 10-11 created files through agents",
+      "REPO_PATH is correctly mounted",
+      "Git repository is initialized"
+    ],
+    "steps": [
+      "Execute agent/crew file operations",
+      "List files in REPO_PATH directory",
+      "Read created files and verify content",
+      "Run git status command",
+      "Parse git output for created/modified files",
+      "Check file permissions",
+      "Verify subdirectory handling"
+    ],
+    "commit_message": "test(mcp): verify file operation persistence\n\nValidate that files created by agents persist correctly.\nTests filesystem writes and git integration.\n\nRelated to MCP file operations integration (task 12/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "3",
+    "task_number": "12",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-10-test-agent-invoke", "2025-10-14-mcp-file-ops-11-test-crew-run"]
+  }
+}

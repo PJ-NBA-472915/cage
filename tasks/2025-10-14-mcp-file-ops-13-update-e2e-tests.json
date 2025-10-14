@@ -1,0 +1,103 @@
+{
+  "id": "2025-10-14-mcp-file-ops-13-update-e2e-tests",
+  "title": "Update E2E tests to validate actual file creation/modification",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "testing", "e2e", "phase-3"],
+  "summary": "Update tests/integration/test_mcp_e2e_files.py to actually validate file operations instead of just checking that runs are created. Remove placeholder warnings.",
+  "success_criteria": [
+    { "text": "test_e2e_create_file_via_mcp verifies file actually created", "checked": false },
+    { "text": "test_e2e_create_crew_and_run verifies file modifications", "checked": false },
+    { "text": "Placeholder warning comments removed", "checked": false },
+    { "text": "Tests wait for run completion before checking files", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Tests use wait_for_run_completion() helper", "checked": false },
+    { "text": "Assertions check file.exists() for created files", "checked": false },
+    { "text": "Assertions verify file content matches expectations", "checked": false },
+    { "text": "Tests clean up created files in teardown", "checked": false },
+    { "text": "All tests pass with actual agent execution", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Update test_e2e_create_file_via_mcp to wait for completion", "checked": false },
+    { "text": "Add assertions for file existence and content", "checked": false },
+    { "text": "Update test_e2e_create_crew_and_run similarly", "checked": false },
+    { "text": "Remove 'Note: Actual file creation depends...' comments", "checked": false },
+    { "text": "Add file cleanup in test teardown", "checked": false },
+    { "text": "Run tests to verify they pass", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Keep wait_for_run_completion helper with 60s timeout",
+    "Use test_repo fixture for isolated file operations",
+    "Assert on both file existence and content"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Tests may be flaky if execution is slow",
+    "Need proper cleanup to avoid test pollution",
+    "File content assertions may be brittle",
+    "Agents may create files with unexpected formatting"
+  ],
+  "next_steps": [
+    "After completion, Phase 3 is done - proceed to Phase 4 (task 14)"
+  ],
+  "references": [
+    "tests/integration/test_mcp_e2e_files.py (line 215-296 and 298-404)",
+    "tests/integration/test_mcp_e2e_files.py::wait_for_run_completion() (line 166-209)"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Update E2E tests for real validation",
+    "assumptions": [
+      "Agent execution is working from tasks 10-12",
+      "wait_for_run_completion helper is reliable",
+      "test_repo fixture provides isolated environment"
+    ],
+    "steps": [
+      "Modify test_e2e_create_file_via_mcp",
+      "Add wait_for_run_completion call",
+      "Add assertions: test_repo / filename exists",
+      "Add assertion: file content matches task",
+      "Repeat for test_e2e_create_crew_and_run",
+      "Remove placeholder comments",
+      "Add cleanup in fixture teardown",
+      "Run pytest and verify all pass"
+    ],
+    "commit_message": "test(mcp): update E2E tests to validate file operations\n\nRemove placeholder warnings and add real file assertions.\nTests now wait for completion and verify actual file creation.\n\nRelated to MCP file operations integration (task 13/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "3",
+    "task_number": "13",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-10-test-agent-invoke", "2025-10-14-mcp-file-ops-11-test-crew-run", "2025-10-14-mcp-file-ops-12-verify-persistence"],
+    "phase_completion": true
+  }
+}

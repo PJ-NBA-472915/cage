@@ -1,0 +1,93 @@
+{
+  "id": "2025-10-14-mcp-file-ops-05-create-crew-tool",
+  "title": "Update run engine to create and use ModularCrewTool instance",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "run-engine", "crew-tool", "phase-1"],
+  "summary": "Create ModularCrewTool instance in RunEngine with EditorTool integration. This is the core component that enables agents to perform file operations.",
+  "success_criteria": [
+    { "text": "ModularCrewTool imported from src.cage.tools.crew_tool", "checked": false },
+    { "text": "ModularCrewTool instance created in RunEngine.__init__()", "checked": false },
+    { "text": "Initialized with repo_path and task_manager", "checked": false },
+    { "text": "Instance variable self.crew_tool accessible", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "ModularCrewTool import statement added", "checked": false },
+    { "text": "crew_tool created after repo_path and task_manager", "checked": false },
+    { "text": "EditorTool is automatically initialized within ModularCrewTool", "checked": false },
+    { "text": "crew_tool methods can be called from execute methods", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Import ModularCrewTool from src.cage.tools.crew_tool", "checked": false },
+    { "text": "Create ModularCrewTool instance in __init__", "checked": false },
+    { "text": "Pass self.repo_path and self.task_manager to constructor", "checked": false },
+    { "text": "Store as self.crew_tool", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "ModularCrewTool handles EditorTool and GitTool initialization internally",
+    "Single crew_tool instance shared across all runs for efficiency"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "ModularCrewTool initialization may be expensive",
+    "Need to verify thread-safety for concurrent run executions",
+    "EditorTool file locks may need cleanup between runs"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 06 (integrate into execute_agent_run)"
+  ],
+  "references": [
+    "src/cage/tools/crew_tool.py::ModularCrewTool.__init__() (line 53-66)",
+    "src/crew_service/run_engine.py::RunEngine.__init__()"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Create ModularCrewTool instance",
+    "assumptions": [
+      "ModularCrewTool constructor requires repo_path and task_manager",
+      "EditorTool and GitTool initialized automatically",
+      "Agent registry and factory set up during initialization"
+    ],
+    "steps": [
+      "Add import for ModularCrewTool",
+      "Create instance in __init__ after dependencies ready",
+      "Pass repo_path and task_manager parameters",
+      "Store as instance variable for use in execute methods"
+    ],
+    "commit_message": "feat(run-engine): add ModularCrewTool for agent execution\n\nInitialize ModularCrewTool with EditorTool integration.\nEnables agents to perform file operations through structured API.\n\nRelated to MCP file operations integration (task 05/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "1",
+    "task_number": "05",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-04-init-task-manager"]
+  }
+}

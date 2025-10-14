@@ -1,0 +1,104 @@
+{
+  "id": "2025-10-14-mcp-file-ops-14-error-handling",
+  "title": "Add error handling for failed agent executions",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "error-handling", "robustness", "phase-4"],
+  "summary": "Add comprehensive error handling to RunEngine for agent execution failures. Ensures errors are captured, logged, and surfaced through Run status.",
+  "success_criteria": [
+    { "text": "Agent execution errors caught and handled gracefully", "checked": false },
+    { "text": "Run status set to 'failed' on exceptions", "checked": false },
+    { "text": "Error details captured in Run.result_summary", "checked": false },
+    { "text": "Structured logging for all errors", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Try/except blocks wrap agent/crew execution", "checked": false },
+    { "text": "Errors logged with structured context (run_id, agent_id, etc.)", "checked": false },
+    { "text": "Run object updated with error information", "checked": false },
+    { "text": "Error types are distinguishable (validation, execution, system)", "checked": false },
+    { "text": "Tests verify error handling works correctly", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Wrap agent execution in try/except in execute_agent_run", "checked": false },
+    { "text": "Wrap crew execution in try/except in execute_crew_run", "checked": false },
+    { "text": "Set run.status = 'failed' on exceptions", "checked": false },
+    { "text": "Populate run.result_summary with error message", "checked": false },
+    { "text": "Add structured logging with error context", "checked": false },
+    { "text": "Update runs_db even when execution fails", "checked": false },
+    { "text": "Write test cases for error scenarios", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Catch broad Exception to handle all error types",
+    "Log full stack trace for debugging but return simple message to user",
+    "Update Run status in finally block to ensure state consistency"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Too broad exception catching may hide bugs",
+    "Need to distinguish user errors from system errors",
+    "Stack traces may contain sensitive information",
+    "Error messages need to be actionable"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 15 (documentation)"
+  ],
+  "references": [
+    "src/crew_service/run_engine.py::execute_agent_run() (line 36-74)",
+    "src/crew_service/run_engine.py::execute_crew_run() (line 76-140)",
+    "src/cage/utils/jsonl_logger.py for structured logging"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Add comprehensive error handling",
+    "assumptions": [
+      "Tasks 01-13 are complete",
+      "Logging infrastructure is available",
+      "Run model has fields for error information"
+    ],
+    "steps": [
+      "Add try/except around crew_tool calls",
+      "Capture exception type and message",
+      "Log error with full context",
+      "Set run.status = RunState.FAILED.value",
+      "Set run.result_summary with error description",
+      "Update finished_at timestamp",
+      "Ensure runs_db updated in all cases",
+      "Write tests for error cases"
+    ],
+    "commit_message": "feat(run-engine): add comprehensive error handling\n\nCatch and handle agent execution errors gracefully.\nEnsures failures are logged and surfaced through API.\n\nRelated to MCP file operations integration (task 14/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "4",
+    "task_number": "14",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-06-integrate-agent-run", "2025-10-14-mcp-file-ops-07-integrate-crew-run"]
+  }
+}

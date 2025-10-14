@@ -1,0 +1,95 @@
+{
+  "id": "2025-10-14-mcp-file-ops-08-async-execution",
+  "title": "Handle async execution properly in Crew API endpoints",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "crew-api", "async", "phase-2"],
+  "summary": "Ensure background task execution is properly handled in the Crew API router. Tasks should execute asynchronously while API returns immediately with queued status.",
+  "success_criteria": [
+    { "text": "invoke_agent returns immediately without waiting for execution", "checked": false },
+    { "text": "run_crew returns immediately without waiting for execution", "checked": false },
+    { "text": "Background tasks continue executing after response sent", "checked": false },
+    { "text": "No race conditions between task creation and execution", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "asyncio.create_task() used correctly", "checked": false },
+    { "text": "Run stored in runs_db before background task starts", "checked": false },
+    { "text": "Response returns with 'queued' status", "checked": false },
+    { "text": "Background task has access to runs_db for updates", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Verify asyncio import in router.py", "checked": false },
+    { "text": "Ensure Run created and stored before create_task", "checked": false },
+    { "text": "Pass runs_db reference to background task if needed", "checked": false },
+    { "text": "Test that API responds immediately", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Use asyncio.create_task for fire-and-forget execution",
+    "Store Run in runs_db synchronously before background execution",
+    "Don't await the background task in endpoint"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Background task exceptions won't propagate to caller",
+    "Need proper logging for background task errors",
+    "FastAPI may cancel tasks on shutdown"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 09 (run status updates)"
+  ],
+  "references": [
+    "src/crew_service/router.py::invoke_agent() (line 162-190)",
+    "src/crew_service/router.py::run_crew() (line 276-301)",
+    "FastAPI background tasks documentation"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Handle async execution properly",
+    "assumptions": [
+      "FastAPI supports fire-and-forget background tasks",
+      "runs_db is thread-safe for concurrent access",
+      "Background tasks can access module-level variables"
+    ],
+    "steps": [
+      "Review current asyncio.create_task usage from task 01-02",
+      "Verify Run is stored before background execution",
+      "Add proper exception handling in background task wrapper",
+      "Test response time is fast (< 100ms)"
+    ],
+    "commit_message": "refactor(crew-api): improve async execution handling\n\nEnsure proper async execution with immediate API response.\nBackground tasks execute without blocking endpoint.\n\nRelated to MCP file operations integration (task 08/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "2",
+    "task_number": "08",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-01-wire-agent-invoke", "2025-10-14-mcp-file-ops-02-wire-crew-run"]
+  }
+}

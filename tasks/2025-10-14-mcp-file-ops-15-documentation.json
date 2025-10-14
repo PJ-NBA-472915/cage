@@ -1,0 +1,110 @@
+{
+  "id": "2025-10-14-mcp-file-ops-15-documentation",
+  "title": "Document MCP usage pattern for external LLM agents",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "documentation", "phase-4"],
+  "summary": "Create comprehensive documentation for external LLM agents on how to use the MCP service to perform file operations through internal agents. Includes examples and best practices.",
+  "success_criteria": [
+    { "text": "Documentation added to memory-bank/guides/features/mcp-server.md", "checked": false },
+    { "text": "Example JSON-RPC calls for all agent operations", "checked": false },
+    { "text": "Workflow diagram showing MCP → Crew → Agent → EditorTool", "checked": false },
+    { "text": "Best practices section for external agents", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "Examples show complete agent_create → agent_invoke workflow", "checked": false },
+    { "text": "Examples show complete crew creation and execution", "checked": false },
+    { "text": "Status polling pattern documented", "checked": false },
+    { "text": "Error handling guidance provided", "checked": false },
+    { "text": "Security model clearly explained", "checked": false },
+    { "text": "Code samples are copy-pasteable", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Add section: 'File Operations Through MCP' to mcp-server.md", "checked": false },
+    { "text": "Document security model (no direct file access)", "checked": false },
+    { "text": "Add example: Creating and invoking an implementer agent", "checked": false },
+    { "text": "Add example: Creating and running a crew", "checked": false },
+    { "text": "Add example: Polling run status", "checked": false },
+    { "text": "Document task specification format", "checked": false },
+    { "text": "Add best practices section", "checked": false },
+    { "text": "Add troubleshooting section", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Use curl examples for simplicity and universality",
+    "Include both single-agent and crew workflows",
+    "Emphasize security model throughout documentation"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Documentation may become outdated as API evolves",
+    "Examples need to stay in sync with actual API",
+    "Need to balance detail with readability"
+  ],
+  "next_steps": [
+    "Project complete! All 15 tasks done.",
+    "Consider adding video walkthrough or interactive tutorial"
+  ],
+  "references": [
+    "memory-bank/guides/features/mcp-server.md (existing docs)",
+    "src/cage/mcp/server.py::register_mcp_tools() for tool definitions",
+    "tests/integration/test_mcp_e2e_files.py for example usage"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Document MCP usage for external agents",
+    "assumptions": [
+      "All previous tasks (01-14) are complete and working",
+      "memory-bank/guides directory exists",
+      "Examples can be tested against running system"
+    ],
+    "steps": [
+      "Open or create mcp-server.md",
+      "Add 'File Operations' section",
+      "Explain security model",
+      "Add example RPC calls with curl",
+      "Document agent invocation workflow",
+      "Document crew workflow",
+      "Add status polling pattern",
+      "Add troubleshooting tips",
+      "Add best practices"
+    ],
+    "commit_message": "docs(mcp): document file operations through agents\n\nAdd comprehensive guide for external LLM agents.\nIncludes examples, workflows, and best practices.\n\nCompletes MCP file operations integration (task 15/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": [
+      "memory-bank/guides/features/mcp-server.md"
+    ]
+  },
+  "metadata": {
+    "phase": "4",
+    "task_number": "15",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-13-update-e2e-tests"],
+    "project_completion": true
+  }
+}

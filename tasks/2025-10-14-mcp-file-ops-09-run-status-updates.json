@@ -1,0 +1,99 @@
+{
+  "id": "2025-10-14-mcp-file-ops-09-run-status-updates",
+  "title": "Add run status updates to runs_db after execution completes",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "run-engine", "state-management", "phase-2"],
+  "summary": "Synchronize Run status from RunEngine back to the router's runs_db after execution completes. Enables status polling through get_run endpoint.",
+  "success_criteria": [
+    { "text": "Run status updated to 'running' when execution starts", "checked": false },
+    { "text": "Run status updated to 'succeeded' or 'failed' when complete", "checked": false },
+    { "text": "runs_db reflects actual execution status", "checked": false },
+    { "text": "get_run endpoint returns current status", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "RunEngine has access to runs_db reference", "checked": false },
+    { "text": "Run object updated at each state transition", "checked": false },
+    { "text": "Status changes visible through API immediately", "checked": false },
+    { "text": "Timestamps (started_at, finished_at) populated correctly", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Pass runs_db reference to RunEngine", "checked": false },
+    { "text": "Update runs_db[run.id] when status changes to 'running'", "checked": false },
+    { "text": "Update runs_db[run.id] when status changes to 'succeeded'/'failed'", "checked": false },
+    { "text": "Ensure thread-safe access to runs_db", "checked": false },
+    { "text": "Test status polling through get_run endpoint", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Pass runs_db as parameter to RunEngine methods",
+    "Update in-place rather than creating new Run objects",
+    "Use dict for simple in-memory storage (no persistence yet)"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "runs_db is module-level dict - may need locking for thread safety",
+    "Memory-only storage means runs lost on service restart",
+    "Large number of runs could cause memory issues"
+  ],
+  "next_steps": [
+    "After completion, Phase 2 is done - proceed to Phase 3 testing (task 10)",
+    "Consider adding Redis persistence in future iteration"
+  ],
+  "references": [
+    "src/crew_service/router.py::runs_db (line 34)",
+    "src/crew_service/run_engine.py::execute_agent_run() (line 36-74)",
+    "src/crew_service/run_engine.py::execute_crew_run() (line 76-140)"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Sync run status to runs_db",
+    "assumptions": [
+      "runs_db is accessible from background task context",
+      "In-memory storage sufficient for MVP",
+      "Dict assignment is atomic enough for concurrent access"
+    ],
+    "steps": [
+      "Modify execute_agent_run to accept runs_db parameter",
+      "Modify execute_crew_run to accept runs_db parameter",
+      "Update runs_db at state transitions",
+      "Pass runs_db from router when creating background task",
+      "Test status updates through API"
+    ],
+    "commit_message": "feat(run-engine): sync run status back to runs_db\n\nUpdate run status in shared storage after execution.\nEnables status polling through get_run API endpoint.\n\nRelated to MCP file operations integration (task 09/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "2",
+    "task_number": "09",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-06-integrate-agent-run", "2025-10-14-mcp-file-ops-07-integrate-crew-run"],
+    "phase_completion": true
+  }
+}

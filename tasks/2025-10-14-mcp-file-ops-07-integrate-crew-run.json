@@ -1,0 +1,104 @@
+{
+  "id": "2025-10-14-mcp-file-ops-07-integrate-crew-run",
+  "title": "Integrate ModularCrewTool into RunEngine.execute_crew_run()",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "run-engine", "crew-execution", "phase-1"],
+  "summary": "Replace the asyncio.sleep simulation in execute_crew_run() with actual crew execution using ModularCrewTool. Implements full workflow: plan creation, implementation, review, and commit.",
+  "success_criteria": [
+    { "text": "asyncio.sleep simulation removed", "checked": false },
+    { "text": "crew_tool.create_plan() and apply_plan() called for sequential strategy", "checked": false },
+    { "text": "Crew execution result captured and stored in Run", "checked": false },
+    { "text": "Multiple agents execute in sequence (planner → implementer → reviewer → committer)", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "execute_crew_run uses self.crew_tool methods", "checked": false },
+    { "text": "Task created and tracked through TaskManager", "checked": false },
+    { "text": "Plan and implementation phases complete successfully", "checked": false },
+    { "text": "File operations from crew persist to repository", "checked": false },
+    { "text": "Strategy parameter determines execution workflow", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Create task_id for tracking crew execution", "checked": false },
+    { "text": "Extract task details from TaskSpec", "checked": false },
+    { "text": "Call crew_tool.create_plan(task_id, plan_data)", "checked": false },
+    { "text": "Call crew_tool.apply_plan(task_id, run_id) for execution", "checked": false },
+    { "text": "Store execution results in run.result_summary", "checked": false },
+    { "text": "Update run.artefacts with plan file and outputs", "checked": false },
+    { "text": "Remove asyncio.sleep simulation", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Use create_plan + apply_plan workflow for sequential strategy",
+    "Create new task in TaskManager for each crew run",
+    "Store plan artifacts in run directory for provenance"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "create_plan and apply_plan may be slow for large tasks",
+    "Need proper cancellation handling in multi-step workflow",
+    "Task creation may fail if task_id conflicts exist",
+    "Strategy parameter may need additional workflow implementations"
+  ],
+  "next_steps": [
+    "After completion, Phase 1 is done - proceed to Phase 2 (task 08)"
+  ],
+  "references": [
+    "src/crew_service/run_engine.py::execute_crew_run() (line 76-140)",
+    "src/cage/tools/crew_tool.py::create_plan() (line 201-330)",
+    "src/cage/tools/crew_tool.py::apply_plan() (line 332-550)"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Integrate crew execution with ModularCrewTool",
+    "assumptions": [
+      "Crew exists in crews_db with proper agent assignments",
+      "TaskManager can create new tasks dynamically",
+      "Agents have EditorTool and GitTool injected properly"
+    ],
+    "steps": [
+      "Generate task_id for crew execution tracking",
+      "Create task in TaskManager with crew details",
+      "Call create_plan with task details",
+      "Check for cancellation between phases",
+      "Call apply_plan for implementation",
+      "Extract results and update Run object",
+      "Replace simulation code"
+    ],
+    "commit_message": "feat(run-engine): integrate crew execution with ModularCrewTool\n\nReplace simulation with actual crew workflow execution.\nImplements plan → implement → review → commit pipeline.\n\nRelated to MCP file operations integration (task 07/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "1",
+    "task_number": "07",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-05-create-crew-tool"],
+    "phase_completion": true
+  }
+}

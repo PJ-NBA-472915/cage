@@ -1,0 +1,101 @@
+{
+  "id": "2025-10-14-mcp-file-ops-06-integrate-agent-run",
+  "title": "Integrate ModularCrewTool into RunEngine.execute_agent_run()",
+  "owner": "Jaak",
+  "status": "planned",
+  "created_at": "2025-10-14T12:00:00",
+  "updated_at": "2025-10-14T12:00:00",
+  "progress_percent": 0,
+  "tags": ["mcp", "run-engine", "agent-execution", "phase-1"],
+  "summary": "Replace the asyncio.sleep simulation in execute_agent_run() with actual agent execution using ModularCrewTool.test_agent(). This enables real file operations through agents.",
+  "success_criteria": [
+    { "text": "asyncio.sleep(1) simulation removed", "checked": false },
+    { "text": "crew_tool.test_agent() called with agent name and task", "checked": false },
+    { "text": "Agent execution result captured and stored in Run", "checked": false },
+    { "text": "Agent role mapping works (agent_id to agent_name)", "checked": false }
+  ],
+  "acceptance_checks": [
+    { "text": "execute_agent_run uses self.crew_tool.test_agent()", "checked": false },
+    { "text": "TaskSpec properly extracted from run.task_ref", "checked": false },
+    { "text": "Run.result_summary contains actual execution output", "checked": false },
+    { "text": "File operations performed by agent persist to disk", "checked": false }
+  ],
+  "subtasks": [],
+  "todo": [
+    { "text": "Map agent_id to agent role name (implementer, planner, etc.)", "checked": false },
+    { "text": "Extract task description from TaskSpec", "checked": false },
+    { "text": "Call self.crew_tool.test_agent(agent_name, task_description)", "checked": false },
+    { "text": "Store execution result in run.result_summary", "checked": false },
+    { "text": "Update run.artefacts with any created files", "checked": false },
+    { "text": "Remove asyncio.sleep simulation", "checked": false }
+  ],
+  "changelog": [
+    { "timestamp": "2025-10-14T12:00:00", "text": "Task created for MCP file operations integration project" }
+  ],
+  "decisions": [
+    "Use test_agent() method for single agent execution",
+    "Map agent_id to role name using agents_db lookup from router",
+    "Keep error handling structure but capture real errors"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Agent_id to agent_name mapping requires access to agents_db",
+    "May need to pass agents_db reference to run_engine",
+    "TaskSpec format may not match test_agent expectations",
+    "File operations may fail if repo_path not writable"
+  ],
+  "next_steps": [
+    "After completion, proceed to task 07 (integrate into execute_crew_run)",
+    "May need to refactor to pass agents_db to run_engine"
+  ],
+  "references": [
+    "src/crew_service/run_engine.py::execute_agent_run() (line 36-74)",
+    "src/cage/tools/crew_tool.py::test_agent() (line 141-199)",
+    "src/crew_service/router.py::agents_db (line 32)"
+  ],
+  "prompts": [],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "plan": {
+    "title": "Integrate agent execution with ModularCrewTool",
+    "assumptions": [
+      "Agent exists in registry by role name",
+      "test_agent() returns dict with success/error info",
+      "EditorTool is properly injected into agents"
+    ],
+    "steps": [
+      "Add parameter or access method for agents_db",
+      "Implement agent_id to role name mapping",
+      "Extract task details from run.task_ref",
+      "Call crew_tool.test_agent()",
+      "Handle result and update Run object",
+      "Replace simulation code"
+    ],
+    "commit_message": "feat(run-engine): integrate agent execution with ModularCrewTool\n\nReplace simulation with actual agent execution using test_agent().\nEnables real file operations through EditorTool.\n\nRelated to MCP file operations integration (task 06/15)"
+  },
+  "provenance": {
+    "branch_from": "",
+    "work_branch": "",
+    "commits": [],
+    "blobs_indexed": []
+  },
+  "artefacts": {
+    "run_id": "",
+    "logs": [],
+    "reports": [],
+    "diff_bundles": [],
+    "external": []
+  },
+  "metadata": {
+    "phase": "1",
+    "task_number": "06",
+    "total_tasks": "15",
+    "project": "mcp-file-operations-integration",
+    "depends_on": ["2025-10-14-mcp-file-ops-05-create-crew-tool"]
+  }
+}
