@@ -118,7 +118,7 @@ class RunEngine:
         task: TaskSpec,
         strategy: str = "impl_then_verify",
     ) -> Run:
-        """Execute a crew run with specified strategy."""
+        """Execute a crew run using ModularCrewTool with full workflow."""
         logger.info(
             f"Starting crew run {run.id} for crew {crew_id} with strategy {strategy}"
         )
@@ -129,44 +129,114 @@ class RunEngine:
             run.started_at = datetime.utcnow()
             self._active_runs[run.id] = run
 
-            # Simulate crew execution based on strategy
-            if strategy == "impl_then_verify":
-                # Simulate implementation phase
-                await asyncio.sleep(1)
-
-                # Check for cancellation
-                if run.id in self._cancelled_runs:
-                    run.status = RunState.CANCELLED.value
-                    run.finished_at = datetime.utcnow()
-                    self._cancelled_runs.discard(run.id)
-                    return run
-
-                # Simulate verification phase
-                await asyncio.sleep(1)
-
-            # Check for cancellation again
+            # Check for cancellation
             if run.id in self._cancelled_runs:
                 run.status = RunState.CANCELLED.value
                 run.finished_at = datetime.utcnow()
                 self._cancelled_runs.discard(run.id)
                 return run
 
-            # Simulate successful completion
+            # Create a task ID for tracking this crew execution
+            # Format: crew-run-<run_id>
+            task_id = f"crew-run-{str(run.id)[:8]}-{task.title.lower().replace(' ', '-')[:30]}"
+            logger.info(f"Creating task {task_id} for crew run tracking")
+
+            # Create task data for TaskManager
+            from datetime import datetime as dt
+
+            task_data = {
+                "id": task_id,
+                "title": task.title,
+                "summary": task.description,
+                "success_criteria": [{"text": criterion, "checked": False} for criterion in task.acceptance],
+                "acceptance_checks": [{"text": criterion, "checked": False} for criterion in task.acceptance],
+                "status": "in-progress",
+                "owner": "crew",
+                "created_at": dt.now().isoformat(),
+                "updated_at": dt.now().isoformat(),
+                "progress_percent": 0,
+                "tags": ["crew-execution", str(crew_id)],
+                "todo": [],
+                "changelog": [{
+                    "timestamp": dt.now().isoformat(),
+                    "text": f"Crew execution started for run {run.id}"
+                }],
+                "decisions": [],
+                "lessons_learned": [],
+                "issues_risks": [],
+                "next_steps": [],
+                "references": [],
+                "prompts": [],
+                "locks": [],
+                "migration": {
+                    "migrated": False,
+                    "source_path": None,
+                    "method": None,
+                    "migrated_at": None
+                },
+                "plan": {"title": "", "assumptions": [], "steps": [], "commit_message": ""},
+                "provenance": {
+                    "branch_from": "",
+                    "work_branch": "",
+                    "commits": [],
+                    "blobs_indexed": []
+                },
+                "artefacts": {
+                    "run_id": str(run.id),
+                    "logs": [],
+                    "reports": [],
+                    "diff_bundles": [],
+                    "external": []
+                },
+                "metadata": {}
+            }
+
+            # Create task in TaskManager
+            created_task = self.task_manager.create_task(task_data)
+            if not created_task:
+                raise ValueError(f"Failed to create task {task_id}")
+
+            logger.info(f"Task {task_id} created successfully")
+
+            # Phase 1: Create plan
+            logger.info(f"Phase 1: Creating plan for task {task_id}")
+            plan_result = self.crew_tool.create_plan(task_id, {"strategy": strategy})
+
+            if plan_result.get("status") != "success":
+                raise ValueError(f"Plan creation failed: {plan_result.get('error')}")
+
+            run_id_from_plan = plan_result.get("run_id")
+            logger.info(f"Plan created successfully with run_id: {run_id_from_plan}")
+
+            # Check for cancellation after planning
+            if run.id in self._cancelled_runs:
+                run.status = RunState.CANCELLED.value
+                run.finished_at = datetime.utcnow()
+                self._cancelled_runs.discard(run.id)
+                return run
+
+            # Phase 2: Apply plan (implement → review → commit)
+            logger.info(f"Phase 2: Applying plan for task {task_id}")
+            apply_result = self.crew_tool.apply_plan(task_id, run_id_from_plan)
+
+            if apply_result.get("status") != "success":
+                raise ValueError(f"Plan application failed: {apply_result.get('error')}")
+
+            logger.info(f"Plan applied successfully")
+
+            # Update run with execution results
             run.status = RunState.SUCCEEDED.value
             run.finished_at = datetime.utcnow()
-            run.result_summary = (
-                f"Crew task '{task.title}' completed using strategy '{strategy}'"
-            )
+            run.result_summary = f"Crew task '{task.title}' completed successfully. Plan: {run_id_from_plan}"
             run.artefacts = [
-                f"artefact_{run.id}_implementation.txt",
-                f"artefact_{run.id}_verification.txt",
-                f"artefact_{run.id}_summary.txt",
+                f".cage/runs/{run_id_from_plan}/plan.json",
+                f".cage/runs/{run_id_from_plan}/status.json",
             ]
 
             logger.info(f"Crew run {run.id} completed successfully")
 
         except Exception as e:
-            logger.error(f"Crew run {run.id} failed: {str(e)}")
+            logger.error(f"Crew run {run.id} failed with exception: {str(e)}")
             run.status = RunState.FAILED.value
             run.finished_at = datetime.utcnow()
             run.result_summary = f"Crew task failed: {str(e)}"
@@ -174,6 +244,9 @@ class RunEngine:
         finally:
             if run.id in self._active_runs:
                 del self._active_runs[run.id]
+            # Update runs_db with final run state
+            if self.runs_db is not None:
+                self.runs_db[run.id] = run
 
         return run
 
