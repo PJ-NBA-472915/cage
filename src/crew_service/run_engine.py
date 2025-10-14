@@ -6,8 +6,10 @@ Manages task execution and state transitions.
 
 import asyncio
 import logging
+import os
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import Dict
 from uuid import UUID
 
@@ -32,6 +34,11 @@ class RunEngine:
     def __init__(self):
         self._active_runs: Dict[UUID, Run] = {}
         self._cancelled_runs: set = set()
+
+        # Configure repository path from environment
+        repo_path_str = os.getenv("REPO_PATH", "/work/repo")
+        self.repo_path = Path(repo_path_str)
+        logger.info(f"RunEngine initialized with repo_path: {self.repo_path}")
 
     async def execute_agent_run(self, run: Run, agent_id: UUID, task: TaskSpec) -> Run:
         """Execute a single agent run."""
