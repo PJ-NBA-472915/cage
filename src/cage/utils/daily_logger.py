@@ -53,7 +53,7 @@ class DailyLogHandler(TimedRotatingFileHandler):
         component_dir = log_path / component
         component_dir.mkdir(parents=True, exist_ok=True)
 
-        log_file = component_dir / f"{component}.log"
+        log_file = component_dir / f"{component}.jsonl"
 
         # Initialize TimedRotatingFileHandler for daily rotation
         super().__init__(
@@ -70,7 +70,7 @@ class DailyLogHandler(TimedRotatingFileHandler):
         self.setLevel(level)
 
     def doRollover(self):
-        """Override doRollover to use [area]-[date].log format."""
+        """Override doRollover to use [component]-[date].jsonl format."""
         if self.stream:
             self.stream.close()
             self.stream = None
@@ -79,7 +79,7 @@ class DailyLogHandler(TimedRotatingFileHandler):
         current_time = int(time.time())
         dfn = self.rotation_filename(self.baseFilename)
 
-        # Create the new filename with [area]-[date].log format
+        # Create the new filename with [component]-[date].jsonl format
         if self.backupCount > 0:
             # Get the component name from the base filename
             base_path = Path(self.baseFilename)
@@ -87,7 +87,7 @@ class DailyLogHandler(TimedRotatingFileHandler):
 
             # Format date as YYYY-MM-DD
             date_str = datetime.fromtimestamp(current_time).strftime("%Y-%m-%d")
-            new_filename = base_path.parent / f"{component}-{date_str}.log"
+            new_filename = base_path.parent / f"{component}-{date_str}.jsonl"
 
             # Rename the current file to the new format
             if os.path.exists(self.baseFilename):

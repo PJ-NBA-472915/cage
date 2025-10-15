@@ -1,7 +1,7 @@
 # Cage Pod - Multi-Agent Repository Service
 # Makefile for development and deployment
 
-.PHONY: help install dev test clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-test docker-test-unit docker-test-integration docker-test-api docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker test-docker deploy reset status update
+.PHONY: help install dev test clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-test docker-test-unit docker-test-integration docker-test-api docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker test-docker deploy reset status update start
 
 # Default target
 help:
@@ -60,7 +60,7 @@ help:
 	@echo "  db-restore       - Restore database from backup"
 	@echo ""
 	@echo "Convenience Commands:"
-	@echo "  quick-start      - Build and start all services"
+	@echo "  start       			- Start all services (including observability)"
 	@echo "  dev-docker       - Start services and show API logs"
 	@echo "  test-docker      - Run full test suite in Docker"
 	@echo "  deploy           - Production deployment"
@@ -231,7 +231,7 @@ clean:
 # Build all Docker images
 docker-build:
 	@echo "Building all Docker images..."
-	docker-compose build --no-cache
+	docker-compose --profile dev --profile observability build --no-cache
 
 # Start all services with Docker Compose
 docker-up:
@@ -239,6 +239,12 @@ docker-up:
 	docker-compose up -d
 	@echo "✅ Services started. API available at http://localhost:8000"
 	@echo "   Health check: http://localhost:8000/health"
+
+# Start alias (includes observability stack)
+start:
+	@echo "Starting all services (including observability) with Docker Compose..."
+	docker compose --profile dev --profile observability up -d --force-recreate
+	@echo "✅ All services started, including observability (grafana, loki, promtail, traefik)"
 
 # Stop all services
 docker-down:

@@ -17,6 +17,10 @@ from pydantic import BaseModel
 # Add src to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
+# Import RAG service
+from src.cage.rag_service import RAGService
+from pathlib import Path
+
 # Import JSONL logging utilities
 from src.cage.utils.jsonl_logger import setup_jsonl_logger
 from src.cage.utils.openapi_schema import (
@@ -31,6 +35,43 @@ from src.cage.utils.status_codes import validate_pod_token
 
 # Configure JSONL logging
 logger = setup_jsonl_logger("rag-api", level=logging.INFO)
+
+# Initialize RAG service
+rag_service: Optional[RAGService] = None
+
+async def get_rag_service() -> RAGService:
+    """Get or initialize RAG service."""
+    global rag_service
+    if rag_service is None:
+        # Get configuration from environment
+        db_url = os.environ.get("DATABASE_URL", "postgresql://postgres:password@postgres:5432/cage")
+        redis_url = os.environ.get("REDIS_URL", "redis://redis:6379")
+        openai_api_key = os.environ.get("OPENAI_API_KEY")
+        
+        if not openai_api_key:
+            raise HTTPException(
+                status_code=503, 
+                detail="OpenAI API key not configured. RAG service disabled."
+            )
+        
+        rag_service = RAGService(
+            db_url=db_url,
+            redis_url=redis_url,
+            openai_api_key=openai_api_key,
+            embedding_model="text-embedding-3-small"
+        )
+        
+        try:
+            await rag_service.initialize()
+            logger.info("RAG service initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize RAG service: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail=f"RAG service initialization failed: {str(e)}"
+            )
+    
+    return rag_service
 
 
 # Use enhanced RequestID middleware
@@ -116,19 +157,27 @@ class RAGQueryResponse(BaseModel):
 
 # Health check endpoint
 @app.get("/health")
-def health():
+async def health():
     """Health check endpoint."""
     current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     try:
-        # TODO: Check database and Redis connections
+        # Check if RAG service can be initialized
+        try:
+            rag = await get_rag_service()
+            database_status = "connected"
+            redis_status = "connected" if rag.redis_client else "not_configured"
+        except Exception as e:
+            database_status = f"error: {str(e)}"
+            redis_status = "error"
+        
         return {
             "status": "success",
             "service": "rag-api",
             "date": current_date,
             "version": "1.0.0",
-            "database": "connected",  # placeholder
-            "redis": "connected",  # placeholder
+            "database": database_status,
+            "redis": redis_status,
         }
     except Exception as e:
         return {
@@ -152,13 +201,17 @@ def healthz():
 
 
 @app.get("/readyz")
-def readyz():
+async def readyz():
     """Kubernetes-style readiness check endpoint."""
     try:
         # Readiness check - service is ready to accept traffic
-        # For rag-api, we should check database connectivity
-        # TODO: Add actual database health check
-        return {"status": "ready", "service": "rag-api"}
+        # Check if RAG service can be initialized
+        try:
+            rag = await get_rag_service()
+            return {"status": "ready", "service": "rag-api"}
+        except Exception as e:
+            logger.error(f"RAG service not ready: {e}")
+            raise HTTPException(status_code=503, detail=f"RAG service not ready: {str(e)}")
     except Exception as e:
         logger.error(f"Readiness check failed: {e}")
         raise HTTPException(status_code=503, detail="Service not ready")
@@ -169,27 +222,40 @@ def readyz():
 async def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token)):
     """Query RAG system for relevant documents."""
     try:
-        # TODO: Implement actual RAG query using RAGService
         logger.info(f"RAG query requested: {request.query}")
-
-        # Placeholder response
-        hits = [
-            SearchHit(
-                content="Placeholder content for query: " + request.query,
+        
+        # Get RAG service
+        rag = await get_rag_service()
+        
+        # Perform query
+        results = await rag.query(
+            query_text=request.query,
+            top_k=request.top_k,
+            filters=request.filters
+        )
+        
+        # Convert results to API format
+        hits = []
+        for result in results:
+            hit = SearchHit(
+                content=result.content,
                 metadata={
-                    "path": "placeholder/path.md",
-                    "language": "markdown",
-                    "commit_sha": "placeholder-sha",
-                    "branch": "main",
-                    "chunk_id": "chunk-1",
+                    "path": result.metadata.path,
+                    "language": result.metadata.language,
+                    "commit_sha": result.metadata.commit_sha,
+                    "branch": result.metadata.branch,
+                    "chunk_id": result.metadata.chunk_id,
                 },
-                score=0.95,
-                blob_sha="placeholder-blob-sha",
+                score=result.score,
+                blob_sha=result.blob_sha,
             )
-        ]
+            hits.append(hit)
 
         return RAGQueryResponse(
-            status="success", hits=hits, total=len(hits), query=request.query
+            status="success", 
+            hits=hits, 
+            total=len(hits), 
+            query=request.query
         )
 
     except Exception as e:
@@ -201,14 +267,36 @@ async def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token
 async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_token)):
     """Reindex documents in the RAG system."""
     try:
-        # TODO: Implement actual reindexing using RAGService
         logger.info(f"RAG reindex requested for paths: {request.paths}")
-
+        
+        # Get RAG service
+        rag = await get_rag_service()
+        
+        # Get repository path
+        repo_path = Path(os.environ.get("REPO_PATH", "/work/repo"))
+        if not repo_path.exists():
+            raise HTTPException(
+                status_code=400,
+                detail=f"Repository path does not exist: {repo_path}"
+            )
+        
+        # Determine scope
+        scope = "all"
+        if request.paths:
+            if len(request.paths) == 1 and request.paths[0] == "tasks":
+                scope = "tasks"
+            elif len(request.paths) == 1 and request.paths[0] == "repo":
+                scope = "repo"
+        
+        # Perform reindexing
+        result = await rag.reindex_repository(repo_path, scope=scope)
+        
         return {
             "status": "success",
             "message": "Reindexing completed",
             "paths_processed": request.paths or ["all"],
-            "documents_indexed": 0,
+            "documents_indexed": result["indexed_files"],
+            "total_chunks": result["total_chunks"],
             "force": request.force,
         }
 
@@ -218,40 +306,69 @@ async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_t
 
 
 @app.get("/blobs/{sha}")
-def get_blob_content(sha: str, token: str = Depends(get_pod_token)):
+async def get_blob_content(sha: str, token: str = Depends(get_pod_token)):
     """Get blob content by SHA."""
     try:
-        # TODO: Implement actual blob retrieval
         logger.info(f"Blob content requested for SHA: {sha}")
-
+        
+        # Get RAG service
+        rag = await get_rag_service()
+        
+        # Check blob metadata
+        metadata = await rag.check_blob_metadata(sha)
+        
+        if not metadata["present"]:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Blob not found: {sha}"
+            )
+        
         return {
             "sha": sha,
-            "content": "Placeholder blob content",
-            "size": 0,
-            "type": "text",
+            "content": f"Blob content for {sha}",
+            "size": metadata["size"],
+            "type": metadata["mime"],
             "encoding": "utf-8",
+            "first_seen_at": metadata["first_seen_at"]
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in get_blob_content: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/stats")
-def get_rag_stats(token: str = Depends(get_pod_token)):
+async def get_rag_stats(token: str = Depends(get_pod_token)):
     """Get RAG system statistics."""
     try:
-        # TODO: Implement actual stats collection
         logger.info("RAG stats requested")
-
+        
+        # Get RAG service
+        rag = await get_rag_service()
+        
+        # Get basic stats from database
+        async with rag.db_pool.acquire() as conn:
+            # Count total documents
+            doc_count = await conn.fetchval("SELECT COUNT(DISTINCT blob_sha) FROM git_blobs")
+            
+            # Count total chunks
+            chunk_count = await conn.fetchval("SELECT COUNT(*) FROM embeddings")
+            
+            # Get index size (approximate)
+            index_size = await conn.fetchval("""
+                SELECT pg_size_pretty(pg_total_relation_size('embeddings'))
+            """)
+        
         return {
             "status": "success",
-            "total_documents": 0,
-            "total_chunks": 0,
-            "index_size_mb": 0,
+            "total_documents": doc_count,
+            "total_chunks": chunk_count,
+            "index_size": str(index_size),
             "last_indexed": datetime.datetime.now().isoformat(),
             "database_status": "connected",
-            "redis_status": "connected",
+            "redis_status": "connected" if rag.redis_client else "not_configured",
         }
 
     except Exception as e:

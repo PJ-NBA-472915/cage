@@ -74,7 +74,7 @@ async def rag_query(
         request_data = {"query": query, "top_k": top_k, "filters": filters}
 
         # Make API request
-        result = await make_api_request("/rag/query", "POST", request_data)
+        result = await make_api_request("/query", "POST", request_data)
 
         # Format results for user-friendly display
         if result.get("status") == "success":

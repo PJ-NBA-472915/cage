@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 from typing import Any, Optional
 
-from .daily_logger import setup_daily_logger
+from .jsonl_logger import setup_jsonl_logger
 
 
 class FileOperationLogger:
@@ -23,7 +23,7 @@ class FileOperationLogger:
             log_dir: Directory for file operation logs
         """
         self.log_dir = log_dir
-        self.logger = setup_daily_logger("files", log_dir, logging.INFO)
+        self.logger = setup_jsonl_logger("files", log_dir, logging.INFO)
 
     def log_file_read(
         self,

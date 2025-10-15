@@ -87,7 +87,7 @@ class JSONLHandler(TimedRotatingFileHandler):
         service_dir = log_path / service
         service_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create log file with .jsonl extension
+        # Create log file with .jsonl extension directly in service directory
         log_file = service_dir / f"{service}.jsonl"
 
         # Initialize TimedRotatingFileHandler for daily rotation

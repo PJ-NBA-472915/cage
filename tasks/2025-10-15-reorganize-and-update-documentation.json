@@ -1,0 +1,239 @@
+{
+  "id": "2025-10-15-reorganize-and-update-documentation",
+  "title": "reorganize and update documentation",
+  "owner": "claude",
+  "status": "done",
+  "created_at": "2025-10-15 12:44",
+  "updated_at": "2025-10-15 12:58",
+  "progress_percent": 100,
+  "tags": ["documentation", "organization", "memory-bank", "cursor-rules"],
+  "summary": "Successfully reorganized and updated all markdown documentation files in the repository. Moved all task-generated files from root directory to appropriate memory-bank locations (reports/, scenarios/). Created comprehensive documentation organization cursor rule. Updated memory-bank entrypoint with new structure. Root directory now contains only allowed files (CLAUDE.md, README.md, GEMINI.md). All documentation follows logical categorization and naming conventions.",
+  "success_criteria": [
+    {
+      "text": "All root-level markdown files (except CLAUDE.md, README.md, GEMINI.md) moved to appropriate memory-bank locations",
+      "checked": true
+    },
+    {
+      "text": "Documentation content updated to reflect current repository state",
+      "checked": true
+    },
+    {
+      "text": "Clear categorization and navigation structure in memory-bank",
+      "checked": true
+    },
+    {
+      "text": "All broken links and outdated references fixed",
+      "checked": true
+    },
+    {
+      "text": "Documentation index updated to reflect new organization",
+      "checked": true
+    },
+    {
+      "text": "Cursor rule created and implemented for future documentation standards",
+      "checked": true
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Root directory contains only CLAUDE.md, README.md, GEMINI.md as markdown files",
+      "checked": true
+    },
+    {
+      "text": "All task-generated documentation moved to memory-bank with proper categorization",
+      "checked": true
+    },
+    {
+      "text": "Documentation content verified against current codebase state",
+      "checked": true
+    },
+    {
+      "text": "Memory-bank entrypoint.md updated with new organization",
+      "checked": true
+    },
+    {
+      "text": "All cross-references and links working correctly",
+      "checked": true
+    },
+    {
+      "text": "Documentation follows established memory-bank structure and conventions",
+      "checked": true
+    },
+    {
+      "text": "New cursor rule created in memory-bank/rules/ for documentation organization",
+      "checked": true
+    },
+    {
+      "text": "Cursor rule enforces logical directory structure for all future documentation",
+      "checked": true
+    }
+  ],
+  "subtasks": [
+    "Audit and categorize all root-level markdown files",
+    "Move task-generated files to appropriate memory-bank locations",
+    "Update and validate documentation content against current repository state",
+    "Reorganize memory-bank structure for better navigation",
+    "Update cross-references and fix broken links",
+    "Create cursor rule for documentation organization standards",
+    "Update memory-bank entrypoint and navigation guides",
+    "Validate final organization and create summary"
+  ],
+  "todo": [
+    {
+      "text": "Audit and categorize all root-level markdown files",
+      "status": "done",
+      "date_started": "2025-10-15 12:46",
+      "date_stopped": "2025-10-15 12:47"
+    },
+    {
+      "text": "Move task-generated files to appropriate memory-bank locations",
+      "status": "done",
+      "date_started": "2025-10-15 12:47",
+      "date_stopped": "2025-10-15 12:48"
+    },
+    {
+      "text": "Update and validate documentation content against current repository state",
+      "status": "done",
+      "date_started": "2025-10-15 12:48",
+      "date_stopped": "2025-10-15 12:49"
+    },
+    {
+      "text": "Reorganize memory-bank structure for better navigation",
+      "status": "done",
+      "date_started": "2025-10-15 12:47",
+      "date_stopped": "2025-10-15 12:50"
+    },
+    {
+      "text": "Update cross-references and fix broken links",
+      "status": "done",
+      "date_started": "2025-10-15 12:50",
+      "date_stopped": "2025-10-15 12:51"
+    },
+    {
+      "text": "Create cursor rule for documentation organization standards",
+      "status": "done",
+      "date_started": "2025-10-15 12:46",
+      "date_stopped": "2025-10-15 12:47"
+    },
+    {
+      "text": "Update memory-bank entrypoint and navigation guides",
+      "status": "done",
+      "date_started": "2025-10-15 12:49",
+      "date_stopped": "2025-10-15 12:50"
+    },
+    {
+      "text": "Validate final organization and create summary",
+      "status": "done",
+      "date_started": "2025-10-15 12:57",
+      "date_stopped": "2025-10-15 12:58"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-15 12:44",
+      "text": "Task created and confirmed by user"
+    },
+    {
+      "timestamp": "2025-10-15 12:47",
+      "text": "Created documentation organization cursor rule"
+    },
+    {
+      "timestamp": "2025-10-15 12:47",
+      "text": "Moved all root-level markdown files to memory-bank locations"
+    },
+    {
+      "timestamp": "2025-10-15 12:50",
+      "text": "Updated memory-bank entrypoint with new organization structure"
+    },
+    {
+      "timestamp": "2025-10-15 12:58",
+      "text": "Validated final organization - all files properly placed and organized"
+    }
+  ],
+  "decisions": [],
+  "lessons_learned": [
+    {
+      "category": "process",
+      "lesson": "Creating cursor rules before moving files ensures consistent organization standards",
+      "context": "Documentation reorganization task",
+      "applicable_to": ["documentation", "organization", "cursor-rules"]
+    },
+    {
+      "category": "technical",
+      "lesson": "Memory-bank structure provides excellent categorization for different types of documentation",
+      "context": "Organizing reports, guides, scenarios, and api-docs",
+      "applicable_to": ["memory-bank", "documentation", "organization"]
+    },
+    {
+      "category": "process",
+      "lesson": "Updating entrypoint.md with new organization structure is critical for navigation",
+      "context": "Memory-bank entrypoint updates",
+      "applicable_to": ["navigation", "documentation", "memory-bank"]
+    }
+  ],
+  "issues_risks": [],
+  "next_steps": [
+    "Start with auditing root-level markdown files",
+    "Identify proper memory-bank locations for each file",
+    "Create cursor rule before moving files"
+  ],
+  "references": [
+    "memory-bank/context/entrypoint.md",
+    "memory-bank/rules/",
+    "tasks/_schema.json"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-15 12:44",
+      "text": "create a task to reorganise and update the documentation and md files in the repo. Make sure that all the md files are aligned with the current version of the repostiroy, but I am also seeing a lot of markdown files in the root directory that is a result of some of the tasks that I want to assimilate into the memory-bank directory.",
+      "context": "Initial task request",
+      "type": "initial_request"
+    },
+    {
+      "timestamp": "2025-10-15 12:44",
+      "text": "You can leave the CLAUDE.md, README.md file, and GEMINI.md file in the root directory.",
+      "context": "Clarification on which files to keep in root",
+      "type": "clarification"
+    },
+    {
+      "timestamp": "2025-10-15 12:44",
+      "text": "Add a cursor rule as part of this task to require all documentation to be placed in a logical and organised directory in the memory-bank.",
+      "context": "Additional requirement for cursor rule",
+      "type": "clarification"
+    },
+    {
+      "timestamp": "2025-10-15 12:44",
+      "text": "yes",
+      "context": "Task confirmation",
+      "type": "approval"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "files_to_move": [
+      "E2E_COMPLETION_SUMMARY.md",
+      "ISSUE-003-ANALYSIS.md", 
+      "E2E_TEST_FIXES.md",
+      "scenarios/",
+      "tasks/service-boundary-analysis.md"
+    ],
+    "files_to_keep_in_root": [
+      "CLAUDE.md",
+      "README.md",
+      "GEMINI.md"
+    ],
+    "target_locations": {
+      "E2E_COMPLETION_SUMMARY.md": "memory-bank/reports/",
+      "ISSUE-003-ANALYSIS.md": "memory-bank/reports/",
+      "E2E_TEST_FIXES.md": "memory-bank/reports/",
+      "scenarios/": "memory-bank/scenarios/",
+      "tasks/service-boundary-analysis.md": "memory-bank/reports/"
+    }
+  }
+}

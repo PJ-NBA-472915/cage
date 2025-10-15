@@ -493,22 +493,27 @@ def register_mcp_tools(mcp: Server):
 
             # Call RAG API
             result = await make_api_request(
-                "/rag/query", method="POST", data=data, request_id=request_id, base_url=settings.rag_api_base_url
+                "/query", method="POST", data=data, request_id=request_id, base_url=settings.rag_api_base_url
             )
 
             # Format response as human-readable summary
-            if "results" in result and result["results"]:
+            if "hits" in result and result["hits"]:
                 summary_parts = [
-                    f"Found {len(result['results'])} relevant results for query: '{query}'"
+                    f"Found {len(result['hits'])} relevant results for query: '{query}'"
                 ]
 
-                for i, hit in enumerate(result["results"][:top_k], 1):
-                    file_path = hit.get("file_path", "unknown")
+                for i, hit in enumerate(result["hits"][:top_k], 1):
+                    metadata = hit.get("metadata", {})
+                    file_path = metadata.get("path", "unknown")
                     score = hit.get("score", 0.0)
-                    snippet = hit.get("snippet", "No snippet available")
+                    content = hit.get("content", "No content available")
+                    
+                    # Truncate content if too long
+                    if len(content) > 200:
+                        content = content[:200] + "..."
 
                     summary_parts.append(
-                        f"{i}. {file_path} (score: {score:.3f})\n   {snippet}"
+                        f"{i}. {file_path} (score: {score:.3f})\n   {content}"
                     )
 
                 summary = "\n\n".join(summary_parts)

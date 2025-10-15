@@ -67,12 +67,12 @@ class ModularCrewTool:
 
     def _setup_crewai_logging(self):
         """Set up comprehensive logging for CrewAI operations."""
-        from src.cage.utils.daily_logger import setup_daily_logger
+        from src.cage.utils.jsonl_logger import setup_jsonl_logger
 
-        # Set up daily logger for crewai
-        self.crewai_logger = setup_daily_logger("crewai", level=logging.DEBUG)
+        # Set up JSONL logger for crewai
+        self.crewai_logger = setup_jsonl_logger("crewai", level=logging.DEBUG)
 
-        self.logger.info("CrewAI daily logging initialized")
+        self.logger.info("CrewAI JSONL logging initialized")
 
     def _setup_modular_agents(self):
         """Set up the modular agent system."""
