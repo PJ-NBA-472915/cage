@@ -94,7 +94,7 @@ class TestMCPProtocol:
 
         tools = result["tools"]
         assert isinstance(tools, list), "Tools must be an array"
-        assert len(tools) == 13, f"Expected 13 tools, got {len(tools)}"
+        assert len(tools) == 12, f"Expected 12 tools, got {len(tools)}"
 
         # Verify each tool has required fields
         tool_names = []
