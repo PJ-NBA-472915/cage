@@ -1,7 +1,8 @@
 {
   "packages": [
     "python@3.11",
-    "uv"
+    "uv",
+    "pre-commit"
   ],
   "shell": {
     "init_hook": [
