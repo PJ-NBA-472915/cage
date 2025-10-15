@@ -110,7 +110,7 @@ repos:
         exclude: ^(docker-compose\.yml|\.github/.*\.yml)$
 
 # Global configuration
-default_stages: [commit]
+default_stages: [pre-commit]
 fail_fast: false
 minimum_pre_commit_version: "3.0.0"
 
