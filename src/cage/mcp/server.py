@@ -194,11 +194,12 @@ def register_mcp_tools(mcp: Server):
                     "name": {"type": "string", "description": "Name of the agent"},
                     "role": {
                         "type": "string",
-                        "description": "Role of the agent (e.g., 'implementer', 'reviewer')",
+                        "enum": ["planner", "implementer", "verifier", "committer"],
+                        "description": "Role of the agent (planner, implementer, verifier, or committer)",
                     },
                     "config": {
                         "type": "object",
-                        "description": "Configuration for the agent",
+                        "description": "Optional configuration for the agent",
                     },
                 },
                 "required": ["name", "role"],
@@ -253,17 +254,18 @@ def register_mcp_tools(mcp: Server):
                         "type": "object",
                         "description": "Task specification",
                         "properties": {
-                            "name": {"type": "string", "description": "Task name"},
+                            "title": {"type": "string", "description": "Task title"},
                             "description": {
                                 "type": "string",
                                 "description": "Task description",
                             },
-                            "context": {
-                                "type": "object",
-                                "description": "Additional context",
+                            "acceptance": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Acceptance criteria",
                             },
                         },
-                        "required": ["name", "description"],
+                        "required": ["title", "description", "acceptance"],
                     },
                     "context": {
                         "type": "object",
@@ -272,7 +274,7 @@ def register_mcp_tools(mcp: Server):
                     "timeout_s": {
                         "type": "integer",
                         "description": "Timeout in seconds",
-                        "default": 300,
+                        "default": 600,
                     },
                 },
                 "required": ["agent_id", "task"],
@@ -348,23 +350,24 @@ def register_mcp_tools(mcp: Server):
                         "type": "object",
                         "description": "Task specification",
                         "properties": {
-                            "name": {"type": "string", "description": "Task name"},
+                            "title": {"type": "string", "description": "Task title"},
                             "description": {
                                 "type": "string",
                                 "description": "Task description",
                             },
-                            "context": {
-                                "type": "object",
-                                "description": "Additional context",
+                            "acceptance": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Acceptance criteria",
                             },
                         },
-                        "required": ["name", "description"],
+                        "required": ["title", "description", "acceptance"],
                     },
-                    "strategy": {"type": "string", "description": "Execution strategy"},
+                    "strategy": {"type": "string", "description": "Execution strategy", "default": "impl_then_verify"},
                     "timeout_s": {
                         "type": "integer",
                         "description": "Timeout in seconds",
-                        "default": 300,
+                        "default": 1200,
                     },
                 },
                 "required": ["crew_id", "task"],
@@ -727,7 +730,7 @@ def register_mcp_tools(mcp: Server):
         agent_id = arguments.get("agent_id", "")
         task = arguments.get("task", {})
         context = arguments.get("context", {})
-        timeout_s = arguments.get("timeout_s", 300)
+        timeout_s = arguments.get("timeout_s", 600)
 
         logger.info(
             "Agent invoke tool called",
@@ -735,7 +738,7 @@ def register_mcp_tools(mcp: Server):
                 "request_id": request_id,
                 "tool": "agent_invoke",
                 "agent_id": agent_id,
-                "task_name": task.get("name"),
+                "task_title": task.get("title"),
             },
         )
 
@@ -983,8 +986,8 @@ def register_mcp_tools(mcp: Server):
         request_id = _request_id()
         crew_id = arguments.get("crew_id", "")
         task = arguments.get("task", {})
-        strategy = arguments.get("strategy")
-        timeout_s = arguments.get("timeout_s", 300)
+        strategy = arguments.get("strategy", "impl_then_verify")
+        timeout_s = arguments.get("timeout_s", 1200)
 
         logger.info(
             "Crew run tool called",
@@ -992,7 +995,7 @@ def register_mcp_tools(mcp: Server):
                 "request_id": request_id,
                 "tool": "crew_run",
                 "crew_id": crew_id,
-                "task_name": task.get("name"),
+                "task_title": task.get("title"),
             },
         )
 
