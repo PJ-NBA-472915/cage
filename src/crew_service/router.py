@@ -204,6 +204,8 @@ async def invoke_agent(request: Request, agent_id: UUID, invoke_data: AgentInvok
 @router.post("/crews", response_model=Crew)
 async def create_crew(request: Request, crew_data: CrewCreate):
     """Create a new crew."""
+    from fastapi import HTTPException
+
     request_id = get_current_request_id()
 
     log_with_context(
@@ -214,8 +216,49 @@ async def create_crew(request: Request, crew_data: CrewCreate):
         route="/crew/crews",
     )
 
+    # Validate that roles are provided
+    if not crew_data.roles:
+        log_with_context(
+            logger=logger,
+            level=logging.WARNING,
+            message="Crew creation failed: no roles provided",
+            request_id=request_id,
+            route="/crew/crews",
+        )
+        raise HTTPException(
+            status_code=400,
+            detail="Crew must have at least one role assignment. Create agents first using the agent creation endpoint, then provide their UUIDs in the roles field."
+        )
+
+    # Validate that all referenced agents exist
+    missing_agents = []
+    for role_name, agent_id in crew_data.roles.items():
+        if agent_id not in agents_db:
+            missing_agents.append(f"{role_name}:{agent_id}")
+
+    if missing_agents:
+        log_with_context(
+            logger=logger,
+            level=logging.WARNING,
+            message=f"Crew creation failed: agents not found: {missing_agents}",
+            request_id=request_id,
+            route="/crew/crews",
+        )
+        raise HTTPException(
+            status_code=404,
+            detail=f"The following agents were not found: {', '.join(missing_agents)}. Create agents first using the agent creation endpoint."
+        )
+
     crew = Crew(**crew_data.dict())
     crews_db[crew.id] = crew
+
+    log_with_context(
+        logger=logger,
+        level=logging.INFO,
+        message=f"Crew created successfully with {len(crew_data.roles)} roles",
+        request_id=request_id,
+        route="/crew/crews",
+    )
 
     return crew
 

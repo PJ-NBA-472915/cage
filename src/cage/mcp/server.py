@@ -282,14 +282,14 @@ def register_mcp_tools(mcp: Server):
         },
         {
             "name": "crew_create",
-            "description": "Create a new crew of AI agents with role assignments",
+            "description": "Create a new crew of AI agents with role assignments. IMPORTANT: Agents must be created first using agent_create, then their UUIDs are mapped to roles here.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "description": "Name of the crew"},
                     "roles": {
                         "type": "object",
-                        "description": "Mapping of role names (e.g., 'planner', 'implementer') to agent UUIDs",
+                        "description": "Mapping of role names (e.g., 'planner', 'implementer', 'verifier') to existing agent UUIDs. Create agents first using agent_create.",
                         "additionalProperties": {"type": "string"},
                     },
                     "labels": {
