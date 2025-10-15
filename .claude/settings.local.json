@@ -1,27 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(docker-compose:*)",
+      "Bash(echo \"POD_TOKEN: $POD_TOKEN:+set\")",
+      "Bash(echo:*)",
+      "Bash(ls:*)",
+      "Bash(docker compose:*)",
+      "Bash(mkdir:*)",
       "Bash(curl:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(docker compose:*)",
-      "Bash(make:*)",
-      "Bash(make slice-cage:*)",
-      "Bash(make verify-cage:*)",
-      "Bash(for f in tasks/2025-10-14-mcp-file-ops-*.json)",
-      "Bash(jq:*)",
-      "Bash(done)",
-      "Bash(do [ -f \"$f\" ])",
-      "Bash(echo:*)"
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
-  },
-  "mcpServers": {
-    "cage": {
-      "url": "http://localhost:8765/mcp/rpc",
-      "transport": "http"
-    }
   }
 }

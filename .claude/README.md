@@ -34,8 +34,8 @@ The following commands run without requiring approval:
 
 ```bash
 # Docker operations
-docker-compose --profile dev up -d
-docker-compose --profile dev logs -f files-api
+docker compose --profile dev up -d
+docker compose --profile dev logs -f files-api
 make docker-build
 
 # Testing

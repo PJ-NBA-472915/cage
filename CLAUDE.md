@@ -14,23 +14,23 @@ Cage is a **pod-based multi-agent repository service** that provides AI-powered 
 
 ```bash
 # Start all services (required for development)
-docker-compose --profile dev up -d --build
+docker compose --profile dev up -d --build
 
 # View service status
-docker-compose --profile dev ps
+docker compose --profile dev ps
 
 # View logs for a specific service
-docker-compose --profile dev logs -f files-api
-docker-compose --profile dev logs -f mcp
+docker compose --profile dev logs -f files-api
+docker compose --profile dev logs -f mcp
 
 # Restart a service after code changes
-docker-compose --profile dev restart files-api
+docker compose --profile dev restart files-api
 
 # Stop all services
-docker-compose --profile dev down
+docker compose --profile dev down
 
 # Complete reset (clean volumes)
-docker-compose --profile dev down -v
+docker compose --profile dev down -v
 ```
 
 ### Testing
@@ -375,7 +375,7 @@ Docker Compose profiles:
 
 ```bash
 # Start with observability
-docker-compose --profile dev --profile observability up -d
+docker compose --profile dev --profile observability up -d
 ```
 
 ## MCP Integration
@@ -421,18 +421,18 @@ export DEBUGPY_WAIT_FOR_CLIENT=1  # Optional: wait for debugger
 
 ```bash
 # Real-time logs for a service
-docker-compose --profile dev logs -f files-api
+docker compose --profile dev logs -f files-api
 
 # Check service health
-docker-compose --profile dev ps
-docker-compose --profile dev exec files-api curl http://localhost:8000/health
+docker compose --profile dev ps
+docker compose --profile dev exec files-api curl http://localhost:8000/health
 ```
 
 ### Database Access
 
 ```bash
 # Connect to PostgreSQL
-docker-compose --profile dev exec postgres psql -U postgres -d cage
+docker compose --profile dev exec postgres psql -U postgres -d cage
 
 # Common queries
 SELECT * FROM pg_extension;  # Check pgvector is installed
@@ -443,7 +443,7 @@ SELECT * FROM pg_extension;  # Check pgvector is installed
 
 ```bash
 # Connect to Redis
-docker-compose --profile dev exec redis redis-cli
+docker compose --profile dev exec redis redis-cli
 
 # Common commands
 KEYS *              # List all keys
@@ -454,8 +454,8 @@ FLUSHALL            # Clear all (development only)
 ## Troubleshooting
 
 **Services won't start**:
-- Check `docker-compose --profile dev ps` for status
-- View logs: `docker-compose --profile dev logs service-name`
+- Check `docker compose --profile dev ps` for status
+- View logs: `docker compose --profile dev logs service-name`
 - Verify environment variables: `echo $POD_TOKEN`
 - Check port conflicts: `lsof -i :8765`
 
@@ -469,7 +469,7 @@ FLUSHALL            # Clear all (development only)
 - Review file locks: may need to wait for lock expiration
 
 **Test failures**:
-- Ensure services are running: `docker-compose --profile dev up -d`
+- Ensure services are running: `docker compose --profile dev up -d`
 - Run with verbose output: `uv run pytest -v -s`
 - Check test-specific requirements in test file headers
 
