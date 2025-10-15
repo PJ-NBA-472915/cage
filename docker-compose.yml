@@ -248,6 +248,7 @@ services:
       - POD_TOKEN=${POD_TOKEN}
       - REPO_PATH=/work/repo
       - RELOAD=${RELOAD:-false}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests
