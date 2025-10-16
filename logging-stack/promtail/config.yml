@@ -16,7 +16,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: files-api
-          __path__: /var/log/cage/files-api/*.jsonl
+          __path__: /var/log/cage/files-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
@@ -48,7 +48,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: git-api
-          __path__: /var/log/cage/git-api/*.jsonl
+          __path__: /var/log/cage/git-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
@@ -80,7 +80,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: rag-api
-          __path__: /var/log/cage/rag-api/*.jsonl
+          __path__: /var/log/cage/rag-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
@@ -112,7 +112,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: lock-api
-          __path__: /var/log/cage/lock-api/*.jsonl
+          __path__: /var/log/cage/lock-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
@@ -144,7 +144,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: crew-api
-          __path__: /var/log/cage/crew-api/*.jsonl
+          __path__: /var/log/cage/crew-api/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
@@ -176,7 +176,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: mcp
-          __path__: /var/log/cage/mcp/*.jsonl
+          __path__: /var/log/cage/mcp/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
@@ -209,7 +209,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: crewai
-          __path__: /var/log/cage/crewai/*.jsonl
+          __path__: /var/log/cage/crewai/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
@@ -243,7 +243,7 @@ scrape_configs:
         labels:
           job: cage-logs
           service: files
-          __path__: /var/log/cage/files/*.jsonl
+          __path__: /var/log/cage/files/**/*.jsonl
     pipeline_stages:
       - json:
           expressions:
