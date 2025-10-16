@@ -271,6 +271,31 @@ services:
       - dev
       - prod
 
+  # Task JSON API service (internal only - Grafana datasource)
+  task-json-api:
+    image: python:3.12-slim
+    networks:
+      - cage-internal
+    environment:
+      - TASKS_DIR=/work/tasks
+      - PYTHONUNBUFFERED=1
+    working_dir: /app
+    command: >
+      sh -c "apt-get update && apt-get install -y --no-install-recommends curl &&
+             pip install --no-cache-dir fastapi uvicorn pydantic &&
+             uvicorn src.apps.task_json_api.main:app --host 0.0.0.0 --port 8000"
+    volumes:
+      - ./src:/app/src:ro
+      - ./tasks:/work/tasks:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    profiles:
+      - observability
+
   # Logging Stack - Loki (Log Aggregation)
   loki:
     image: grafana/loki:2.9.6

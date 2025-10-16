@@ -186,6 +186,21 @@ EXPOSE 8000
 CMD ["uv", "run", "uvicorn", "src.apps.crew_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # ==============================================================================
+# Task JSON API Service (for Grafana datasource)
+# ==============================================================================
+FROM runtime-base AS task-json-api
+
+# Task JSON API runs as system user (read-only access)
+USER system
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+EXPOSE 8000
+
+CMD ["uv", "run", "uvicorn", "src.apps.task_json_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# ==============================================================================
 # MCP Server Service
 # ==============================================================================
 FROM runtime-base AS mcp
