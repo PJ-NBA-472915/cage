@@ -2,10 +2,20 @@ apiVersion: 1
 
 datasources:
   - name: Tasks
-    type: grafana-simple-json-datasource
+    type: yesoreyeram-infinity-datasource
     access: proxy
-    url: http://task-json-api:8000
+    url: http://task-json-static
     isDefault: false
     jsonData:
       timeInterval: "30s"
-    editable: false
+      refId: "Tasks"
+      # Default query settings for JSON parsing
+      parser: "backend"
+      root_selector: "$"
+      # Enable authentication if needed
+      auth_type: "none"
+      # Custom headers for CORS
+      custom_headers:
+        - name: "Accept"
+          value: "application/json"
+    editable: true
