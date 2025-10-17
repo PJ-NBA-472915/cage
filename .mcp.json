@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "cage": {
+      "url": "http://localhost:8765/mcp/rpc",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer ${POD_TOKEN}",
+        "Content-Type": "application/json"
+      }
+    }
+  }
+}
