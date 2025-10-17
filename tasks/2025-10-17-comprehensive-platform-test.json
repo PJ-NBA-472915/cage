@@ -1,0 +1,231 @@
+{
+  "id": "2025-10-17-comprehensive-platform-test",
+  "title": "Comprehensive Cage Platform End-to-End Test",
+  "owner": "AI Agent",
+  "status": "planned",
+  "created_at": "2025-10-17T10:08:52.039334",
+  "updated_at": "2025-10-17T10:08:52.039342",
+  "progress_percent": 0,
+  "tags": [
+    "testing",
+    "platform",
+    "e2e",
+    "comprehensive",
+    "validation"
+  ],
+  "summary": "Comprehensive end-to-end test of the entire Cage platform covering all microservices, APIs, MCP integration, CrewAI orchestration, and core tools.",
+  "success_criteria": [
+    {
+      "text": "All microservices start and pass health checks",
+      "checked": false
+    },
+    {
+      "text": "MCP server processes tool calls correctly",
+      "checked": false
+    },
+    {
+      "text": "Crew orchestration coordinates agents successfully",
+      "checked": false
+    },
+    {
+      "text": "Editor Tool performs all operations with locking",
+      "checked": false
+    },
+    {
+      "text": "Git Tool executes ops with provenance",
+      "checked": false
+    },
+    {
+      "text": "RAG system indexes and searches codebase",
+      "checked": false
+    },
+    {
+      "text": "Network isolation maintained",
+      "checked": false
+    },
+    {
+      "text": "Authentication works across services",
+      "checked": false
+    },
+    {
+      "text": "JSONL logging captures operations",
+      "checked": false
+    },
+    {
+      "text": "Complete workflow: MCP \u2192 crew \u2192 files \u2192 git",
+      "checked": false
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "text": "Docker compose starts all services successfully",
+      "checked": false
+    },
+    {
+      "text": "All health endpoints return 200 OK",
+      "checked": false
+    },
+    {
+      "text": "MCP accessible externally",
+      "checked": false
+    },
+    {
+      "text": "Internal services NOT accessible externally",
+      "checked": false
+    },
+    {
+      "text": "Bearer token authentication enforced",
+      "checked": false
+    },
+    {
+      "text": "Editor Tool CRUD operations work",
+      "checked": false
+    },
+    {
+      "text": "Git operations record provenance",
+      "checked": false
+    },
+    {
+      "text": "RAG returns relevant results",
+      "checked": false
+    },
+    {
+      "text": "Crew API manages agents",
+      "checked": false
+    },
+    {
+      "text": "Logs in valid JSON format",
+      "checked": false
+    },
+    {
+      "text": "Request tracing works",
+      "checked": false
+    },
+    {
+      "text": "Test suite passes",
+      "checked": false
+    }
+  ],
+  "subtasks": [
+    "Infrastructure validation",
+    "Service health checks",
+    "Network isolation testing",
+    "Authentication testing",
+    "MCP functionality",
+    "Editor Tool testing",
+    "Git Tool testing",
+    "RAG system testing",
+    "Crew orchestration testing",
+    "End-to-end workflow",
+    "Observability validation"
+  ],
+  "todo": [
+    {
+      "text": "Start services with docker compose",
+      "status": "not-started"
+    },
+    {
+      "text": "Verify containers running",
+      "status": "not-started"
+    },
+    {
+      "text": "Check all health endpoints",
+      "status": "not-started"
+    },
+    {
+      "text": "Test network isolation",
+      "status": "not-started"
+    },
+    {
+      "text": "Test authentication",
+      "status": "not-started"
+    },
+    {
+      "text": "Test Editor Tool operations",
+      "status": "not-started"
+    },
+    {
+      "text": "Test Git Tool operations",
+      "status": "not-started"
+    },
+    {
+      "text": "Test RAG search",
+      "status": "not-started"
+    },
+    {
+      "text": "Test Crew orchestration",
+      "status": "not-started"
+    },
+    {
+      "text": "Run end-to-end workflow",
+      "status": "not-started"
+    },
+    {
+      "text": "Run automated test suites",
+      "status": "not-started"
+    },
+    {
+      "text": "Document results",
+      "status": "not-started"
+    }
+  ],
+  "changelog": [
+    {
+      "timestamp": "2025-10-17T10:08:52.039350",
+      "text": "Task created for comprehensive platform testing"
+    }
+  ],
+  "decisions": [
+    "Test using docker-compose dev profile",
+    "Test happy path and error conditions",
+    "Validate network isolation by testing external access",
+    "Create simple application as e2e test"
+  ],
+  "lessons_learned": [],
+  "issues_risks": [
+    "Docker services may fail if ports in use",
+    "RAG requires OPENAI_API_KEY",
+    "Network tests need docker network tools",
+    "Service startup timing dependencies"
+  ],
+  "next_steps": [
+    "Set POD_TOKEN environment variable",
+    "Configure REPO_PATH",
+    "Stop existing containers",
+    "Start infrastructure validation"
+  ],
+  "references": [
+    "memory-bank/guides/getting-started.md",
+    "memory-bank/guides/features/crew-api.md",
+    "memory-bank/guides/features/mcp-server.md",
+    "docker-compose.yml",
+    "CLAUDE.md"
+  ],
+  "prompts": [
+    {
+      "timestamp": "2025-10-17T10:08:52.039352",
+      "text": "create a task to test the full platform",
+      "context": "Initial request",
+      "type": "initial_request"
+    }
+  ],
+  "locks": [],
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+  "metadata": {
+    "test_type": "comprehensive_e2e",
+    "services": [
+      "files-api",
+      "git-api",
+      "rag-api",
+      "lock-api",
+      "crew-api",
+      "mcp"
+    ],
+    "expected_duration": "60-90 minutes"
+  }
+}
