@@ -1,7 +1,7 @@
 # Cage Pod - Multi-Agent Repository Service
 # Makefile for development and deployment
 
-.PHONY: help install dev test clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-test docker-test-unit docker-test-integration docker-test-api docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-reindex-paths rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker test-docker deploy reset status update start ollama-pull-model ollama-list-models ollama-status
+.PHONY: help install dev clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-reindex-paths rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker deploy reset status update start ollama-pull-model ollama-list-models ollama-status
 
 # Default target
 help:
@@ -10,21 +10,10 @@ help:
 	@echo "Development:"
 	@echo "  install    - Install dependencies with uv"
 	@echo "  dev        - Start development server"
-	@echo "  test       - Run all tests with coverage"
-	@echo "  test-unit  - Run unit tests only"
-	@echo "  test-integration - Run integration tests only"
-	@echo "  test-api   - Run API tests only"
-	@echo "  test-smoke - Run smoke tests only"
-	@echo "  test-parallel - Run tests in parallel"
-	@echo "  test-coverage - Run tests with HTML coverage report"
-	@echo "  test-files - Run files API basic tests (requires Docker)"
-	@echo "  test-files-concurrency - Run files API concurrency tests (requires Docker)"
-	@echo "  test-files-all - Run all files API tests (requires Docker)"
 	@echo "  clean      - Clean up build artifacts"
 	@echo ""
 	@echo "Configuration:"
 	@echo "  config-load-dev     - Load development configuration"
-	@echo "  config-load-test    - Load testing configuration"
 	@echo "  config-load-prod    - Load production configuration"
 	@echo "  config-validate     - Validate current configuration"
 	@echo "  config-example      - Create .env file from template"
@@ -34,7 +23,6 @@ help:
 	@echo "  docker-up        - Start all services with Docker Compose"
 	@echo "  docker-down      - Stop all services"
 	@echo "  docker-logs      - Show logs for all services"
-	@echo "  docker-test      - Run tests in Docker environment"
 	@echo "  docker-clean     - Clean up Docker resources"
 	@echo "  docker-shell     - Open shell in Cage API container"
 	@echo "  docker-db        - Connect to PostgreSQL database"
@@ -68,7 +56,6 @@ help:
 	@echo "Convenience Commands:"
 	@echo "  start       			- Start all services (including observability)"
 	@echo "  dev-docker       - Start services and show API logs"
-	@echo "  test-docker      - Run full test suite in Docker"
 	@echo "  deploy           - Production deployment"
 	@echo "  reset            - Complete reset and fresh start"
 	@echo "  update           - Update and restart services"
@@ -96,139 +83,10 @@ dev:
 		exit 1; \
 	fi
 
-# Run all tests with coverage
-test:
-	@echo "Running all tests with coverage..."
-	@./scripts/run-tests.sh -t all
-
-# Run specific test types
-test-unit:
-	@echo "Running unit tests..."
-	@./scripts/run-tests.sh -t unit
-
-test-integration:
-	@echo "Running integration tests..."
-	@./scripts/run-tests.sh -t integration
-
-test-api:
-	@echo "Running API tests..."
-	@./scripts/run-tests.sh -t api
-
-test-smoke:
-	@echo "Running smoke tests..."
-	@./scripts/run-tests.sh -t smoke
-
-# Run files routes tests specifically
-test-files:
-	@echo "Running Files API routes tests..."
-	@echo "Starting files-api service..."
-	@docker-compose up files-api -d --no-deps
-	@echo "Waiting for service to be ready..."
-	@sleep 5
-	@echo "Running tests against Docker service..."
-	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_simple.py
-
-# Run files routes tests with coverage
-test-files-coverage:
-	@echo "Running Files API routes tests with coverage..."
-	@if [ -d .venv ]; then \
-		uv run python -m pytest tests/api/test_files_basic.py -v --cov=src --cov-report=html --cov-report=term --tb=short -p no:cacheprovider --confcutdir=tests/api; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
-
-# Run files concurrency tests
-test-files-concurrency:
-	@echo "Running Files API concurrency and locking tests..."
-	@echo "Starting files-api service..."
-	@docker-compose up files-api -d --no-deps
-	@echo "Waiting for service to be ready..."
-	@sleep 5
-	@echo "Running tests against Docker service..."
-	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_functionality.py
-
-# Run files stress tests
-test-files-stress:
-	@echo "Running Files API stress tests..."
-	@if [ -d .venv ]; then \
-		uv run python -m pytest tests/api/test_files_stress.py -v --tb=short -p no:cacheprovider --confcutdir=tests/api; \
-	else \
-		echo "Virtual environment not found. Please run 'make install' first."; \
-		exit 1; \
-	fi
-
-# Run all files tests (basic + concurrency + stress)
-test-files-all:
-	@echo "Running all Files API tests..."
-	@echo "Starting files-api service..."
-	@docker-compose up files-api -d --no-deps
-	@echo "Waiting for service to be ready..."
-	@sleep 5
-	@echo "Running basic tests..."
-	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_simple.py
-	@echo "Running functionality tests..."
-	@docker-compose exec -e POD_TOKEN=test-token files-api python tests/api/test_files_api_functionality.py
-
-
-# Run all tests including Docker-based file editing tests
-test-complete:
-	@echo "Running complete test suite..."
-	@./scripts/run-tests.sh -t all
-
-# Run tests with HTML coverage report
-test-coverage:
-	@echo "Running tests with HTML coverage report..."
-	@./scripts/run-tests.sh -t all -o html
-
-# Run tests in parallel
-test-parallel:
-	@echo "Running tests in parallel..."
-	@./scripts/run-tests.sh -t all -p
-
-# Install test dependencies
-test-deps:
-	@echo "Installing test dependencies..."
-	@uv sync --extra dev
-
-# Run all tests with full reporting
-test-all:
-	@echo "Running all tests with full reporting..."
-	@./scripts/run-tests.sh -t all -v
-
-# Configuration management
-config-load-dev:
-	@echo "Loading development configuration..."
-	@./scripts/load-config.sh -e development -v
-
-config-load-test:
-	@echo "Loading testing configuration..."
-	@./scripts/load-config.sh -e testing -v
-
-config-load-prod:
-	@echo "Loading production configuration..."
-	@./scripts/load-config.sh -e production -v
-
-config-validate:
-	@echo "Validating configuration..."
-	@./scripts/load-config.sh --validate -v
-
-config-example:
-	@echo "Creating .env file from template..."
-	@if [ ! -f .env ]; then \
-		cp config/environment.example .env; \
-		echo "✅ Created .env file from template"; \
-		echo "📝 Please edit .env file with your configuration"; \
-	else \
-		echo "⚠️  .env file already exists"; \
-		echo "📝 If you want to recreate it, delete .env first"; \
-	fi
-
 # Clean up
 clean:
 	rm -rf __pycache__/
 	rm -rf src/*/__pycache__/
-	rm -rf .pytest_cache/
 	rm -rf logs/
 	find . -name "*.pyc" -delete
 
@@ -278,21 +136,6 @@ docker-logs-redis:
 
 docker-logs-mcp:
 	docker-compose logs -f mcp
-
-# Run tests in Docker environment
-docker-test:
-	@echo "Running tests in Docker environment..."
-	docker-compose exec api python scripts/test-rag-system.py
-
-# Run specific test types in Docker
-docker-test-unit:
-	docker-compose exec api python tests/run_tests.py unit -v
-
-docker-test-integration:
-	docker-compose exec api python tests/run_tests.py integration -v
-
-docker-test-api:
-	docker-compose exec api python tests/run_tests.py api -v
 
 # Clean up Docker resources
 docker-clean:
@@ -425,10 +268,6 @@ quick-start: docker-build docker-up
 
 # Development workflow - start services and show logs
 dev-docker: docker-up docker-logs-api
-
-# Full test suite in Docker
-test-docker: docker-up docker-test
-	@echo "✅ All tests completed in Docker environment"
 
 # Production deployment
 deploy: docker-build docker-up health-check
