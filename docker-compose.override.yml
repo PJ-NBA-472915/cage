@@ -50,9 +50,6 @@ services:
   rag-api:
     environment:
       - ENVIRONMENT=development
-      - DEV_MODE=true
-      - LOG_LEVEL=DEBUG
-      - RELOAD=true
     volumes:
       - ./config:/app/config:ro
     command:
@@ -92,9 +89,6 @@ services:
   mcp:
     environment:
       - ENVIRONMENT=development
-      - DEV_MODE=true
-      - LOG_LEVEL=DEBUG
-      - DEBUGPY_ENABLED=0
     # volumes:
     #   - ./config:/app/config:ro
     # command:
