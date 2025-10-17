@@ -239,8 +239,7 @@ class RAGService:
             logger.warning("Using dummy embedding due to embedding generation failure")
             dim = self.embedding_dimension
             assert dim is not None, "Embedding dimension not initialized"
-            dim_int: int = dim
-            return [0.0] * dim_int
+            return [0.0] * dim
 
     def _chunk_text(
         self, text: str, chunk_size: int = 400, overlap: int = 40

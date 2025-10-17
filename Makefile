@@ -1,7 +1,7 @@
 # Cage Pod - Multi-Agent Repository Service
 # Makefile for development and deployment
 
-.PHONY: help install dev test clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-test docker-test-unit docker-test-integration docker-test-api docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker test-docker deploy reset status update start
+.PHONY: help install dev test clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-test docker-test-unit docker-test-integration docker-test-api docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker test-docker deploy reset status update start ollama-pull-model ollama-list-models ollama-status
 
 # Default target
 help:
@@ -52,6 +52,11 @@ help:
 	@echo "  rag-reindex      - Reindex RAG system"
 	@echo "  rag-query        - Query RAG system"
 	@echo "  rag-status       - Check RAG system status"
+	@echo ""
+	@echo "Ollama:"
+	@echo "  ollama-pull-model   - Pull Ollama embedding model (bge-code-v1)"
+	@echo "  ollama-list-models  - List installed Ollama models"
+	@echo "  ollama-status       - Check Ollama service status and model availability"
 	@echo ""
 	@echo "Database:"
 	@echo "  db-init          - Initialize database"
@@ -359,6 +364,20 @@ rag-query:
 rag-status:
 	@echo "Checking RAG system status..."
 	@curl -s http://localhost:8000/health | jq .last_index_at
+
+# Ollama Commands
+ollama-pull-model:  ## Pull Ollama embedding model (bge-code-v1)
+	@./scripts/pull-ollama-model.sh
+
+ollama-list-models:  ## List installed Ollama models
+	@docker compose exec ollama ollama list
+
+ollama-status:  ## Check Ollama service status and model availability
+	@echo "Checking Ollama service health..."
+	@docker compose ps ollama
+	@echo ""
+	@echo "Installed models:"
+	@docker compose exec ollama ollama list || echo "Ollama service not running"
 
 # Database Commands
 
