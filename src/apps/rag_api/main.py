@@ -103,7 +103,7 @@ app = FastAPI(
 # Custom OpenAPI schema with Problem Details and examples
 def custom_openapi() -> dict[str, Any]:
     if app.openapi_schema:
-        return app.openapi_schema
+        return app.openapi_schema  # type: ignore[no-any-return]
 
     openapi_schema = get_standard_openapi_schema(
         app=app,
@@ -121,7 +121,7 @@ def custom_openapi() -> dict[str, Any]:
     openapi_schema = add_examples_to_openapi(openapi_schema, RAG_API_EXAMPLES)
 
     app.openapi_schema = openapi_schema
-    return app.openapi_schema
+    return app.openapi_schema  # type: ignore[no-any-return]
 
 
 app.openapi = custom_openapi
@@ -160,7 +160,7 @@ class RAGQueryResponse(BaseModel):
 
 
 # Health check endpoint
-@app.get("/health")
+@app.get("/health")  # type: ignore[misc]
 async def health() -> dict[str, Any]:
     """Health check endpoint."""
     current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -203,7 +203,7 @@ async def health() -> dict[str, Any]:
 
 
 # Kubernetes-style health endpoints
-@app.get("/healthz")
+@app.get("/healthz")  # type: ignore[misc]
 def healthz() -> dict[str, str]:
     """Kubernetes-style health check endpoint."""
     try:
