@@ -84,9 +84,9 @@ services:
     volumes:
       - ollama_models:/root/.ollama
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:11434/api/tags"]
+      test: ["CMD", "/bin/ollama", "list"]
       interval: 15s
-      timeout: 3s
+      timeout: 5s
       retries: 20
       start_period: 30s
     profiles:
@@ -198,7 +198,7 @@ services:
       # Embedding provider configuration
       - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-local}
       - EMBEDDING_MODEL_OPENAI=${EMBEDDING_MODEL_OPENAI:-text-embedding-3-small}
-      - EMBEDDING_MODEL_LOCAL=${EMBEDDING_MODEL_LOCAL:-bge-code-v1}
+      - EMBEDDING_MODEL_LOCAL=${EMBEDDING_MODEL_LOCAL:-nomic-embed-text}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
     volumes:
       - ./src:/app/src
@@ -368,7 +368,7 @@ services:
     networks:
       - cage-internal
     volumes:
-      - ./.cage/tasks:/usr/share/nginx/html:ro
+      - ./tasks:/usr/share/nginx/html:ro
       - ./nginx/tasks.conf:/etc/nginx/conf.d/default.conf:ro
       # (optional) enable Basic Auth by mounting the htpasswd file:
       # - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro

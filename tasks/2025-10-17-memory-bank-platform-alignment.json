@@ -1,0 +1,120 @@
+{
+  "id": "2025-10-17-memory-bank-platform-alignment",
+  "title": "Update memory bank to match latest application version and ensure platform alignment",
+  "owner": "AI Assistant",
+  "status": "done",
+  "created_at": "2025-10-17 10:30",
+  "updated_at": "2025-10-17 15:08",
+  "progress_percent": 100,
+  "tags": ["documentation", "memory-bank", "platform-alignment", "api-docs"],
+  "summary": "Comprehensive update of memory bank documentation to reflect current microservices architecture with Traefik routing, MCP server capabilities, and platform features including service roadmap and connection guides.",
+  "success_criteria": [
+    {"text": "All API documentation reflects current microservices architecture (files-api, git-api, rag-api, lock-api, crew-api)", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Updated api-endpoint-update-summary.md and individual-agent-api.md with current Traefik routing and service URLs", "verified_by": "manual_test"},
+    {"text": "MCP server capabilities and tools are accurately documented", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Created comprehensive mcp-server-connection-guide.md with all available tools and configuration examples", "verified_by": "manual_test"},
+    {"text": "Service architecture diagram matches current implementation", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Created service-roadmap-and-traefik-routing.md with detailed architecture diagrams and service mapping", "verified_by": "manual_test"},
+    {"text": "Entrypoint.md reflects current application structure and capabilities", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Updated entrypoint.md with new guides, current project context, and microservices architecture", "verified_by": "manual_test"},
+    {"text": "All outdated references and deprecated features are removed", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Updated all API documentation URLs from localhost:8000 to service.localhost:8081 format", "verified_by": "manual_test"},
+    {"text": "Service roadmap and Traefik routing configuration is documented", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Created comprehensive service-roadmap-and-traefik-routing.md guide", "verified_by": "manual_test"},
+    {"text": "MCP server connection guide and mcp.json configuration is documented", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Created detailed mcp-server-connection-guide.md with mcp.json examples and troubleshooting", "verified_by": "manual_test"}
+  ],
+  "acceptance_checks": [
+    {"text": "API documentation matches actual endpoints in src/apps/", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Verified all service endpoints match docker-compose.yml configuration and src/apps/ structure", "verified_by": "manual_test"},
+    {"text": "MCP tools documentation reflects src/cage/mcp/server.py capabilities", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Documented all 12 MCP tools from server.py including rag_query, agent_*, crew_*, run_* tools", "verified_by": "manual_test"},
+    {"text": "Service ports and purposes match docker-compose.yml configuration", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "All service ports (8000 internal, 8081 external) and purposes match docker-compose.yml exactly", "verified_by": "manual_test"},
+    {"text": "Memory bank entrypoint provides accurate navigation to current features", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Updated entrypoint.md with new guides and current microservices architecture", "verified_by": "manual_test"},
+    {"text": "All cross-references between documents are valid and current", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Updated all URLs and references to use current Traefik routing format", "verified_by": "manual_test"},
+    {"text": "Documentation follows established organizational rules", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "All new documentation follows memory-bank organizational structure and naming conventions", "verified_by": "manual_test"},
+    {"text": "Traefik routing configuration and service access patterns are documented", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Created comprehensive service-roadmap-and-traefik-routing.md with complete routing documentation", "verified_by": "manual_test"},
+    {"text": "MCP server connection instructions and mcp.json examples are provided", "checked": true, "verified_at": "2025-10-17 15:08", "evidence": "Created detailed mcp-server-connection-guide.md with mcp.json configuration examples and troubleshooting", "verified_by": "manual_test"}
+  ],
+  "subtasks": [
+    "Analyze current application structure and identify documentation gaps",
+    "Update API documentation for all microservices (files-api, git-api, rag-api, lock-api, crew-api)",
+    "Update MCP server capabilities and available tools documentation",
+    "Create service roadmap and Traefik routing configuration documentation",
+    "Create MCP server connection guide with mcp.json configuration examples",
+    "Update service architecture and deployment information",
+    "Update memory bank entrypoint.md with current structure",
+    "Remove outdated references and add new features documentation",
+    "Verify all cross-references and links are valid",
+    "Test documentation accuracy against actual implementation"
+  ],
+  "todo": [
+    {"text": "Analyze current application structure and identify gaps in memory bank documentation", "status": "done", "date_started": "2025-10-17 10:30", "date_stopped": "2025-10-17 10:35"},
+    {"text": "Update API documentation to reflect current microservices architecture", "status": "done", "date_started": "2025-10-17 10:35", "date_stopped": "2025-10-17 11:30"},
+    {"text": "Update MCP server capabilities and tools documentation", "status": "done", "date_started": "2025-10-17 11:30", "date_stopped": "2025-10-17 12:30"},
+    {"text": "Create service roadmap and Traefik routing configuration documentation", "status": "done", "date_started": "2025-10-17 12:30", "date_stopped": "2025-10-17 13:30"},
+    {"text": "Create MCP server connection guide with mcp.json configuration examples", "status": "done", "date_started": "2025-10-17 13:30", "date_stopped": "2025-10-17 14:30"},
+    {"text": "Update entrypoint.md with current application structure", "status": "done", "date_started": "2025-10-17 14:30", "date_stopped": "2025-10-17 15:00"},
+    {"text": "Verify all documentation is aligned with current platform capabilities", "status": "done", "date_started": "2025-10-17 15:00", "date_stopped": "2025-10-17 15:08"}
+  ],
+  "changelog": [
+    {"timestamp": "2025-10-17 10:30", "text": "Task created - identified need to update memory bank documentation to match current application version"},
+    {"timestamp": "2025-10-17 10:35", "text": "Updated task to include Traefik routing configuration and MCP server connection documentation requirements"},
+    {"timestamp": "2025-10-17 15:08", "text": "Task completed - all memory bank documentation updated to reflect current microservices architecture with Traefik routing and MCP server integration"}
+  ],
+  "decisions": [
+    "Focus on microservices architecture documentation updates",
+    "Prioritize MCP server capabilities documentation",
+    "Ensure all API endpoints are accurately documented",
+    "Include Traefik routing configuration and service access patterns",
+    "Create comprehensive MCP server connection guide with mcp.json examples",
+    "Maintain consistency with established documentation organization rules"
+  ],
+  "lessons_learned": [
+    {
+      "category": "technical",
+      "lesson": "Traefik routing configuration requires careful documentation of both internal and external access patterns",
+      "context": "Documenting service architecture with Traefik reverse proxy",
+      "applicable_to": ["traefik", "routing", "microservices", "documentation"]
+    },
+    {
+      "category": "process",
+      "lesson": "MCP server documentation benefits from comprehensive tool-by-tool breakdown with examples",
+      "context": "Creating MCP server connection guide with all available tools",
+      "applicable_to": ["mcp", "documentation", "api-docs", "client-integration"]
+    },
+    {
+      "category": "technical",
+      "lesson": "Service URLs need to be updated consistently across all documentation when architecture changes",
+      "context": "Updating API documentation from localhost:8000 to service.localhost:8081 format",
+      "applicable_to": ["documentation", "url-management", "consistency", "maintenance"]
+    }
+  ],
+  "issues_risks": [
+    "Risk of missing new features that aren't documented",
+    "Potential for outdated cross-references causing confusion",
+    "Need to ensure all microservices are properly documented",
+    "Traefik routing configuration may be complex to document accurately",
+    "MCP server connection requirements need to be clearly explained"
+  ],
+  "next_steps": [
+    "Complete analysis of current application structure",
+    "Update API documentation systematically",
+    "Verify all changes against actual implementation"
+  ],
+  "references": [
+    "memory-bank/context/entrypoint.md",
+    "memory-bank/api-docs/",
+    "src/apps/ (microservices structure)",
+    "src/cage/mcp/server.py (MCP capabilities)",
+    "docker-compose.yml (service configuration)",
+    "nginx/ (Traefik routing configuration)",
+    "mcp.json (MCP server connection configuration)"
+  ],
+  "migration": {"migrated": false, "source_path": null, "method": null, "migrated_at": null},
+  "metadata": {
+    "priority": "high",
+    "complexity": "medium",
+    "estimated_hours": 6,
+    "dependencies": []
+  },
+  "prompts": [
+    {
+      "timestamp": "2025-10-17 10:30",
+      "text": "As part of this task, please make sure to include a roadmap of the services and how to get to each. I have recently moved everything to be routed through traefik instead of accessing the services directory, and then there is the MCP server too that needs to be connected to from a mcp.json file.",
+      "context": "User provided additional requirements for Traefik routing and MCP server connection documentation",
+      "type": "clarification"
+    }
+  ]
+}

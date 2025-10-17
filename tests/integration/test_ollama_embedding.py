@@ -72,12 +72,14 @@ class TestOllamaEmbeddingAdapter:
             assert len(result["vectors"][0]) == 768
             assert result["dim"] == 768
 
-            # Verify API call
+            # Verify API call - adapter now sends individual requests for each chunk
             mock_async_client.post.assert_called_once()
             call_args = mock_async_client.post.call_args
             assert call_args[0][0] == "http://localhost:11434/api/embeddings"
             assert call_args[1]["json"]["model"] == "bge-code-v1"
-            assert call_args[1]["json"]["prompt"] == [test_chunk]
+            assert (
+                call_args[1]["json"]["prompt"] == test_chunk
+            )  # Single string, not array
 
     @pytest.mark.asyncio  # type: ignore[misc]
     async def test_embed_multiple_chunks_mocked(
@@ -91,15 +93,18 @@ class TestOllamaEmbeddingAdapter:
         ]
         mock_embeddings = [[0.1] * 768, [0.2] * 768, [0.3] * 768]
 
-        mock_response = MagicMock()
-        mock_response.json.return_value = {"embeddings": mock_embeddings}
-        mock_response.raise_for_status = MagicMock()
+        # Create separate responses for each chunk
+        mock_responses = [
+            MagicMock(json=lambda e=emb: {"embedding": e}, is_success=True)
+            for emb in mock_embeddings
+        ]
 
         with patch("httpx.AsyncClient") as mock_client:
             mock_async_client = AsyncMock()
             mock_async_client.__aenter__.return_value = mock_async_client
             mock_async_client.__aexit__.return_value = None
-            mock_async_client.post = AsyncMock(return_value=mock_response)
+            # Return different responses for each call
+            mock_async_client.post = AsyncMock(side_effect=mock_responses)
             mock_client.return_value = mock_async_client
 
             result = await ollama_adapter.embed(test_chunks)
@@ -111,6 +116,9 @@ class TestOllamaEmbeddingAdapter:
             assert all(len(v) == 768 for v in result["vectors"])
             assert result["dim"] == 768
 
+            # Verify that post was called 3 times (once per chunk)
+            assert mock_async_client.post.call_count == 3
+
     @pytest.mark.asyncio  # type: ignore[misc]
     async def test_embed_with_normalization(
         self, ollama_adapter: OllamaEmbeddingAdapter
@@ -119,11 +127,10 @@ class TestOllamaEmbeddingAdapter:
         test_chunk = "test code"
         # Create unnormalized vector (length != 1)
         unnormalized = [3.0, 4.0] + [0.0] * 766
-        mock_embeddings = [unnormalized]
 
         mock_response = MagicMock()
-        mock_response.json.return_value = {"embeddings": mock_embeddings}
-        mock_response.raise_for_status = MagicMock()
+        mock_response.json.return_value = {"embedding": unnormalized}
+        mock_response.is_success = True
 
         with patch("httpx.AsyncClient") as mock_client:
             mock_async_client = AsyncMock()
@@ -150,11 +157,10 @@ class TestOllamaEmbeddingAdapter:
         )
         test_chunk = "test code"
         unnormalized = [3.0, 4.0] + [0.0] * 766
-        mock_embeddings = [unnormalized]
 
         mock_response = MagicMock()
-        mock_response.json.return_value = {"embeddings": mock_embeddings}
-        mock_response.raise_for_status = MagicMock()
+        mock_response.json.return_value = {"embedding": unnormalized}
+        mock_response.is_success = True
 
         with patch("httpx.AsyncClient") as mock_client:
             mock_async_client = AsyncMock()

@@ -126,29 +126,30 @@ class OllamaEmbeddingAdapter(EmbeddingAdapter):
         """Generate Ollama embeddings for text chunks."""
         try:
             url = f"{self.base_url}/api/embeddings"
+            vectors = []
 
             async with httpx.AsyncClient(timeout=60.0) as client:
-                response = await client.post(
-                    url,
-                    json={"model": self.model, "prompt": chunks},
-                    headers={"Content-Type": "application/json"},
-                )
+                # Ollama API expects a single string for "prompt", not an array
+                # So we send individual requests for each chunk
+                for chunk in chunks:
+                    response = await client.post(
+                        url,
+                        json={"model": self.model, "prompt": chunk},
+                        headers={"Content-Type": "application/json"},
+                    )
 
-                if not response.is_success:
-                    error_msg = f"Ollama embed failed: HTTP {response.status_code} - {response.text}"
-                    logger.error(error_msg)
-                    raise RuntimeError(error_msg)
+                    if not response.is_success:
+                        error_msg = f"Ollama embed failed: HTTP {response.status_code} - {response.text}"
+                        logger.error(error_msg)
+                        raise RuntimeError(error_msg)
 
-                data = response.json()
+                    data = response.json()
 
-                # Ollama returns {"embedding": [...]} for single prompt
-                # or {"embeddings": [[...], [...]]} for multiple prompts
-                if "embedding" in data:
-                    vectors = [data["embedding"]]
-                elif "embeddings" in data:
-                    vectors = data["embeddings"]
-                else:
-                    raise ValueError(f"Unexpected Ollama response format: {data}")
+                    # Ollama returns {"embedding": [...]} for single prompt
+                    if "embedding" in data:
+                        vectors.append(data["embedding"])
+                    else:
+                        raise ValueError(f"Unexpected Ollama response format: {data}")
 
                 # Update dimension from actual response
                 if vectors:
