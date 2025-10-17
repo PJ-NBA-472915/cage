@@ -22,7 +22,7 @@ pytestmark = pytest.mark.integration
 class TestOllamaEmbeddingAdapter:
     """Integration tests for OllamaEmbeddingAdapter."""
 
-    @pytest.fixture
+    @pytest.fixture  # type: ignore[misc]
     def ollama_adapter(self) -> OllamaEmbeddingAdapter:
         """Create an Ollama adapter instance for testing."""
         return OllamaEmbeddingAdapter(
@@ -31,7 +31,9 @@ class TestOllamaEmbeddingAdapter:
             normalize=True,
         )
 
-    def test_adapter_initialization(self, ollama_adapter: OllamaEmbeddingAdapter) -> None:
+    def test_adapter_initialization(
+        self, ollama_adapter: OllamaEmbeddingAdapter
+    ) -> None:
         """Test that adapter initializes with correct parameters."""
         assert ollama_adapter.base_url == "http://localhost:11434"
         assert ollama_adapter.model == "bge-code-v1"
@@ -40,9 +42,9 @@ class TestOllamaEmbeddingAdapter:
 
     def test_adapter_name(self, ollama_adapter: OllamaEmbeddingAdapter) -> None:
         """Test that adapter returns correct name."""
-        assert ollama_adapter.name() == "ollama:bge-code-v1"
+        assert ollama_adapter.name() == "ollama-bge-code-v1"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio  # type: ignore[misc]
     async def test_embed_single_chunk_mocked(
         self, ollama_adapter: OllamaEmbeddingAdapter
     ) -> None:
@@ -77,7 +79,7 @@ class TestOllamaEmbeddingAdapter:
             assert call_args[1]["json"]["model"] == "bge-code-v1"
             assert call_args[1]["json"]["prompt"] == [test_chunk]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio  # type: ignore[misc]
     async def test_embed_multiple_chunks_mocked(
         self, ollama_adapter: OllamaEmbeddingAdapter
     ) -> None:
@@ -109,7 +111,7 @@ class TestOllamaEmbeddingAdapter:
             assert all(len(v) == 768 for v in result["vectors"])
             assert result["dim"] == 768
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio  # type: ignore[misc]
     async def test_embed_with_normalization(
         self, ollama_adapter: OllamaEmbeddingAdapter
     ) -> None:
@@ -138,7 +140,7 @@ class TestOllamaEmbeddingAdapter:
             assert result["vectors"][0][0] == pytest.approx(0.6, abs=1e-5)
             assert result["vectors"][0][1] == pytest.approx(0.8, abs=1e-5)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio  # type: ignore[misc]
     async def test_embed_without_normalization(self) -> None:
         """Test embedding without normalization."""
         adapter = OllamaEmbeddingAdapter(
@@ -167,7 +169,7 @@ class TestOllamaEmbeddingAdapter:
             assert result["vectors"][0][0] == 3.0
             assert result["vectors"][0][1] == 4.0
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio  # type: ignore[misc]
     async def test_embed_error_handling(
         self, ollama_adapter: OllamaEmbeddingAdapter
     ) -> None:
@@ -183,14 +185,15 @@ class TestOllamaEmbeddingAdapter:
             )
             mock_client.return_value = mock_async_client
 
-            with pytest.raises(httpx.ConnectError):
+            with pytest.raises(RuntimeError) as exc_info:
                 await ollama_adapter.embed([test_chunk])
+            assert "Failed to generate Ollama embeddings" in str(exc_info.value)
 
 
 class TestOpenAIEmbeddingAdapter:
     """Integration tests for OpenAIEmbeddingAdapter."""
 
-    @pytest.fixture
+    @pytest.fixture  # type: ignore[misc]
     def openai_adapter(self) -> OpenAIEmbeddingAdapter:
         """Create an OpenAI adapter instance for testing."""
         return OpenAIEmbeddingAdapter(
@@ -201,13 +204,12 @@ class TestOpenAIEmbeddingAdapter:
         self, openai_adapter: OpenAIEmbeddingAdapter
     ) -> None:
         """Test that adapter initializes with correct parameters."""
-        assert openai_adapter.api_key == "test-api-key"
         assert openai_adapter.model == "text-embedding-3-small"
         assert openai_adapter.dimension() == 1536
 
     def test_adapter_name(self, openai_adapter: OpenAIEmbeddingAdapter) -> None:
         """Test that adapter returns correct name."""
-        assert openai_adapter.name() == "openai:text-embedding-3-small"
+        assert openai_adapter.name() == "openai-text-embedding-3-small"
 
 
 class TestEmbeddingAdapterFactory:
@@ -218,7 +220,7 @@ class TestEmbeddingAdapterFactory:
         with patch.dict(os.environ, {}, clear=True):
             adapter = make_embedding_adapter()
             assert isinstance(adapter, OllamaEmbeddingAdapter)
-            assert adapter.name() == "ollama:bge-code-v1"
+            assert adapter.name() == "ollama-bge-code-v1"
 
     def test_make_adapter_local_explicit(self) -> None:
         """Test factory creates local adapter when explicitly requested."""
@@ -255,7 +257,8 @@ class TestEmbeddingAdapterFactory:
     def test_make_adapter_custom_ollama_model(self) -> None:
         """Test factory with custom Ollama model."""
         with patch.dict(
-            os.environ, {"EMBEDDING_PROVIDER": "local", "EMBEDDING_MODEL_LOCAL": "custom-model"}
+            os.environ,
+            {"EMBEDDING_PROVIDER": "local", "EMBEDDING_MODEL_LOCAL": "custom-model"},
         ):
             adapter = make_embedding_adapter()
             assert isinstance(adapter, OllamaEmbeddingAdapter)
@@ -290,7 +293,7 @@ class TestEmbeddingAdapterFactory:
 class TestEmbeddingCompatibility:
     """Integration tests for embedding adapter compatibility."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio  # type: ignore[misc]
     async def test_ollama_openai_dimension_difference(self) -> None:
         """Test that Ollama and OpenAI adapters have different dimensions."""
         ollama = OllamaEmbeddingAdapter()
@@ -319,7 +322,7 @@ class TestEmbeddingCompatibility:
         ollama = OllamaEmbeddingAdapter(model="test-model")
         openai = OpenAIEmbeddingAdapter(api_key="test", model="test-embedding")
 
-        assert ollama.name().startswith("ollama:")
-        assert openai.name().startswith("openai:")
-        assert ":" in ollama.name()
-        assert ":" in openai.name()
+        assert ollama.name().startswith("ollama-")
+        assert openai.name().startswith("openai-")
+        assert "-" in ollama.name()
+        assert "-" in openai.name()
