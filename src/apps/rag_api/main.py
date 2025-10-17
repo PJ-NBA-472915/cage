@@ -287,8 +287,8 @@ async def rag_reindex(
         # Get RAG service
         rag = await get_rag_service()
 
-        # Get repository path
-        repo_path = Path(os.environ.get("REPO_PATH", "/work/repo"))
+        # Get repository path - always use /work/repo
+        repo_path = Path("/work/repo")
         if not repo_path.exists():
             raise HTTPException(
                 status_code=400, detail=f"Repository path does not exist: {repo_path}"

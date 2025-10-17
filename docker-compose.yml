@@ -114,7 +114,6 @@ services:
       - "traefik.http.routers.files-api-secure.service=files-api"
     environment:
       - POD_TOKEN=${POD_TOKEN}
-      - REPO_PATH=/work/repo
       - RELOAD=${RELOAD:-false}
     volumes:
       # Mount only the source code, not the entire project directory
@@ -154,7 +153,6 @@ services:
       - "traefik.http.routers.git-api-secure.service=git-api"
     environment:
       - POD_TOKEN=${POD_TOKEN}
-      - REPO_PATH=/work/repo
       - RELOAD=${RELOAD:-false}
     volumes:
       - ./src:/app/src
@@ -239,7 +237,6 @@ services:
       - "traefik.http.routers.lock-api-secure.service=lock-api"
     environment:
       - POD_TOKEN=${POD_TOKEN}
-      - REPO_PATH=/work/repo
       - RELOAD=${RELOAD:-false}
       - GOPATH=/go
       - GOROOT=/usr/local/go
@@ -337,7 +334,6 @@ services:
       - "traefik.http.routers.crew-api-secure.service=crew-api"
     environment:
       - POD_TOKEN=${POD_TOKEN}
-      - REPO_PATH=/work/repo
       - RELOAD=${RELOAD:-false}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
