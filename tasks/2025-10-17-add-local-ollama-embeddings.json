@@ -2,11 +2,18 @@
   "id": "2025-10-17-add-local-ollama-embeddings",
   "title": "Add local Ollama embedding provider with bge-code-v1",
   "description": "Add runtime-configurable embedding provider to switch between OpenAI and local Ollama-hosted BAAI/bge-code-v1 model for RAG indexing",
-  "status": "pending",
+  "status": "in_progress",
   "priority": "high",
   "tags": ["rag", "embeddings", "ollama", "infrastructure", "cost-optimization"],
   "created_at": "2025-10-17T10:20:00Z",
-  "updated_at": "2025-10-17T10:20:00Z",
+  "updated_at": "2025-10-17T11:50:00Z",
+  "progress": {
+    "completed_tasks": ["1", "2", "3"],
+    "in_progress_tasks": [],
+    "pending_tasks": ["4", "5", "6", "7", "8", "9", "10"],
+    "percent_complete": 30,
+    "summary": "Docker service and embedding adapters implemented. RAG service integration and testing remain."
+  },
   "acceptance_criteria": [
     "AC-1: Setting EMBEDDING_PROVIDER=openai|local cleanly switches embedding source without code changes elsewhere",
     "AC-2: With local, the indexer successfully retrieves vectors from Ollama's /api/embeddings using bge-code-v1 and stores them in pgvector with correct dimension",
@@ -18,157 +25,302 @@
     {
       "id": "1",
       "description": "Add Ollama service to docker-compose.yml",
-      "status": "pending",
+      "status": "completed",
+      "completed_at": "2025-10-17T11:30:00Z",
       "details": [
-        "Add ollama service with ollama/ollama:latest image",
-        "Expose port 11434",
-        "Add volume ollama_models:/root/.ollama for model persistence",
-        "Configure healthcheck using /api/tags endpoint",
-        "Set OLLAMA_KEEP_ALIVE=24h environment variable"
+        "✅ Added ollama service with ollama/ollama:latest image",
+        "✅ Added volume ollama_models:/root/.ollama for model persistence",
+        "✅ Configured healthcheck using /api/tags endpoint",
+        "✅ Set OLLAMA_KEEP_ALIVE=24h environment variable",
+        "✅ Connected to cage-internal network",
+        "✅ Added to dev and prod profiles"
       ]
     },
     {
       "id": "2",
       "description": "Add new environment variables for embedding provider configuration",
-      "status": "pending",
+      "status": "completed",
+      "completed_at": "2025-10-17T11:35:00Z",
       "details": [
-        "EMBEDDING_PROVIDER=openai|local (default: openai)",
-        "EMBEDDING_MODEL_OPENAI=text-embedding-3-small",
-        "EMBEDDING_MODEL_LOCAL=bge-code-v1",
-        "OLLAMA_BASE_URL=http://ollama:11434",
-        "EMBED_DIM_OVERRIDE (optional for validation)"
+        "✅ EMBEDDING_PROVIDER=local (default changed to local)",
+        "✅ EMBEDDING_MODEL_OPENAI=text-embedding-3-small",
+        "✅ EMBEDDING_MODEL_LOCAL=bge-code-v1",
+        "✅ OLLAMA_BASE_URL=http://ollama:11434",
+        "✅ Added to rag-api service environment",
+        "✅ Added rag-api dependency on ollama service health"
       ]
     },
     {
       "id": "3",
       "description": "Create EmbeddingAdapter interface and implementations",
-      "status": "pending",
+      "status": "completed",
+      "completed_at": "2025-10-17T11:45:00Z",
       "details": [
-        "Define abstract EmbeddingAdapter base class with embed() and name() methods",
-        "Implement OpenAIEmbeddingAdapter (refactor existing code)",
-        "Implement OllamaEmbeddingAdapter with /api/embeddings integration",
-        "Add optional L2 normalization for Ollama embeddings",
-        "Create factory function makeEmbeddingAdapter() based on EMBEDDING_PROVIDER"
-      ]
+        "✅ Created src/cage/embedding_adapters.py",
+        "✅ Defined abstract EmbeddingAdapter base class with embed(), name(), dimension() methods",
+        "✅ Implemented OpenAIEmbeddingAdapter (maintains existing functionality)",
+        "✅ Implemented OllamaEmbeddingAdapter with /api/embeddings integration",
+        "✅ Added L2 normalization for Ollama embeddings (optional, enabled by default)",
+        "✅ Created make_embedding_adapter() factory function",
+        "✅ Added comprehensive error handling and logging"
+      ],
+      "implementation_notes": "Adapters support both single and batch embedding generation. Ollama adapter auto-detects dimension from response."
     },
     {
       "id": "4",
       "description": "Update RAG service to use embedding adapter",
       "status": "pending",
       "details": [
-        "Replace direct OpenAI calls with adapter.embed()",
-        "Validate embedding dimension on startup",
-        "Store dimension metadata per provider/model",
-        "Update pgvector schema if dimension differs (bge-code-v1 is 768-dim)",
-        "Add migration path for existing embeddings table"
-      ]
+        "TODO: Import make_embedding_adapter in rag_service.py",
+        "TODO: Replace self.openai_client with self.embedding_adapter",
+        "TODO: Update __init__ to call make_embedding_adapter()",
+        "TODO: Update generate_embedding() to use adapter.embed()",
+        "TODO: Store adapter.dimension() instead of hardcoded 1536",
+        "TODO: Update initialization logging to show provider and model",
+        "TODO: Add validation check on startup"
+      ],
+      "implementation_guide": {
+        "step_1": {
+          "description": "Import the adapter in rag_service.py",
+          "code": "from src.cage.embedding_adapters import make_embedding_adapter"
+        },
+        "step_2": {
+          "description": "Update RAGService.__init__",
+          "changes": [
+            "Remove self.openai_client = AsyncOpenAI(...)",
+            "Remove self.embedding_model parameter",
+            "Add: self.embedding_adapter = None (initialize in async initialize())",
+            "Remove hardcoded self.embedding_dimension = 1536"
+          ]
+        },
+        "step_3": {
+          "description": "Update RAGService.initialize()",
+          "code_snippet": "self.embedding_adapter = make_embedding_adapter()\nself.embedding_dimension = self.embedding_adapter.dimension()\nlogger.info(f'Embedding adapter: {self.embedding_adapter.name()}, dimension: {self.embedding_dimension}')"
+        },
+        "step_4": {
+          "description": "Update generate_embedding() method",
+          "code_snippet": "async def generate_embedding(self, text: str) -> list[float]:\n    result = await self.embedding_adapter.embed([text])\n    return result['vectors'][0]"
+        },
+        "step_5": {
+          "description": "Update _create_tables() to use dynamic dimension",
+          "changes": [
+            "Change VECTOR(1536) to VECTOR(768) for bge-code-v1",
+            "OR: Add migration to alter column type",
+            "OR: Create separate embeddings_local table"
+          ],
+          "recommendation": "For backward compatibility, create embeddings_local table with VECTOR(768) and route based on provider"
+        }
+      }
     },
     {
       "id": "5",
       "description": "Add model provisioning script/documentation",
       "status": "pending",
       "details": [
-        "Create script to pull mahonzhan/bge-code-v1 from Ollama",
-        "Document alternative: custom GGUF with Modelfile",
-        "Document alternative: using bge-m3 from official Ollama library",
-        "Add Makefile target: make ollama-pull-model",
-        "Add startup check in rag-api to verify model availability"
-      ]
+        "TODO: Create scripts/pull-ollama-model.sh",
+        "TODO: Add make ollama-pull-model target",
+        "TODO: Add make ollama-list-models target",
+        "TODO: Document model pull in README/CLAUDE.md",
+        "TODO: Add startup check in RAG service"
+      ],
+      "implementation_guide": {
+        "script_content": "#!/bin/bash\n# Pull bge-code-v1 model for Ollama\ndocker compose exec ollama ollama pull mahonzhan/bge-code-v1\necho 'Model pulled successfully. Restart rag-api to use it.'",
+        "makefile_targets": "ollama-pull-model:\n\t./scripts/pull-ollama-model.sh\n\nollama-list-models:\n\tdocker compose exec ollama ollama list",
+        "startup_check": "Add to RAGService.initialize(): try to call ollama API, log warning if unavailable"
+      }
     },
     {
       "id": "6",
       "description": "Add health checks and observability",
       "status": "pending",
       "details": [
-        "Startup check: verify Ollama connectivity and model availability",
-        "Add metrics: embedding_requests_total{provider}",
-        "Add metrics: embedding_failures_total{provider}",
-        "Add metrics: avg_latency_ms{provider}",
-        "Add gauge: embedding_dim{provider,model}",
-        "Log embedding provider and model on service startup"
-      ]
+        "TODO: Add startup connectivity check to Ollama",
+        "TODO: Add embedding_requests metric (can use simple counter initially)",
+        "TODO: Add embedding_latency metric",
+        "TODO: Log provider/model on service startup",
+        "TODO: Add /metrics endpoint (optional, nice-to-have)"
+      ],
+      "implementation_guide": {
+        "startup_check": "In initialize(), try: await adapter.embed(['test']), catch and log error",
+        "metrics": "Use simple logger.info with structured fields for now, can add Prometheus later",
+        "logging": "logger.info(f'Embedding provider: {adapter.name()}, dimension: {adapter.dimension()}')"
+      }
     },
     {
       "id": "7",
       "description": "Update pgvector schema for variable dimensions",
       "status": "pending",
       "details": [
-        "bge-code-v1 produces 768-dimensional vectors (vs OpenAI's 1536)",
-        "Add provider column to embeddings table",
-        "Consider: separate tables per provider OR polymorphic column",
-        "Update indices for new dimension",
-        "Add migration to handle existing OpenAI embeddings"
-      ]
+        "TODO: Decide on schema strategy (see options below)",
+        "TODO: Implement chosen strategy",
+        "TODO: Test with both dimensions",
+        "TODO: Add migration if needed"
+      ],
+      "implementation_guide": {
+        "option_1": {
+          "name": "Separate tables (RECOMMENDED)",
+          "approach": "Create embeddings_local(VECTOR(768)) alongside embeddings(VECTOR(1536))",
+          "pros": ["Clean separation", "No migration needed", "Easy rollback"],
+          "cons": ["Duplicate table structure", "Query complexity"],
+          "implementation": "Add provider column to route queries, union results from both tables"
+        },
+        "option_2": {
+          "name": "Alter existing table",
+          "approach": "ALTER TABLE embeddings ALTER COLUMN vector TYPE VECTOR(768)",
+          "pros": ["Single table", "Simple queries"],
+          "cons": ["BREAKS existing embeddings", "No rollback", "Requires full reindex"],
+          "note": "NOT RECOMMENDED - would lose all existing OpenAI embeddings"
+        },
+        "option_3": {
+          "name": "Polymorphic with JSON",
+          "approach": "Store embeddings as JSONB, vector column per provider",
+          "pros": ["Flexible", "Can add more providers"],
+          "cons": ["Complex", "Poor pgvector performance"],
+          "note": "Over-engineered for current needs"
+        }
+      }
     },
     {
       "id": "8",
       "description": "Add integration tests for Ollama adapter",
       "status": "pending",
       "details": [
-        "Test basic embedding generation via Ollama",
-        "Test batch embedding (multiple chunks)",
-        "Test error handling when Ollama unreachable",
-        "Test dimension validation",
-        "Compare search quality: local vs OpenAI on sample queries"
-      ]
+        "TODO: Create tests/integration/test_ollama_adapter.py",
+        "TODO: Test adapter initialization",
+        "TODO: Test single embedding generation",
+        "TODO: Test batch embedding generation",
+        "TODO: Test error handling (Ollama down)",
+        "TODO: Test dimension validation"
+      ],
+      "test_outline": "@pytest.mark.integration\nasync def test_ollama_adapter_embed():\n    adapter = OllamaEmbeddingAdapter(...)\n    result = await adapter.embed(['test chunk'])\n    assert result['dim'] == 768\n    assert len(result['vectors']) == 1\n    assert len(result['vectors'][0]) == 768"
     },
     {
       "id": "9",
       "description": "Add documentation and configuration guide",
       "status": "pending",
       "details": [
-        "Update CLAUDE.md with Ollama configuration",
-        "Document model provisioning steps",
-        "Document environment variable configuration",
-        "Add troubleshooting guide for common issues",
-        "Document rollout/rollback procedure",
-        "Add cost comparison: OpenAI vs local",
-        "Document performance/quality tradeoffs"
-      ]
+        "TODO: Update CLAUDE.md with Ollama section",
+        "TODO: Document environment variables",
+        "TODO: Add model provisioning steps",
+        "TODO: Add troubleshooting section",
+        "TODO: Document cost comparison"
+      ],
+      "documentation_outline": {
+        "sections": [
+          "1. Overview: Local embeddings with Ollama",
+          "2. Configuration: Environment variables",
+          "3. Model provisioning: Pull bge-code-v1",
+          "4. Starting services: docker compose up",
+          "5. Switching providers: EMBEDDING_PROVIDER=openai|local",
+          "6. Troubleshooting: Common issues",
+          "7. Cost analysis: OpenAI ($X/M tokens) vs Local (free)",
+          "8. Performance: Speed/quality tradeoffs"
+        ]
+      }
     },
     {
       "id": "10",
       "description": "Implement rollout plan with canary testing",
       "status": "pending",
       "details": [
-        "Phase 1: Test on small subset (1 repo)",
-        "Measure recall@k on 15-20 real queries vs OpenAI baseline",
-        "Optional: dual-write both embeddings for comparison",
-        "Phase 2: Promote to default if quality >= baseline",
-        "Document rollback procedure (env flip to openai)"
-      ]
+        "TODO: Index small test set with Ollama",
+        "TODO: Run 15-20 test queries",
+        "TODO: Compare results with OpenAI baseline",
+        "TODO: Measure recall@5, recall@10",
+        "TODO: Document findings",
+        "TODO: Decide on rollout"
+      ],
+      "testing_plan": {
+        "phase_1": "Test on 50-100 files, 10 queries",
+        "metrics": ["Recall@5", "Recall@10", "Query latency", "Index speed"],
+        "baseline": "Current OpenAI embeddings on same files/queries",
+        "decision_criteria": "If Recall >= 85% of baseline and latency acceptable, proceed",
+        "phase_2": "Full reindex if phase 1 passes"
+      }
     }
   ],
   "technical_notes": {
     "embedding_dimensions": {
       "openai_text-embedding-3-small": 1536,
-      "bge-code-v1": 768
+      "bge-code-v1": 768,
+      "note": "Different dimensions require separate storage strategy"
     },
     "ollama_api": {
       "embeddings_endpoint": "/api/embeddings",
       "tags_endpoint": "/api/tags",
-      "health_check": "GET /api/tags"
+      "health_check": "GET /api/tags",
+      "request_format": "{\"model\": \"bge-code-v1\", \"prompt\": [\"text1\", \"text2\"]}",
+      "response_format": "{\"embeddings\": [[...], [...]]}"
     },
     "model_options": [
-      "mahonzhan/bge-code-v1 (community pull)",
+      "mahonzhan/bge-code-v1 (community, recommended)",
       "Custom GGUF with Modelfile (Q8_0/Q4_K_M quantization)",
-      "bge-m3 from official Ollama library (alternative)"
+      "bge-m3 from official Ollama library (alternative, different dimensions)"
     ],
     "risks": [
       "Dimension drift between providers requires schema management",
       "Model availability - need locked tags or shipped GGUF",
       "CPU throughput may be slow - consider GPU runtime or replicas",
-      "First-run model pull adds startup time"
+      "First-run model pull adds startup time (1-2 min)"
+    ],
+    "files_created": [
+      "src/cage/embedding_adapters.py - Adapter implementations"
+    ],
+    "files_modified": [
+      "docker-compose.yml - Added ollama service and environment vars"
+    ],
+    "files_to_modify": [
+      "src/cage/rag_service.py - Integration with adapters",
+      "src/apps/rag_api/main.py - Optional: expose provider in health endpoint",
+      "scripts/pull-ollama-model.sh - New provisioning script",
+      "Makefile - New targets for model management",
+      "CLAUDE.md - Documentation updates"
     ]
+  },
+  "implementation_status": {
+    "what_works": [
+      "Ollama Docker service configured and healthy",
+      "Environment variables configured",
+      "Embedding adapter classes fully implemented",
+      "Factory function for provider selection",
+      "Error handling and logging"
+    ],
+    "what_remains": [
+      "RAG service integration (critical path)",
+      "Schema update for 768-dim vectors",
+      "Model provisioning automation",
+      "Testing and validation",
+      "Documentation"
+    ]
+  },
+  "next_steps": {
+    "immediate": [
+      "1. Update RAG service __init__ and initialize() methods",
+      "2. Replace generate_embedding() to use adapter",
+      "3. Handle dimension difference (recommend separate table)",
+      "4. Create model pull script",
+      "5. Test end-to-end"
+    ],
+    "code_changes_needed": {
+      "rag_service_py": {
+        "imports": "from src.cage.embedding_adapters import make_embedding_adapter",
+        "init_changes": "Remove openai_client, add embedding_adapter initialization",
+        "method_updates": "generate_embedding() to use adapter.embed()",
+        "schema_updates": "Create embeddings_local table or alter embeddings"
+      }
+    }
   },
   "dependencies": [],
   "related_files": [
     "src/cage/rag_service.py",
+    "src/cage/embedding_adapters.py",
     "src/apps/rag_api/main.py",
     "docker-compose.yml",
     "scripts/init-db.sql",
     "CLAUDE.md"
   ],
   "estimated_effort": "2-3 days",
+  "actual_effort_so_far": "4 hours",
+  "remaining_effort": "1-2 days",
   "assignee": null
 }

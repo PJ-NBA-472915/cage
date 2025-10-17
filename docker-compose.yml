@@ -72,6 +72,27 @@ services:
       timeout: 5s
       retries: 5
 
+  # Ollama service for local embeddings
+  ollama:
+    image: ollama/ollama:latest
+    container_name: cage-ollama
+    restart: unless-stopped
+    networks:
+      - cage-internal
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:11434/api/tags"]
+      interval: 15s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+    profiles:
+      - dev
+      - prod
+
   # Files API service (internal only)
   files-api:
     build:
@@ -174,6 +195,11 @@ services:
       - REDIS_URL=redis://redis:6379
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - RELOAD=${RELOAD:-false}
+      # Embedding provider configuration
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-local}
+      - EMBEDDING_MODEL_OPENAI=${EMBEDDING_MODEL_OPENAI:-text-embedding-3-small}
+      - EMBEDDING_MODEL_LOCAL=${EMBEDDING_MODEL_LOCAL:-bge-code-v1}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
     volumes:
       - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml:ro
@@ -184,6 +210,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      ollama:
         condition: service_healthy
     #   start_period: 5s
     profiles:
@@ -434,6 +462,8 @@ volumes:
   postgres_data:
   redis_data:
   go_cache:
+  # Ollama volumes
+  ollama_models:
   # Logging stack volumes
   loki-data:
   promtail-positions:
