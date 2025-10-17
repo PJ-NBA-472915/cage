@@ -7,7 +7,8 @@ import datetime
 import logging
 import os
 import sys
-from typing import Any, Optional
+from pathlib import Path
+from typing import Any
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
@@ -18,59 +19,60 @@ from pydantic import BaseModel
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 # Import RAG service
-from src.cage.rag_service import RAGService
-from pathlib import Path
+from src.cage.rag_service import RAGService  # noqa: E402
 
 # Import JSONL logging utilities
-from src.cage.utils.jsonl_logger import setup_jsonl_logger
-from src.cage.utils.openapi_schema import (
+from src.cage.utils.jsonl_logger import setup_jsonl_logger  # noqa: E402
+from src.cage.utils.openapi_schema import (  # noqa: E402
     RAG_API_EXAMPLES,
     add_examples_to_openapi,
     add_response_headers_to_openapi,
     get_standard_openapi_schema,
 )
-from src.cage.utils.problem_details import setup_problem_detail_handlers
-from src.cage.utils.request_id_middleware import EnhancedRequestIDMiddleware
-from src.cage.utils.status_codes import validate_pod_token
+from src.cage.utils.problem_details import setup_problem_detail_handlers  # noqa: E402
+from src.cage.utils.request_id_middleware import (  # noqa: E402
+    EnhancedRequestIDMiddleware,
+)
+from src.cage.utils.status_codes import validate_pod_token  # noqa: E402
 
 # Configure JSONL logging
 logger = setup_jsonl_logger("rag-api", level=logging.INFO)
 
 # Initialize RAG service
-rag_service: Optional[RAGService] = None
+rag_service: RAGService | None = None
+
 
 async def get_rag_service() -> RAGService:
     """Get or initialize RAG service."""
     global rag_service
     if rag_service is None:
         # Get configuration from environment
-        db_url = os.environ.get("DATABASE_URL", "postgresql://postgres:password@postgres:5432/cage")
+        db_url = os.environ.get(
+            "DATABASE_URL", "postgresql://postgres:password@postgres:5432/cage"
+        )
         redis_url = os.environ.get("REDIS_URL", "redis://redis:6379")
         openai_api_key = os.environ.get("OPENAI_API_KEY")
-        
+
+        # OpenAI API key is optional now (local provider available)
         if not openai_api_key:
-            raise HTTPException(
-                status_code=503, 
-                detail="OpenAI API key not configured. RAG service disabled."
+            logger.info(
+                "No OpenAI API key configured, will use local embedding provider"
             )
-        
+
         rag_service = RAGService(
             db_url=db_url,
             redis_url=redis_url,
-            openai_api_key=openai_api_key,
-            embedding_model="text-embedding-3-small"
         )
-        
+
         try:
             await rag_service.initialize()
             logger.info("RAG service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize RAG service: {e}")
             raise HTTPException(
-                status_code=503,
-                detail=f"RAG service initialization failed: {str(e)}"
-            )
-    
+                status_code=503, detail=f"RAG service initialization failed: {str(e)}"
+            ) from e
+
     return rag_service
 
 
@@ -82,7 +84,9 @@ RequestIDMiddleware = EnhancedRequestIDMiddleware
 security = HTTPBearer()
 
 
-def get_pod_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+def get_pod_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
     """Validate POD_TOKEN for authentication."""
     expected_token = os.environ.get("POD_TOKEN")
     return validate_pod_token(credentials.credentials, expected_token)
@@ -97,7 +101,7 @@ app = FastAPI(
 
 
 # Custom OpenAPI schema with Problem Details and examples
-def custom_openapi():
+def custom_openapi() -> dict[str, Any]:
     if app.openapi_schema:
         return app.openapi_schema
 
@@ -133,11 +137,11 @@ setup_problem_detail_handlers(app)
 class RAGQueryRequest(BaseModel):
     query: str
     top_k: int = 8
-    filters: Optional[dict[str, Any]] = None
+    filters: dict[str, Any] | None = None
 
 
 class RAGReindexRequest(BaseModel):
-    paths: Optional[list[str]] = None
+    paths: list[str] | None = None
     force: bool = False
 
 
@@ -157,7 +161,7 @@ class RAGQueryResponse(BaseModel):
 
 # Health check endpoint
 @app.get("/health")
-async def health():
+async def health() -> dict[str, Any]:
     """Health check endpoint."""
     current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -167,10 +171,18 @@ async def health():
             rag = await get_rag_service()
             database_status = "connected"
             redis_status = "connected" if rag.redis_client else "not_configured"
+            embedding_provider = (
+                rag.embedding_adapter.name()
+                if rag.embedding_adapter
+                else "not_initialized"
+            )
+            embedding_dimension = rag.embedding_dimension or "unknown"
         except Exception as e:
             database_status = f"error: {str(e)}"
             redis_status = "error"
-        
+            embedding_provider = "error"
+            embedding_dimension = "unknown"
+
         return {
             "status": "success",
             "service": "rag-api",
@@ -178,6 +190,8 @@ async def health():
             "version": "1.0.0",
             "database": database_status,
             "redis": redis_status,
+            "embedding_provider": embedding_provider,
+            "embedding_dimension": embedding_dimension,
         }
     except Exception as e:
         return {
@@ -190,50 +204,52 @@ async def health():
 
 # Kubernetes-style health endpoints
 @app.get("/healthz")
-def healthz():
+def healthz() -> dict[str, str]:
     """Kubernetes-style health check endpoint."""
     try:
         # Basic health check - service is running
         return {"status": "healthy", "service": "rag-api"}
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        raise HTTPException(status_code=503, detail="Service unhealthy")
+        raise HTTPException(status_code=503, detail="Service unhealthy") from e
 
 
 @app.get("/readyz")
-async def readyz():
+async def readyz() -> dict[str, Any]:
     """Kubernetes-style readiness check endpoint."""
     try:
         # Readiness check - service is ready to accept traffic
         # Check if RAG service can be initialized
         try:
-            rag = await get_rag_service()
+            _ = await get_rag_service()  # Verify service can initialize
             return {"status": "ready", "service": "rag-api"}
         except Exception as e:
             logger.error(f"RAG service not ready: {e}")
-            raise HTTPException(status_code=503, detail=f"RAG service not ready: {str(e)}")
+            raise HTTPException(
+                status_code=503, detail=f"RAG service not ready: {str(e)}"
+            ) from None
     except Exception as e:
         logger.error(f"Readiness check failed: {e}")
-        raise HTTPException(status_code=503, detail="Service not ready")
+        raise HTTPException(status_code=503, detail="Service not ready") from e
 
 
 # RAG operations endpoints
 @app.post("/query", response_model=RAGQueryResponse)
-async def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token)):
+async def rag_query(
+    request: RAGQueryRequest, token: str = Depends(get_pod_token)
+) -> RAGQueryResponse:
     """Query RAG system for relevant documents."""
     try:
         logger.info(f"RAG query requested: {request.query}")
-        
+
         # Get RAG service
         rag = await get_rag_service()
-        
+
         # Perform query
         results = await rag.query(
-            query_text=request.query,
-            top_k=request.top_k,
-            filters=request.filters
+            query_text=request.query, top_k=request.top_k, filters=request.filters
         )
-        
+
         # Convert results to API format
         hits = []
         for result in results:
@@ -252,34 +268,32 @@ async def rag_query(request: RAGQueryRequest, token: str = Depends(get_pod_token
             hits.append(hit)
 
         return RAGQueryResponse(
-            status="success", 
-            hits=hits, 
-            total=len(hits), 
-            query=request.query
+            status="success", hits=hits, total=len(hits), query=request.query
         )
 
     except Exception as e:
         logger.error(f"Error in rag_query: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/reindex")
-async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_token)):
+async def rag_reindex(
+    request: RAGReindexRequest, token: str = Depends(get_pod_token)
+) -> dict[str, Any]:
     """Reindex documents in the RAG system."""
     try:
         logger.info(f"RAG reindex requested for paths: {request.paths}")
-        
+
         # Get RAG service
         rag = await get_rag_service()
-        
+
         # Get repository path
         repo_path = Path(os.environ.get("REPO_PATH", "/work/repo"))
         if not repo_path.exists():
             raise HTTPException(
-                status_code=400,
-                detail=f"Repository path does not exist: {repo_path}"
+                status_code=400, detail=f"Repository path does not exist: {repo_path}"
             )
-        
+
         # Determine scope
         scope = "all"
         if request.paths:
@@ -287,10 +301,10 @@ async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_t
                 scope = "tasks"
             elif len(request.paths) == 1 and request.paths[0] == "repo":
                 scope = "repo"
-        
+
         # Perform reindexing
         result = await rag.reindex_repository(repo_path, scope=scope)
-        
+
         return {
             "status": "success",
             "message": "Reindexing completed",
@@ -302,65 +316,68 @@ async def rag_reindex(request: RAGReindexRequest, token: str = Depends(get_pod_t
 
     except Exception as e:
         logger.error(f"Error in rag_reindex: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/blobs/{sha}")
-async def get_blob_content(sha: str, token: str = Depends(get_pod_token)):
+async def get_blob_content(
+    sha: str, token: str = Depends(get_pod_token)
+) -> dict[str, Any]:
     """Get blob content by SHA."""
     try:
         logger.info(f"Blob content requested for SHA: {sha}")
-        
+
         # Get RAG service
         rag = await get_rag_service()
-        
+
         # Check blob metadata
         metadata = await rag.check_blob_metadata(sha)
-        
+
         if not metadata["present"]:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Blob not found: {sha}"
-            )
-        
+            raise HTTPException(status_code=404, detail=f"Blob not found: {sha}")
+
         return {
             "sha": sha,
             "content": f"Blob content for {sha}",
             "size": metadata["size"],
             "type": metadata["mime"],
             "encoding": "utf-8",
-            "first_seen_at": metadata["first_seen_at"]
+            "first_seen_at": metadata["first_seen_at"],
         }
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error in get_blob_content: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/stats")
-async def get_rag_stats(token: str = Depends(get_pod_token)):
+async def get_rag_stats(token: str = Depends(get_pod_token)) -> dict[str, Any]:
     """Get RAG system statistics."""
     try:
         logger.info("RAG stats requested")
-        
+
         # Get RAG service
         rag = await get_rag_service()
-        
+
         # Get basic stats from database
         async with rag.db_pool.acquire() as conn:
             # Count total documents
-            doc_count = await conn.fetchval("SELECT COUNT(DISTINCT blob_sha) FROM git_blobs")
-            
+            doc_count = await conn.fetchval(
+                "SELECT COUNT(DISTINCT blob_sha) FROM git_blobs"
+            )
+
             # Count total chunks
             chunk_count = await conn.fetchval("SELECT COUNT(*) FROM embeddings")
-            
+
             # Get index size (approximate)
-            index_size = await conn.fetchval("""
+            index_size = await conn.fetchval(
+                """
                 SELECT pg_size_pretty(pg_total_relation_size('embeddings'))
-            """)
-        
+            """
+            )
+
         return {
             "status": "success",
             "total_documents": doc_count,
@@ -369,36 +386,52 @@ async def get_rag_stats(token: str = Depends(get_pod_token)):
             "last_indexed": datetime.datetime.now().isoformat(),
             "database_status": "connected",
             "redis_status": "connected" if rag.redis_client else "not_configured",
+            "embedding_provider": rag.embedding_adapter.name()
+            if rag.embedding_adapter
+            else "not_initialized",
+            "embedding_dimension": rag.embedding_dimension or "unknown",
         }
 
     except Exception as e:
         logger.error(f"Error in get_rag_stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/health-detailed")
-def rag_health_check(token: str = Depends(get_pod_token)):
+async def rag_health_check(token: str = Depends(get_pod_token)) -> dict[str, Any]:
     """Detailed health check for RAG system components."""
     try:
         # TODO: Implement actual health checks for database and Redis
         logger.info("RAG health check requested")
+
+        try:
+            rag = await get_rag_service()
+            embedding_info = {
+                "status": "available",
+                "provider": rag.embedding_adapter.name()
+                if rag.embedding_adapter
+                else "not_initialized",
+                "dimension": rag.embedding_dimension or "unknown",
+            }
+        except Exception as e:
+            embedding_info = {
+                "status": "error",
+                "error": str(e),
+            }
 
         return {
             "status": "healthy",
             "components": {
                 "database": {"status": "connected", "response_time_ms": 10},
                 "redis": {"status": "connected", "response_time_ms": 5},
-                "embedding_service": {
-                    "status": "available",
-                    "model": "text-embedding-3-small",
-                },
+                "embedding_service": embedding_info,
             },
             "timestamp": datetime.datetime.now().isoformat(),
         }
 
     except Exception as e:
         logger.error(f"Error in rag_health_check: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 if __name__ == "__main__":
