@@ -13,13 +13,13 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import asyncpg
-import openai
 import redis.asyncio as redis
-from openai import AsyncOpenAI
 from pgvector.asyncpg import register_vector
+
+from src.cage.embedding_adapters import EmbeddingAdapter, make_embedding_adapter
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +29,10 @@ class ChunkMetadata:
     """Metadata for a text chunk."""
 
     path: str
-    language: Optional[str] = None
-    commit_sha: Optional[str] = None
-    branch: Optional[str] = None
-    task_id: Optional[str] = None
+    language: str | None = None
+    commit_sha: str | None = None
+    branch: str | None = None
+    task_id: str | None = None
     chunk_id: int = 0
 
 
@@ -53,25 +53,32 @@ class RAGService:
         self,
         db_url: str,
         redis_url: str = "redis://localhost:6379",
-        openai_api_key: Optional[str] = None,
+        openai_api_key: str | None = None,
         embedding_model: str = "text-embedding-3-small",
     ):
         """Initialize RAG service."""
         self.db_url = db_url
         self.redis_url = redis_url
-        self.openai_client = AsyncOpenAI(
-            api_key=openai_api_key or os.getenv("OPENAI_API_KEY")
-        )
-        self.embedding_model = embedding_model
-        self.embedding_dimension = 1536  # text-embedding-3-small dimension
+
+        # Embedding adapter will be initialized in initialize() method
+        self.embedding_adapter: EmbeddingAdapter | None = None
+        self.embedding_dimension: int | None = None
 
         # Connection pools
-        self.db_pool: Optional[asyncpg.Pool] = None
-        self.redis_client: Optional[redis.Redis] = None
+        self.db_pool: asyncpg.Pool | None = None
+        self.redis_client: redis.Redis | None = None
 
-    async def initialize(self):
+    async def initialize(self) -> None:
         """Initialize database and Redis connections."""
         try:
+            # Initialize embedding adapter
+            self.embedding_adapter = make_embedding_adapter()
+            self.embedding_dimension = self.embedding_adapter.dimension()
+            logger.info(
+                f"Embedding adapter initialized: {self.embedding_adapter.name()}, "
+                f"dimension: {self.embedding_dimension}"
+            )
+
             # Initialize PostgreSQL connection pool
             self.db_pool = await asyncpg.create_pool(
                 self.db_url, min_size=1, max_size=10, command_timeout=60
@@ -85,14 +92,27 @@ class RAGService:
             # Initialize Redis connection
             self.redis_client = redis.from_url(self.redis_url, decode_responses=True)
 
+            # Test embedding adapter connectivity
+            try:
+                test_result = await self.embedding_adapter.embed(["test"])
+                logger.info(
+                    f"Embedding adapter test successful: generated {len(test_result['vectors'])} vectors"
+                )
+            except Exception as e:
+                logger.error(f"Embedding adapter test failed: {e}")
+                raise RuntimeError(
+                    "Failed to connect to embedding provider. Please check configuration."
+                ) from e
+
             logger.info("RAG service initialized successfully")
 
         except Exception as e:
             logger.error(f"Failed to initialize RAG service: {e}")
             raise
 
-    async def _create_tables(self):
+    async def _create_tables(self) -> None:
         """Create database tables according to specification."""
+        assert self.db_pool is not None, "Database pool not initialized"
         async with self.db_pool.acquire() as conn:
             # Create git_blobs table
             await conn.execute(
@@ -106,13 +126,26 @@ class RAGService:
             """
             )
 
-            # Create embeddings table with pgvector
+            # Create embeddings table with pgvector (OpenAI 1536-dim)
             await conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS embeddings (
                     blob_sha TEXT REFERENCES git_blobs(blob_sha) ON DELETE CASCADE,
                     chunk_id INTEGER NOT NULL,
                     vector VECTOR(1536) NOT NULL,
+                    meta JSONB NOT NULL,
+                    PRIMARY KEY (blob_sha, chunk_id)
+                )
+            """
+            )
+
+            # Create embeddings_local table for local embeddings (768-dim)
+            await conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS embeddings_local (
+                    blob_sha TEXT REFERENCES git_blobs(blob_sha) ON DELETE CASCADE,
+                    chunk_id INTEGER NOT NULL,
+                    vector VECTOR(768) NOT NULL,
                     meta JSONB NOT NULL,
                     PRIMARY KEY (blob_sha, chunk_id)
                 )
@@ -180,25 +213,34 @@ class RAGService:
 
             logger.info("Database tables created successfully")
 
+    def _get_embeddings_table(self) -> str:
+        """Get the appropriate embeddings table based on dimension."""
+        if self.embedding_dimension == 768:
+            return "embeddings_local"
+        else:
+            return "embeddings"
+
     async def generate_embedding(self, text: str) -> list[float]:
-        """Generate embedding for text using OpenAI."""
+        """Generate embedding for text using the configured adapter."""
         try:
-            response = await self.openai_client.embeddings.create(
-                model=self.embedding_model, input=text
-            )
-            return response.data[0].embedding
-        except openai.AuthenticationError as e:
-            logger.error(
-                f"OpenAI authentication failed. Please check your API key: {e}"
-            )
-            # Return a dummy embedding for fallback mode
-            logger.warning("Using dummy embedding due to API key issues")
-            return [0.0] * self.embedding_dimension
+            assert (
+                self.embedding_adapter is not None
+            ), "Embedding adapter not initialized"
+            assert (
+                self.embedding_dimension is not None
+            ), "Embedding dimension not initialized"
+            result = await self.embedding_adapter.embed([text])
+            return list(result["vectors"][0])
         except Exception as e:
+            if isinstance(e, AssertionError):
+                raise
             logger.error(f"Failed to generate embedding: {e}")
             # Return a dummy embedding for fallback mode
             logger.warning("Using dummy embedding due to embedding generation failure")
-            return [0.0] * self.embedding_dimension
+            dim = self.embedding_dimension
+            assert dim is not None, "Embedding dimension not initialized"
+            dim_int: int = dim
+            return [0.0] * dim_int
 
     def _chunk_text(
         self, text: str, chunk_size: int = 400, overlap: int = 40
@@ -231,7 +273,7 @@ class RAGService:
 
         return chunks
 
-    def _detect_language(self, file_path: str) -> Optional[str]:
+    def _detect_language(self, file_path: str) -> str | None:
         """Detect programming language from file path."""
         ext = Path(file_path).suffix.lower()
         language_map = {
@@ -262,6 +304,10 @@ class RAGService:
     ) -> list[str]:
         """Index a file and return blob SHAs."""
         try:
+            assert self.db_pool is not None, "Database pool not initialized"
+            assert (
+                self.embedding_adapter is not None
+            ), "Embedding adapter not initialized"
             # Calculate blob SHA
             blob_sha = hashlib.sha256(content.encode("utf-8")).hexdigest()
 
@@ -336,14 +382,18 @@ class RAGService:
 
                     embedding_array = np.array(embedding, dtype=np.float32)
 
-                    await conn.execute(
-                        """
-                        INSERT INTO embeddings (blob_sha, chunk_id, vector, meta)
+                    # Use the appropriate table based on embedding dimension
+                    table_name = self._get_embeddings_table()
+                    query = f"""
+                        INSERT INTO {table_name} (blob_sha, chunk_id, vector, meta)
                         VALUES ($1, $2, $3, $4)
                         ON CONFLICT (blob_sha, chunk_id) DO UPDATE SET
                             vector = $3,
                             meta = $4
-                    """,
+                    """
+
+                    await conn.execute(
+                        query,
                         blob_sha,
                         i,
                         embedding_array,
@@ -389,10 +439,17 @@ class RAGService:
         return mime_map.get(ext, "text/plain")
 
     async def query(
-        self, query_text: str, top_k: int = 8, filters: Optional[dict] = None
+        self, query_text: str, top_k: int = 8, filters: dict | None = None
     ) -> list[SearchResult]:
         """Query the RAG system."""
         try:
+            assert self.db_pool is not None, "Database pool not initialized"
+            assert (
+                self.embedding_adapter is not None
+            ), "Embedding adapter not initialized"
+            assert (
+                self.embedding_dimension is not None
+            ), "Embedding dimension not initialized"
             # Generate query embedding
             query_embedding = await self.generate_embedding(query_text)
             logger.info(
@@ -414,11 +471,14 @@ class RAGService:
             # Format vector as string for PostgreSQL pgvector
             vector_str = "[" + ",".join(map(str, query_vector)) + "]"
 
+            # Get the appropriate table based on embedding dimension
+            table_name = self._get_embeddings_table()
+
             # Build SQL query with optional filters - use string interpolation for vector
             sql = f"""
                 SELECT e.blob_sha, e.chunk_id, e.meta, e.vector,
                        1 - (e.vector <=> '{vector_str}'::vector) as score
-                FROM embeddings e
+                FROM {table_name} e
                 JOIN git_blobs gb ON e.blob_sha = gb.blob_sha
             """
             params = []
@@ -457,7 +517,6 @@ class RAGService:
                 metadata = ChunkMetadata(**metadata_dict)
 
                 # Get chunk content from Redis cache or regenerate
-                cache_key = f"chunk:{row['blob_sha']}:{row['chunk_id']}"
                 content = await self._get_chunk_content(
                     row["blob_sha"], row["chunk_id"]
                 )
@@ -478,22 +537,29 @@ class RAGService:
             raise
 
     async def _fallback_text_search(
-        self, query_text: str, top_k: int = 8, filters: Optional[dict] = None
+        self, query_text: str, top_k: int = 8, filters: dict | None = None
     ) -> list[SearchResult]:
         """Fallback text search when embeddings are not available."""
         try:
+            assert self.db_pool is not None, "Database pool not initialized"
+            assert (
+                self.embedding_dimension is not None
+            ), "Embedding dimension not initialized"
             logger.info(f"Performing fallback text search for: {query_text}")
-            
+
             # Simple text search using PostgreSQL text search
             async with self.db_pool.acquire() as conn:
+                # Get the appropriate table based on embedding dimension
+                table_name = self._get_embeddings_table()
+
                 # Search in blob metadata and chunk content
-                search_query = """
-                    SELECT DISTINCT 
+                search_query = f"""
+                    SELECT DISTINCT
                         e.blob_sha,
                         e.chunk_id,
                         e.meta,
                         0.5 as score  -- Fixed score for fallback
-                    FROM embeddings e
+                    FROM {table_name} e
                     JOIN git_blobs gb ON e.blob_sha = gb.blob_sha
                     WHERE (
                         e.meta->>'path' ILIKE $1 OR
@@ -503,35 +569,39 @@ class RAGService:
                     ORDER BY score DESC
                     LIMIT $2
                 """
-                
+
                 search_pattern = f"%{query_text}%"
                 rows = await conn.fetch(search_query, search_pattern, top_k)
-                
+
                 results = []
                 for row in rows:
                     # Get chunk content from Redis or generate dummy content
-                    content = await self._get_chunk_content(row['blob_sha'], row['chunk_id'])
+                    content = await self._get_chunk_content(
+                        row["blob_sha"], row["chunk_id"]
+                    )
                     if not content:
                         content = f"Content for {row['meta'].get('path', 'unknown')} chunk {row['chunk_id']}"
-                    
+
                     result = SearchResult(
                         content=content,
-                        metadata=SearchMetadata(
-                            path=row['meta'].get('path', 'unknown'),
-                            language=row['meta'].get('language', 'unknown'),
-                            commit_sha=row['meta'].get('commit_sha', 'unknown'),
-                            branch=row['meta'].get('branch', 'main'),
-                            chunk_id=str(row['chunk_id'])
+                        metadata=ChunkMetadata(
+                            path=row["meta"].get("path", "unknown"),
+                            language=row["meta"].get("language", "unknown"),
+                            commit_sha=row["meta"].get("commit_sha", "unknown"),
+                            branch=row["meta"].get("branch", "main"),
+                            chunk_id=int(row["chunk_id"]),
                         ),
-                        score=row['score'],
-                        blob_sha=row['blob_sha']
+                        score=row["score"],
+                        blob_sha=row["blob_sha"],
                     )
                     results.append(result)
-                
+
                 logger.info(f"Fallback search found {len(results)} results")
                 return results
-                
+
         except Exception as e:
+            if isinstance(e, AssertionError):
+                raise
             logger.error(f"Fallback text search failed: {e}")
             # Return empty results if fallback also fails
             return []
@@ -545,21 +615,27 @@ class RAGService:
             try:
                 cached_content = await self.redis_client.get(cache_key)
                 if cached_content:
-                    return cached_content
+                    return str(cached_content)
             except Exception as e:
                 logger.warning(f"Redis cache miss for {cache_key}: {e}")
 
         # Get the original content from the repository
         try:
+            assert self.db_pool is not None, "Database pool not initialized"
+            assert (
+                self.embedding_dimension is not None
+            ), "Embedding dimension not initialized"
             # Get file path from database
+            table_name = self._get_embeddings_table()
             async with self.db_pool.acquire() as conn:
-                row = await conn.fetchrow(
-                    """
+                query = f"""
                     SELECT bp.path, e.meta
                     FROM blob_paths bp
-                    JOIN embeddings e ON bp.blob_sha = e.blob_sha
+                    JOIN {table_name} e ON bp.blob_sha = e.blob_sha
                     WHERE bp.blob_sha = $1 AND e.chunk_id = $2
-                """,
+                """
+                row = await conn.fetchrow(
+                    query,
                     blob_sha,
                     chunk_id,
                 )
@@ -626,6 +702,8 @@ class RAGService:
                     return f"No metadata found for blob {blob_sha[:8]}..."
 
         except Exception as e:
+            if isinstance(e, AssertionError):
+                raise
             logger.error(f"Error retrieving content for {blob_sha}:{chunk_id}: {e}")
             return f"Error retrieving content: {str(e)}"
 
@@ -749,6 +827,7 @@ class RAGService:
     async def check_blob_metadata(self, blob_sha: str) -> dict[str, Any]:
         """Check if blob metadata is present."""
         try:
+            assert self.db_pool is not None, "Database pool not initialized"
             async with self.db_pool.acquire() as conn:
                 row = await conn.fetchrow(
                     """
@@ -774,7 +853,7 @@ class RAGService:
             logger.error(f"Failed to check blob metadata for {blob_sha}: {e}")
             raise
 
-    async def close(self):
+    async def close(self) -> None:
         """Close connections."""
         if self.db_pool:
             await self.db_pool.close()
