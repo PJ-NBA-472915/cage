@@ -10,20 +10,21 @@ import logging
 import sys
 import time
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from mcp.server import Server
+from mcp.types import CallToolResult, ListToolsResult
 
 from src.cage.mcp.settings import settings
 
 # Global MCP server instance
-mcp_server: Optional[Server] = None
+mcp_server: Server | None = None
 
 # Global ASGI app (for uvicorn)
-app: Optional[FastAPI] = None
+app: FastAPI | None = None
 
 
 class JsonlFormatter(logging.Formatter):
@@ -59,11 +60,11 @@ class JsonlFormatter(logging.Formatter):
         return json.dumps(log_entry)
 
 
-def setup_logging():
+def setup_logging() -> None:
     """Setup JSONL logging configuration."""
     import os
-    from pathlib import Path
     from logging.handlers import TimedRotatingFileHandler
+    from pathlib import Path
 
     # Create logger
     logger = logging.getLogger()
@@ -159,7 +160,7 @@ def create_mcp_server() -> Server:
         raise
 
 
-def register_mcp_tools(mcp: Server):
+def register_mcp_tools(mcp: Server) -> None:
     """Register all MCP tools with the server."""
     logger = logging.getLogger(__name__)
 
@@ -183,6 +184,26 @@ def register_mcp_tools(mcp: Server):
                     },
                 },
                 "required": ["query"],
+            },
+        },
+        {
+            "name": "rag_reindex",
+            "description": "Reindex the RAG system with specified paths",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "paths": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": 'List of paths to reindex (e.g., ["src/", "docs/"]). If None, reindexes all content.',
+                    },
+                    "force": {
+                        "type": "boolean",
+                        "description": "Whether to force reindexing even if content is already indexed",
+                        "default": False,
+                    },
+                },
+                "required": [],
             },
         },
         {
@@ -363,7 +384,11 @@ def register_mcp_tools(mcp: Server):
                         },
                         "required": ["title", "description", "acceptance"],
                     },
-                    "strategy": {"type": "string", "description": "Execution strategy", "default": "impl_then_verify"},
+                    "strategy": {
+                        "type": "string",
+                        "description": "Execution strategy",
+                        "default": "impl_then_verify",
+                    },
                     "timeout_s": {
                         "type": "integer",
                         "description": "Timeout in seconds",
@@ -422,22 +447,23 @@ def register_mcp_tools(mcp: Server):
         },
     ]
 
-    async def handle_list_tools(request):
+    async def handle_list_tools(request: Any) -> ListToolsResult:
         """Handle list tools request."""
         from mcp.types import ListToolsResult, Tool
 
         mcp_tools = [Tool(**tool) for tool in tools]
         return ListToolsResult(tools=mcp_tools)
 
-    async def handle_call_tool(request):
+    async def handle_call_tool(request: Any) -> CallToolResult:
         """Handle call tool request."""
-        from mcp.types import CallToolResult
 
         tool_name = request.params.name
         arguments = request.params.arguments or {}
 
         if tool_name == "rag_query":
             return await rag_query_tool(arguments)
+        elif tool_name == "rag_reindex":
+            return await rag_reindex_tool(arguments)
         elif tool_name == "agent_create":
             return await agent_create_tool(arguments)
         elif tool_name == "agent_list":
@@ -466,9 +492,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def rag_query_tool(arguments: Dict[str, Any]):
+    async def rag_query_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Query the RAG system for relevant information."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         query = arguments.get("query", "")
@@ -493,7 +518,11 @@ def register_mcp_tools(mcp: Server):
 
             # Call RAG API
             result = await make_api_request(
-                "/query", method="POST", data=data, request_id=request_id, base_url=settings.rag_api_base_url
+                "/query",
+                method="POST",
+                data=data,
+                request_id=request_id,
+                base_url=settings.rag_api_base_url,
             )
 
             # Format response as human-readable summary
@@ -507,7 +536,7 @@ def register_mcp_tools(mcp: Server):
                     file_path = metadata.get("path", "unknown")
                     score = hit.get("score", 0.0)
                     content = hit.get("content", "No content available")
-                    
+
                     # Truncate content if too long
                     if len(content) > 200:
                         content = content[:200] + "..."
@@ -539,9 +568,76 @@ def register_mcp_tools(mcp: Server):
 
             return create_mcp_error_response(e, "rag_query", request_id)
 
-    async def agent_create_tool(arguments: Dict[str, Any]):
+    async def rag_reindex_tool(arguments: dict[str, Any]) -> CallToolResult:
+        """Reindex the RAG system with specified paths."""
+
+        request_id = _request_id()
+        paths = arguments.get("paths")
+        force = arguments.get("force", False)
+
+        logger.info(
+            "RAG reindex tool called",
+            extra={
+                "request_id": request_id,
+                "tool": "rag_reindex",
+                "paths": paths,
+                "force": force,
+            },
+        )
+
+        try:
+            # Prepare request data
+            request_data = {"paths": paths, "force": force}
+
+            # Call RAG API
+            result = await make_api_request(
+                "/reindex",
+                method="POST",
+                data=request_data,
+                request_id=request_id,
+                base_url=settings.rag_api_base_url,
+            )
+
+            # Format response as human-readable summary
+            if result.get("status") == "success":
+                documents_indexed = result.get("documents_indexed", 0)
+                total_chunks = result.get("total_chunks", 0)
+                paths_processed = result.get("paths_processed", ["all"])
+                force_flag = result.get("force", False)
+
+                summary = f"""RAG reindexing completed successfully!
+
+Paths processed: {', '.join(paths_processed)}
+Documents indexed: {documents_indexed}
+Total chunks created: {total_chunks}
+Force reindex: {force_flag}
+
+The RAG system is now updated with the latest content."""
+                return CallToolResult(content=[{"type": "text", "text": summary}])
+            else:
+                return CallToolResult(
+                    content=[
+                        {
+                            "type": "text",
+                            "text": f"RAG reindexing failed: {result.get('error', 'Unknown error')}",
+                        }
+                    ],
+                    isError=True,
+                )
+
+        except Exception as e:
+            logger.error(
+                "RAG reindex tool failed",
+                extra={
+                    "request_id": request_id,
+                    "tool": "rag_reindex",
+                    "error": str(e),
+                },
+            )
+            return create_mcp_error_response(e, "rag_reindex", request_id)
+
+    async def agent_create_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Create a new AI agent."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         name = arguments.get("name", "")
@@ -602,9 +698,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def agent_list_tool(arguments: Dict[str, Any]):
+    async def agent_list_tool(arguments: dict[str, Any]) -> CallToolResult:
         """List available agents with optional filtering."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         role = arguments.get("role")
@@ -680,9 +775,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def agent_get_tool(arguments: Dict[str, Any]):
+    async def agent_get_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Get a specific agent by ID."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         agent_id = arguments.get("agent_id", "")
@@ -727,9 +821,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def agent_invoke_tool(arguments: Dict[str, Any]):
+    async def agent_invoke_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Invoke a single agent with a task."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         agent_id = arguments.get("agent_id", "")
@@ -798,9 +891,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def crew_create_tool(arguments: Dict[str, Any]):
+    async def crew_create_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Create a new crew of AI agents."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         name = arguments.get("name", "")
@@ -861,9 +953,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def crew_list_tool(arguments: Dict[str, Any]):
+    async def crew_list_tool(arguments: dict[str, Any]) -> CallToolResult:
         """List available crews with optional filtering."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         label = arguments.get("label")
@@ -937,9 +1028,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def crew_get_tool(arguments: Dict[str, Any]):
+    async def crew_get_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Get a specific crew by ID."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         crew_id = arguments.get("crew_id", "")
@@ -984,9 +1074,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def crew_run_tool(arguments: Dict[str, Any]):
+    async def crew_run_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Run a crew task."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         crew_id = arguments.get("crew_id", "")
@@ -1046,9 +1135,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def run_list_tool(arguments: Dict[str, Any]):
+    async def run_list_tool(arguments: dict[str, Any]) -> CallToolResult:
         """List runs with optional filtering."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         status = arguments.get("status")
@@ -1125,9 +1213,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def run_get_tool(arguments: Dict[str, Any]):
+    async def run_get_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Get a specific run by ID."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         run_id = arguments.get("run_id", "")
@@ -1168,9 +1255,8 @@ def register_mcp_tools(mcp: Server):
                 isError=True,
             )
 
-    async def run_cancel_tool(arguments: Dict[str, Any]):
+    async def run_cancel_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Cancel a running task."""
-        from mcp.types import CallToolResult
 
         request_id = _request_id()
         run_id = arguments.get("run_id", "")
@@ -1237,8 +1323,8 @@ def create_asgi_app() -> FastAPI:
         version="1.0.0",
     )
 
-    @app.get("/mcp/health")
-    async def health_check(request: Request):
+    @app.get("/mcp/health")  # type: ignore[misc]
+    async def health_check(request: Request) -> dict[str, Any]:
         """Health check endpoint."""
         request_id = extract_request_id(request)
 
@@ -1249,8 +1335,8 @@ def create_asgi_app() -> FastAPI:
 
         return {"status": "ok"}
 
-    @app.get("/mcp/about")
-    async def about(request: Request):
+    @app.get("/mcp/about")  # type: ignore[misc]
+    async def about(request: Request) -> dict[str, Any]:
         """About endpoint with server information."""
         request_id = extract_request_id(request)
 
@@ -1261,8 +1347,8 @@ def create_asgi_app() -> FastAPI:
 
         return {"server": "cage-mcp", "version": "1.0.0"}
 
-    @app.post("/mcp/rpc")
-    async def mcp_rpc_endpoint(request: Request):
+    @app.post("/mcp/rpc")  # type: ignore[misc]
+    async def mcp_rpc_endpoint(request: Request) -> dict[str, Any]:
         """MCP JSON-RPC endpoint."""
         global mcp_server
 
@@ -1341,7 +1427,7 @@ def create_asgi_app() -> FastAPI:
 
 
 async def dispatch_mcp_request(
-    mcp: Server, method: str, params: Dict[str, Any], request_id: str
+    mcp: Server, method: str, params: dict[str, Any], request_id: str
 ) -> Any:
     """
     Dispatch MCP JSON-RPC request to appropriate handler.
@@ -1358,11 +1444,7 @@ async def dispatch_mcp_request(
     Raises:
         Exception: On method execution errors
     """
-    from mcp.types import (
-        CallToolRequest,
-        InitializeRequest,
-        ListToolsRequest,
-    )
+    from mcp.types import CallToolRequest, InitializeRequest, ListToolsRequest
 
     logger = logging.getLogger(__name__)
 
@@ -1371,7 +1453,7 @@ async def dispatch_mcp_request(
         logger.info("Handling initialize request", extra={"request_id": request_id})
 
         # Create InitializeRequest from params
-        init_request = InitializeRequest(
+        InitializeRequest(
             method="initialize",
             params={
                 "protocolVersion": params.get("protocolVersion", "2024-11-05"),
@@ -1476,8 +1558,8 @@ def extract_request_id(request: Request) -> str:
     """Extract request ID from HTTP headers or generate a new one."""
     # Check for X-Request-ID header
     request_id = request.headers.get("X-Request-ID")
-    if request_id:
-        return request_id
+    if request_id and isinstance(request_id, str):
+        return request_id  # type: ignore[no-any-return]
 
     # Generate new request ID if not present
     return _request_id()
@@ -1486,10 +1568,10 @@ def extract_request_id(request: Request) -> str:
 async def make_api_request(
     endpoint: str,
     method: str = "GET",
-    data: Optional[Dict[str, Any]] = None,
-    request_id: Optional[str] = None,
-    base_url: Optional[str] = None,
-) -> Dict[str, Any]:
+    data: dict[str, Any] | None = None,
+    request_id: str | None = None,
+    base_url: str | None = None,
+) -> dict[str, Any]:
     """
     Make an HTTP request to the Cage API.
 
@@ -1546,6 +1628,8 @@ async def make_api_request(
 
             # Parse JSON response
             result = response.json()
+            if not isinstance(result, dict):
+                result = {}
 
             logger.info(
                 f"API request successful: {response.status_code}",
@@ -1556,7 +1640,7 @@ async def make_api_request(
                 },
             )
 
-            return result
+            return result  # type: ignore[no-any-return]
 
     except httpx.HTTPStatusError:
         # This will be raised by handle_http_error
@@ -1569,7 +1653,7 @@ async def make_api_request(
         raise
 
 
-async def handle_http_error(response: httpx.Response, request_id: str):
+async def handle_http_error(response: httpx.Response, request_id: str) -> None:
     """
     Handle HTTP errors and map them to appropriate MCP errors.
 
@@ -1643,7 +1727,7 @@ async def handle_http_error(response: httpx.Response, request_id: str):
 
 def create_mcp_error_response(
     error: Exception, tool_name: str, request_id: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create an MCP error response from an exception.
 
@@ -1683,10 +1767,10 @@ def create_mcp_error_response(
     if problem_detail:
         error_text += f"\n\nOriginal error details: {problem_detail}"
 
-    return CallToolResult(content=[{"type": "text", "text": error_text}], isError=True)
+    return CallToolResult(content=[{"type": "text", "text": error_text}], isError=True)  # type: ignore[no-any-return]
 
 
-def health_ping():
+def health_ping() -> None:
     """Send a health ping log entry."""
     logger = logging.getLogger(__name__)
     request_id = _request_id()
@@ -1698,7 +1782,7 @@ def health_ping():
     )
 
 
-def main():
+def main() -> None:
     """Main entry point for the MCP server."""
     parser = create_cli_parser()
     args = parser.parse_args()
