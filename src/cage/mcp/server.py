@@ -187,26 +187,6 @@ def register_mcp_tools(mcp: Server) -> None:
             },
         },
         {
-            "name": "rag_reindex",
-            "description": "Reindex the RAG system with specified paths",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "paths": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": 'List of paths to reindex (e.g., ["src/", "docs/"]). If None, reindexes all content.',
-                    },
-                    "force": {
-                        "type": "boolean",
-                        "description": "Whether to force reindexing even if content is already indexed",
-                        "default": False,
-                    },
-                },
-                "required": [],
-            },
-        },
-        {
             "name": "agent_create",
             "description": "Create a new AI agent",
             "inputSchema": {
@@ -462,8 +442,6 @@ def register_mcp_tools(mcp: Server) -> None:
 
         if tool_name == "rag_query":
             return await rag_query_tool(arguments)
-        elif tool_name == "rag_reindex":
-            return await rag_reindex_tool(arguments)
         elif tool_name == "agent_create":
             return await agent_create_tool(arguments)
         elif tool_name == "agent_list":
@@ -567,74 +545,6 @@ def register_mcp_tools(mcp: Server) -> None:
             )
 
             return create_mcp_error_response(e, "rag_query", request_id)
-
-    async def rag_reindex_tool(arguments: dict[str, Any]) -> CallToolResult:
-        """Reindex the RAG system with specified paths."""
-
-        request_id = _request_id()
-        paths = arguments.get("paths")
-        force = arguments.get("force", False)
-
-        logger.info(
-            "RAG reindex tool called",
-            extra={
-                "request_id": request_id,
-                "tool": "rag_reindex",
-                "paths": paths,
-                "force": force,
-            },
-        )
-
-        try:
-            # Prepare request data
-            request_data = {"paths": paths, "force": force}
-
-            # Call RAG API
-            result = await make_api_request(
-                "/reindex",
-                method="POST",
-                data=request_data,
-                request_id=request_id,
-                base_url=settings.rag_api_base_url,
-            )
-
-            # Format response as human-readable summary
-            if result.get("status") == "success":
-                documents_indexed = result.get("documents_indexed", 0)
-                total_chunks = result.get("total_chunks", 0)
-                paths_processed = result.get("paths_processed", ["all"])
-                force_flag = result.get("force", False)
-
-                summary = f"""RAG reindexing completed successfully!
-
-Paths processed: {', '.join(paths_processed)}
-Documents indexed: {documents_indexed}
-Total chunks created: {total_chunks}
-Force reindex: {force_flag}
-
-The RAG system is now updated with the latest content."""
-                return CallToolResult(content=[{"type": "text", "text": summary}])
-            else:
-                return CallToolResult(
-                    content=[
-                        {
-                            "type": "text",
-                            "text": f"RAG reindexing failed: {result.get('error', 'Unknown error')}",
-                        }
-                    ],
-                    isError=True,
-                )
-
-        except Exception as e:
-            logger.error(
-                "RAG reindex tool failed",
-                extra={
-                    "request_id": request_id,
-                    "tool": "rag_reindex",
-                    "error": str(e),
-                },
-            )
-            return create_mcp_error_response(e, "rag_reindex", request_id)
 
     async def agent_create_tool(arguments: dict[str, Any]) -> CallToolResult:
         """Create a new AI agent."""

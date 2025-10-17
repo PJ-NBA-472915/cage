@@ -1,7 +1,7 @@
 # Cage Pod - Multi-Agent Repository Service
 # Makefile for development and deployment
 
-.PHONY: help install dev test clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-test docker-test-unit docker-test-integration docker-test-api docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker test-docker deploy reset status update start ollama-pull-model ollama-list-models ollama-status
+.PHONY: help install dev test clean docker-build docker-up docker-down docker-down-clean docker-logs docker-logs-api docker-logs-db docker-logs-redis docker-logs-mcp docker-test docker-test-unit docker-test-integration docker-test-api docker-clean docker-shell docker-db docker-redis start-api start-db start-mcp restart-api health-check rag-reindex rag-reindex-paths rag-query rag-status db-init db-reset db-backup db-restore quick-start dev-docker test-docker deploy reset status update start ollama-pull-model ollama-list-models ollama-status
 
 # Default target
 help:
@@ -49,7 +49,8 @@ help:
 	@echo "  status           - Show service status and resource usage"
 	@echo ""
 	@echo "RAG System:"
-	@echo "  rag-reindex      - Reindex RAG system"
+	@echo "  rag-reindex      - Reindex RAG system (memory-bank)"
+	@echo "  rag-reindex-paths - Reindex RAG system with custom paths (use PATHS=\"src/\" \"docs/\")"
 	@echo "  rag-query        - Query RAG system"
 	@echo "  rag-status       - Check RAG system status"
 	@echo ""
@@ -347,10 +348,18 @@ health-check:
 # Reindex RAG system
 rag-reindex:
 	@echo "Reindexing RAG system..."
-	@curl -X POST http://localhost:8000/rag/reindex \
-		-H "Authorization: Bearer dev-token" \
+	@docker exec cage-rag-api-1 curl -X POST http://localhost:8000/reindex \
+		-H "Authorization: Bearer $$(docker exec cage-rag-api-1 env | grep POD_TOKEN | cut -d= -f2)" \
 		-H "Content-Type: application/json" \
-		-d '{"scope": "all"}' | jq .
+		-d '{"paths": ["memory-bank"], "force": true}' | jq .
+
+# Reindex RAG system with custom paths
+rag-reindex-paths:
+	@echo "Reindexing RAG system with paths: $(PATHS)"
+	@docker exec cage-rag-api-1 curl -X POST http://localhost:8000/reindex \
+		-H "Authorization: Bearer $$(docker exec cage-rag-api-1 env | grep POD_TOKEN | cut -d= -f2)" \
+		-H "Content-Type: application/json" \
+		-d '{"paths": [$(PATHS)], "force": true}' | jq .
 
 # Query RAG system
 rag-query:
