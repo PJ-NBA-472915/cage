@@ -1037,13 +1037,15 @@ class ModularCrewTool:
                 continue
 
             lines = block.splitlines()
-            criterion_text = lines[0].strip()
+
+            # Collect criterion text until we hit STATUS:, EVIDENCE:, or FILE:
+            criterion_lines = []
             status = "UNKNOWN"
             evidence_lines: list[str] = []
             file_lines: list[str] = []
-            current_field = None
+            current_field = "criterion"
 
-            for line in lines[1:]:
+            for line in lines:
                 stripped = line.strip()
                 upper = stripped.upper()
 
@@ -1059,10 +1061,15 @@ class ModularCrewTool:
                     file_lines = [value] if value else []
                     current_field = "file"
                 else:
-                    if current_field == "evidence":
+                    if current_field == "criterion":
+                        criterion_lines.append(stripped)
+                    elif current_field == "evidence":
                         evidence_lines.append(stripped)
                     elif current_field == "file":
                         file_lines.append(stripped)
+
+            # Join criterion lines with space to handle multi-line criteria
+            criterion_text = " ".join(criterion_lines).strip()
 
             normalized = self._normalize_criterion_text(criterion_text)
             status_normalized = (
