@@ -560,7 +560,7 @@ class ModularCrewTool:
 
             verification_history: list[dict[str, Any]] = []
             validation: Optional[dict[str, Any]] = None
-            max_iterations = 3
+            max_iterations = 10
             verification_iteration = 1
 
             if total_criteria == 0:
