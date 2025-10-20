@@ -21,6 +21,7 @@ class AgentType(Enum):
     PLANNER = "planner"
     IMPLEMENTER = "implementer"
     REVIEWER = "reviewer"
+    VERIFIER = "verifier"
     COMMITTER = "committer"
     CUSTOM = "custom"
 

@@ -23,6 +23,7 @@ from ..agents.config import AgentConfigManager
 from ..agents.implementer import ImplementerAgent, implementer_config
 from ..agents.planner import PlannerAgent, planner_config
 from ..agents.reviewer import ReviewerAgent, reviewer_config
+from ..agents.verifier import VerifierAgent, verifier_config
 from ..models import TaskManager
 from .editor_tool import EditorTool, FileOperation, OperationType
 from .git_tool import GitTool
@@ -103,6 +104,7 @@ class ModularCrewTool:
             ImplementerAgent, implementer_config, "implementer"
         )
         self.agent_registry.register_agent(ReviewerAgent, reviewer_config, "reviewer")
+        self.agent_registry.register_agent(VerifierAgent, verifier_config, "verifier")
         self.agent_registry.register_agent(
             CommitterAgent, committer_config, "committer"
         )
@@ -167,7 +169,7 @@ class ModularCrewTool:
                 }
 
             # Inject appropriate tools based on agent type
-            if agent_name == "implementer" or agent_name == "reviewer":
+            if agent_name in ("implementer", "reviewer", "verifier"):
                 agent.config.tools = [EditorToolWrapper(self.editor_tool)]
                 self.logger.info(f"Injected EditorTool into {agent_name} agent")
             elif agent_name == "committer":
@@ -581,7 +583,7 @@ class ModularCrewTool:
             agent = self.agent_factory.create_agent(agent_name)
             if agent:
                 # Inject appropriate tools
-                if agent_name == "implementer" or agent_name == "reviewer":
+                if agent_name in ("implementer", "reviewer", "verifier"):
                     agent.config.tools = [EditorToolWrapper(self.editor_tool)]
                 elif agent_name == "committer":
                     agent.config.tools = [GitToolWrapper(self.git_tool)]
