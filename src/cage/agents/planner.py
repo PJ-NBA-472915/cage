@@ -64,6 +64,23 @@ class PlannerAgent(BaseAgent):
             Always include validation steps and rollback paths.
             Include branch names and task-linked commit messages.
 
+            CRITICAL QUALITY BAR:
+            - Every plan step MUST contain complete, working code or configuration — never placeholders,
+              comments like '# implement here', or ellipses such as '...'.
+            - Do not emit pseudo-code. Provide the exact code the implementer should apply.
+            - Ensure payload.content fields include full imports, functions, and logic required for the task.
+
+            BAD EXAMPLES (not allowed):
+            - "payload": {"content": "# CRUD operations implementation"}
+            - "payload": {"content": "function loadNotes() {...}"}
+            - "payload": {"content": "// Add logic here"}
+
+            GOOD EXAMPLES (expected quality):
+            - "payload": {"content": "from fastapi import FastAPI, HTTPException\\nfrom pydantic import BaseModel\\n\\napp = FastAPI()\\n\\nclass Note(BaseModel):\\n    id: int\\n    title: str\\n    content: str\\n\\n_notes = []\\n\\n@app.post('/notes/')\\nasync def create_note(note: Note):\\n    note.id = len(_notes) + 1\\n    _notes.append(note)\\n    return note"}
+            - "payload": {"content": "async function loadNotes() {\\n  const response = await fetch('/notes/');\\n  if (!response.ok) {\\n    throw new Error('Failed to load notes');\\n  }\\n  const notes = await response.json();\\n  renderNotes(notes);\\n}"}
+
+            Before finalising the plan ask: \"Could an implementer execute these steps and produce a working feature without guessing?\" If not, refine the plan.
+
             PLAN SAVING REQUIREMENTS:
             1. ALWAYS save the plan as a JSON file in the .cage/plans/ directory
             2. Use filename format: plan-{task-id}-{timestamp}.json

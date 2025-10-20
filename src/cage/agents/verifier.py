@@ -112,26 +112,49 @@ class VerifierAgent(BaseAgent):
         )
 
     def create_verification_task(
-        self, task_title: str, acceptance_criteria: list[str]
+        self,
+        task_title: str,
+        success_criteria: Optional[list[str]] = None,
+        acceptance_checks: Optional[list[str]] = None,
     ) -> str:
         """
         Create a task description for verification.
 
         Args:
             task_title: Title of the task to verify
-            acceptance_criteria: List of acceptance criteria to validate
+            success_criteria: List of success criteria to validate
+            acceptance_checks: List of acceptance checks to validate
 
         Returns:
             Task description for the verifier
         """
-        criteria_list = "\n".join(
-            [f"{i+1}. {criterion}" for i, criterion in enumerate(acceptance_criteria)]
+        success_criteria = success_criteria or []
+        acceptance_checks = acceptance_checks or []
+
+        success_list = "\n".join(
+            [f"S{i+1}. {criterion}" for i, criterion in enumerate(success_criteria)]
         )
+        acceptance_list = "\n".join(
+            [f"A{i+1}. {criterion}" for i, criterion in enumerate(acceptance_checks)]
+        )
+
+        sections = []
+        if success_list:
+            sections.append("SUCCESS CRITERIA TO VALIDATE:\n" + success_list)
+        if acceptance_list:
+            sections.append("ACCEPTANCE CHECKS TO VALIDATE:\n" + acceptance_list)
+
+        if not sections:
+            sections.append(
+                "No explicit success criteria or acceptance checks were provided. "
+                "Review the task deliverables holistically and flag any gaps."
+            )
+
+        criteria_block = "\n\n".join(sections)
 
         return f"""Verify acceptance criteria for task: {task_title}
 
-        ACCEPTANCE CRITERIA TO VALIDATE:
-        {criteria_list}
+        {criteria_block}
 
         VALIDATION INSTRUCTIONS:
         1. For EACH criterion above, use EditorTool GET operation to inspect relevant files
