@@ -4,13 +4,11 @@ Run engine and state machine for CrewAI service.
 Manages task execution and state transitions.
 """
 
-import asyncio
 import logging
 import os
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Optional
 from uuid import UUID
 
 from src.cage.models import TaskManager
@@ -33,8 +31,8 @@ class RunState(Enum):
 class RunEngine:
     """Engine for managing task execution and state transitions."""
 
-    def __init__(self, runs_db: Optional[Dict[UUID, Run]] = None):
-        self._active_runs: Dict[UUID, Run] = {}
+    def __init__(self, runs_db: dict[UUID, Run] | None = None):
+        self._active_runs: dict[UUID, Run] = {}
         self._cancelled_runs: set = set()
         self.runs_db = runs_db if runs_db is not None else {}
 
@@ -86,12 +84,16 @@ class RunEngine:
             # Update run with execution results
             if result.get("success", False):
                 run.status = RunState.SUCCEEDED.value
-                run.result_summary = result.get("output", f"Task '{task.title}' completed successfully")
+                run.result_summary = result.get(
+                    "output", f"Task '{task.title}' completed successfully"
+                )
                 run.artefacts = result.get("artefacts", [])
                 logger.info(f"Agent run {run.id} completed successfully")
             else:
                 run.status = RunState.FAILED.value
-                run.result_summary = f"Task failed: {result.get('error', 'Unknown error')}"
+                run.result_summary = (
+                    f"Task failed: {result.get('error', 'Unknown error')}"
+                )
                 logger.error(f"Agent run {run.id} failed: {result.get('error')}")
 
             run.finished_at = datetime.utcnow()
@@ -137,19 +139,27 @@ class RunEngine:
                 return run
 
             # Create a task ID for tracking this crew execution
-            # Format: crew-run-<run_id>
-            task_id = f"crew-run-{str(run.id)[:8]}-{task.title.lower().replace(' ', '-')[:30]}"
+            # Format: YYYY-MM-DD-slug (matching TaskFile pattern requirement)
+            from datetime import datetime as dt
+
+            date_prefix = dt.now().strftime("%Y-%m-%d")
+            title_slug = task.title.lower().replace(" ", "-")[:30]
+            task_id = f"{date_prefix}-{title_slug}"
             logger.info(f"Creating task {task_id} for crew run tracking")
 
             # Create task data for TaskManager
-            from datetime import datetime as dt
-
             task_data = {
                 "id": task_id,
                 "title": task.title,
                 "summary": task.description,
-                "success_criteria": [{"text": criterion, "checked": False} for criterion in task.acceptance],
-                "acceptance_checks": [{"text": criterion, "checked": False} for criterion in task.acceptance],
+                "success_criteria": [
+                    {"text": criterion, "checked": False}
+                    for criterion in task.acceptance
+                ],
+                "acceptance_checks": [
+                    {"text": criterion, "checked": False}
+                    for criterion in task.acceptance
+                ],
                 "status": "in-progress",
                 "owner": "crew",
                 "created_at": dt.now().isoformat(),
@@ -157,10 +167,12 @@ class RunEngine:
                 "progress_percent": 0,
                 "tags": ["crew-execution", str(crew_id)],
                 "todo": [],
-                "changelog": [{
-                    "timestamp": dt.now().isoformat(),
-                    "text": f"Crew execution started for run {run.id}"
-                }],
+                "changelog": [
+                    {
+                        "timestamp": dt.now().isoformat(),
+                        "text": f"Crew execution started for run {run.id}",
+                    }
+                ],
                 "decisions": [],
                 "lessons_learned": [],
                 "issues_risks": [],
@@ -172,23 +184,28 @@ class RunEngine:
                     "migrated": False,
                     "source_path": None,
                     "method": None,
-                    "migrated_at": None
+                    "migrated_at": None,
                 },
-                "plan": {"title": "", "assumptions": [], "steps": [], "commit_message": ""},
+                "plan": {
+                    "title": "",
+                    "assumptions": [],
+                    "steps": [],
+                    "commit_message": "",
+                },
                 "provenance": {
                     "branch_from": "",
                     "work_branch": "",
                     "commits": [],
-                    "blobs_indexed": []
+                    "blobs_indexed": [],
                 },
                 "artefacts": {
                     "run_id": str(run.id),
                     "logs": [],
                     "reports": [],
                     "diff_bundles": [],
-                    "external": []
+                    "external": [],
                 },
-                "metadata": {}
+                "metadata": {},
             }
 
             # Create task in TaskManager
@@ -220,9 +237,11 @@ class RunEngine:
             apply_result = self.crew_tool.apply_plan(task_id, run_id_from_plan)
 
             if apply_result.get("status") != "success":
-                raise ValueError(f"Plan application failed: {apply_result.get('error')}")
+                raise ValueError(
+                    f"Plan application failed: {apply_result.get('error')}"
+                )
 
-            logger.info(f"Plan applied successfully")
+            logger.info("Plan applied successfully")
 
             # Update run with execution results
             run.status = RunState.SUCCEEDED.value
@@ -260,7 +279,7 @@ class RunEngine:
 
         return False
 
-    def get_active_runs(self) -> Dict[UUID, Run]:
+    def get_active_runs(self) -> dict[UUID, Run]:
         """Get all currently active runs."""
         return self._active_runs.copy()
 
