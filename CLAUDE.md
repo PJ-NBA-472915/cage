@@ -35,26 +35,7 @@ docker compose --profile dev down -v
 
 ### Testing
 
-```bash
-# Run all tests
-uv run pytest tests/ -v
-
-# Run smoke tests (quick validation)
-uv run pytest tests/smoke/ -v
-
-# Run specific test types
-uv run pytest tests/unit/ -v          # Unit tests
-uv run pytest tests/integration/ -v   # Integration tests
-uv run pytest tests/api/ -v           # API tests
-
-# Run with coverage
-uv run pytest --cov=src --cov-report=html
-
-# Using Makefile shortcuts
-make test           # All tests with coverage
-make test-smoke     # Smoke tests only
-make test-unit      # Unit tests only
-```
+Testing infrastructure has been temporarily removed to reduce development overhead. Critical tests will be re-added once project goals and direction are clarified.
 
 ### Local Development (Individual Services)
 
@@ -274,33 +255,13 @@ All services return **RFC 7807 Problem Details** format:
 
 ## Testing Strategy
 
-**Test Organization**:
-- `tests/unit/` - Fast, isolated tests (no external dependencies)
-- `tests/integration/` - Tests requiring services (database, Redis)
-- `tests/api/` - HTTP API endpoint tests
-- `tests/smoke/` - Quick validation tests for CI/CD
+**Current Status**: Testing infrastructure has been temporarily removed to reduce development overhead while clarifying project goals and direction.
 
-**Test Markers** (defined in `pyproject.toml`):
-```python
-@pytest.mark.unit        # Fast isolated tests
-@pytest.mark.integration # Requires external services
-@pytest.mark.api         # API endpoint tests
-@pytest.mark.smoke       # Quick validation
-@pytest.mark.docker      # Requires Docker
-```
-
-**Running Specific Tests**:
-```bash
-# Run tests with specific marker
-uv run pytest -m unit
-uv run pytest -m "not slow"
-
-# Run specific test file
-uv run pytest tests/smoke/test_api_smoke.py -v
-
-# Run specific test function
-uv run pytest tests/smoke/test_api_smoke.py::test_health_endpoint -v
-```
+**Future Plans**: Critical tests will be re-added based on:
+- Clarified project objectives
+- Core functionality requirements
+- Integration points
+- Performance and reliability needs
 
 ## Project Structure
 
@@ -319,11 +280,6 @@ cage/
 │       ├── tools/         # Editor, Git, Crew tools
 │       ├── mcp/           # MCP server implementation
 │       └── utils/         # Shared utilities (logging, etc.)
-├── tests/                 # Test suite
-│   ├── unit/             # Unit tests
-│   ├── integration/      # Integration tests
-│   ├── api/              # API tests
-│   └── smoke/            # Smoke tests
 ├── memory-bank/          # Project knowledge base
 │   ├── guides/           # Feature documentation
 │   ├── context/spec/     # Technical specifications
@@ -468,10 +424,10 @@ FLUSHALL            # Clear all (development only)
 - Check file permissions in container
 - Review file locks: may need to wait for lock expiration
 
-**Test failures**:
+**Service failures**:
 - Ensure services are running: `docker compose --profile dev up -d`
-- Run with verbose output: `uv run pytest -v -s`
-- Check test-specific requirements in test file headers
+- Check service logs: `docker compose --profile dev logs service-name`
+- Verify environment variables are set (POD_TOKEN, REPO_PATH)
 
 ## Documentation
 

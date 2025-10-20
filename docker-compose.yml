@@ -127,7 +127,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    #   start_period: 5s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     profiles:
       - dev
       - prod
@@ -163,7 +168,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    #   start_period: 5s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     profiles:
       - dev
       - prod
@@ -211,7 +221,12 @@ services:
         condition: service_healthy
       ollama:
         condition: service_healthy
-    #   start_period: 5s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     profiles:
       - dev
       - prod
@@ -250,7 +265,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    #   start_period: 5s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     profiles:
       - dev
       - prod

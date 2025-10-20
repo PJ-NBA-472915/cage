@@ -256,7 +256,12 @@ class ModularCrewTool:
                 {"run_id": run_id, "task_id": task_id, "agents": ["planner"]},
             )
 
-            planning_crew = self.crew_builder.reset().add_agent(planner_agent).build()
+            planning_crew = (
+                self.crew_builder.reset()
+                .add_agent(planner_agent)
+                .add_task(plan_task)
+                .build()
+            )
             result = planning_crew.kickoff()
 
             self.logger.info("Planning crew execution completed")

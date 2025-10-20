@@ -83,17 +83,7 @@ curl http://localhost:8765/mcp/health  # MCP Server
 
 ## 🧪 Testing
 
-```bash
-# Run all smoke tests
-uv run pytest tests/smoke/ -v
-
-# Run specific tests
-uv run pytest tests/smoke/test_api_smoke.py -v
-uv run pytest tests/test_crew_smoke.py -v
-
-# Test coverage
-uv run pytest --cov=src --cov-report=html
-```
+Testing infrastructure has been temporarily removed. Tests will be re-added as the project goals and direction are clarified.
 
 ## 🔧 Development
 
@@ -225,11 +215,10 @@ Once running, access interactive API documentation:
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and add tests
-4. Run tests: `uv run pytest`
-5. Run quality checks: `uv run pre-commit run --all-files`
-6. Commit: `git commit -m 'Add amazing feature'`
-7. Push and open a Pull Request
+3. Make your changes
+4. Run quality checks: `uv run pre-commit run --all-files`
+5. Commit: `git commit -m 'Add amazing feature'`
+6. Push and open a Pull Request
 
 ## 📄 License
 
@@ -241,6 +230,9 @@ See `tasks/` for phase plans and progress tracking.
 
 ---
 
-**Status**: ✅ FULLY OPERATIONAL - All 6 services running successfully
+**Status**: ✅ OPERATIONAL - All core services running
+
+- 10 services online: traefik, postgres, redis, ollama, files-api, git-api, rag-api, lock-api, crew-api, mcp
+- Testing infrastructure temporarily removed (see Testing section above)
 
 For detailed platform status, see [Platform Status Report](memory-bank/reports/platform-status.md)
