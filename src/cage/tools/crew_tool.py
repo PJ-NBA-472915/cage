@@ -767,8 +767,18 @@ class ModularCrewTool:
                 "unmatched": validation.get("unmatched", []),
             }
 
-            self.task_manager.update_task(task_id, task_data)
-            self.logger.info(f"Task {task_id} updated with execution results")
+            updated_task = self.task_manager.update_task(task_id, task_data)
+            if updated_task:
+                self.logger.info(
+                    f"Task {task_id} updated with execution results: "
+                    f"status={task_data['status']}, "
+                    f"progress={task_data['progress_percent']}%, "
+                    f"criteria_passed={summary['PASS']}/{summary['total']}"
+                )
+            else:
+                self.logger.error(
+                    f"Failed to update task {task_id} with validation results"
+                )
 
             run_status.completed_at = datetime.now()
             if validation["all_passed"] and commit_success:

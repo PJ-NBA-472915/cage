@@ -100,11 +100,16 @@ class TaskManager:
         """Save a task file."""
         task_path = self.tasks_dir / f"{task.id}.json"
         try:
+            task_dict = task.model_dump()
             with open(task_path, "w") as f:
-                json.dump(task.model_dump(), f, indent=2)
+                json.dump(task_dict, f, indent=2)
+            print(f"Successfully saved task {task.id} to {task_path}")
             return True
         except Exception as e:
-            print(f"Error saving task {task.id}: {e}")
+            print(f"Error saving task {task.id} to {task_path}: {e}")
+            import traceback
+
+            traceback.print_exc()
             return False
 
     def create_task(self, task_data: dict[str, Any]) -> Optional[TaskFile]:
@@ -131,17 +136,22 @@ class TaskManager:
         if not task:
             return None
 
-        # Update fields
-        for key, value in updates.items():
-            if hasattr(task, key):
-                setattr(task, key, value)
+        # Convert existing task to dict and merge with updates
+        task_data = task.model_dump()
+        task_data.update(updates)
 
         # Update timestamp
-        task.updated_at = datetime.now().isoformat()
+        task_data["updated_at"] = datetime.now().isoformat()
 
-        if self.save_task(task):
-            return task
-        return None
+        # Reconstruct TaskFile from updated data to ensure proper validation
+        try:
+            updated_task = TaskFile(**task_data)
+            if self.save_task(updated_task):
+                return updated_task
+            return None
+        except ValueError as e:
+            print(f"Error updating task {task_id}: {e}")
+            return None
 
     def list_tasks(self) -> list[dict[str, Any]]:
         """List all task files."""
