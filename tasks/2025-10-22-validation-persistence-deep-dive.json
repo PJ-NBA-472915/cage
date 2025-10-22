@@ -9,6 +9,18 @@
   "tags": ["investigation", "validation", "persistence", "critical-bug", "crew-execution"],
   "summary": "Comprehensive technical investigation into validation persistence failure. Documents the challenge, all solutions attempted, test results, and root cause analysis. Despite TaskManager.update_task() reconstruction fix (commit a8582ec), validation results from the Verifier agent do not persist to task JSON files.",
 
+  "executive_summary": {
+    "problem": "Verifier agent successfully validates task acceptance criteria and produces structured VALIDATION SUMMARY output (Passed: 3/3, Status: APPROVED), but this validation data never persists to task JSON files. All success_criteria remain checked=false with null timestamps and evidence.",
+    "business_impact": "Critical blocker for autonomous crew execution. Cannot track task progress, verify 40% baseline completion rate, or measure validation loop performance improvements.",
+    "root_cause_status": "NOT YET IDENTIFIED - Under Investigation",
+    "root_cause_hypothesis": "Verifier output exists in crew execution logs but is not being extracted/parsed by crew_tool.py. Debug logging added to track updates never triggered, indicating validation data doesn't flow through expected code path to TaskManager.update_task().",
+    "key_finding": "Gap exists between verifier output (confirmed in logs) and task file persistence (confirmed failed). Problem is in data extraction/transformation layer, not in TaskManager update logic.",
+    "solutions_attempted": 3,
+    "integration_tests_run": 1,
+    "bug_confirmed": true,
+    "next_critical_step": "Add comprehensive logging to trace verifier output → crew result object → crew_tool parsing → update_task() call chain"
+  },
+
   "success_criteria": [
     {
       "text": "Document complete timeline of validation persistence investigation",
@@ -33,10 +45,10 @@
     },
     {
       "text": "Identify root cause or narrow down failure point",
-      "checked": false,
-      "verified_at": null,
-      "evidence": null,
-      "verified_by": null
+      "checked": true,
+      "verified_at": "2025-10-22T15:35:00Z",
+      "evidence": "Narrowed to data extraction layer: Verifier output confirmed in logs, task file persistence confirmed failed, debug logging never triggered. Problem is in crew_tool.py parsing/extraction, not TaskManager update logic.",
+      "verified_by": "log_analysis"
     },
     {
       "text": "Provide actionable next steps for resolution",
@@ -376,6 +388,76 @@
       "target": "src/cage/tools/crew_tool.py"
     }
   ],
+
+  "evidence": {
+    "verifier_output_sample": {
+      "description": "Actual verifier output from crew logs showing structured validation summary",
+      "source": "docker compose logs crew-api (2025-10-22T15:17:00Z)",
+      "content": "VALIDATION SUMMARY:\nTotal Criteria: 3\nPassed: 3\nFailed: 0\nPartial: 0\nOverall Status: APPROVED",
+      "analysis": "Verifier DID produce structured validation results with all criteria passed. This data exists in crew execution but never reaches task file, confirming parsing/extraction failure."
+    },
+    "task_file_state": {
+      "description": "Task file state after crew completion showing no validation persistence",
+      "source": "/tmp/test-repo-simple/tasks/2025-10-22-simple-add-function-test.json",
+      "sample": {
+        "success_criteria": [
+          {
+            "text": "File utils.py exists",
+            "checked": false,
+            "verified_at": null,
+            "evidence": null,
+            "verified_by": null
+          }
+        ],
+        "progress_percent": 0,
+        "status": "in-progress"
+      },
+      "analysis": "Despite verifier showing 3/3 passed, task file shows all checked=false. Gap between verifier output and task persistence confirmed."
+    },
+    "crew_logs_no_update": {
+      "description": "Expected debug logging from crew_tool.py:770-781 never appeared in logs",
+      "search_command": "docker compose logs crew-api | grep 'updated with execution results'",
+      "result": "No matches found",
+      "analysis": "Debug logging specifically added to track validation updates never triggered. Indicates update_task() not called with validation data, or called before validation processing."
+    },
+    "files_created": {
+      "description": "Crew successfully created implementation files",
+      "source": "/tmp/test-repo-simple/",
+      "files": [
+        "add_function.py (230 bytes)",
+        "utils.py (1483 bytes)",
+        "test_utils.py (277 bytes)"
+      ],
+      "analysis": "Implementation phase successful. Problem isolated to validation persistence, not overall crew execution."
+    }
+  },
+
+  "reproduction_instructions": {
+    "environment_setup": [
+      "1. Start platform services: docker compose --profile dev up -d",
+      "2. Wait for all 9 services to be healthy",
+      "3. Create test repository: mkdir -p /tmp/test-repo-simple/tasks",
+      "4. Initialize git: cd /tmp/test-repo-simple && git init",
+      "5. Copy schema: cp tasks/_schema.json /tmp/test-repo-simple/tasks/",
+      "6. Set permissions: chmod 777 /tmp/test-repo-simple/tasks/"
+    ],
+    "test_execution": [
+      "1. Reconfigure crew-api: docker compose stop crew-api",
+      "2. Set REPO_PATH: export REPO_PATH=/tmp/test-repo-simple",
+      "3. Restart: docker compose --profile dev up -d crew-api",
+      "4. Copy test script: docker cp /tmp/run_validation_test.py cage-crew-api-1:/tmp/",
+      "5. Run test: docker exec cage-crew-api-1 /app/.venv/bin/python /tmp/run_validation_test.py",
+      "6. Monitor logs: docker compose logs -f crew-api",
+      "7. Check task file: cat /tmp/test-repo-simple/tasks/*.json"
+    ],
+    "expected_bug_behavior": [
+      "Crew runs successfully for ~4 minutes",
+      "Verifier produces VALIDATION SUMMARY in logs",
+      "Files created: add_function.py, utils.py, test_utils.py",
+      "Bug: Task file success_criteria all remain checked=false",
+      "Bug: No verified_at timestamps or evidence populated"
+    ]
+  },
 
   "locks": [],
 
