@@ -2,10 +2,10 @@
   "id": "2025-10-22-start-docker-services",
   "title": "Start All Docker Services for Development",
   "owner": "claude-code",
-  "status": "in-progress",
+  "status": "done",
   "created_at": "2025-10-22T00:00:00Z",
-  "updated_at": "2025-10-22T14:15:00Z",
-  "progress_percent": 80,
+  "updated_at": "2025-10-22T14:25:00Z",
+  "progress_percent": 100,
   "tags": ["docker", "infrastructure", "operations", "high-priority"],
   "summary": "Start all Cage platform Docker services using docker compose --profile dev up. Services are currently down and need to be running for development and testing work.",
 
@@ -143,12 +143,53 @@
       "text": "Build still running after 20 minutes - waiting for container startup phase",
       "lock_id": null,
       "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T14:22:00Z",
+      "text": "Build completed! All images created and containers starting",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T14:23:00Z",
+      "text": "MCP service failed to start - debugpy module missing in venv",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T14:24:00Z",
+      "text": "Restarted MCP with DEBUGPY_ENABLED=0 - service now running successfully",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T14:25:00Z",
+      "text": "All 9 services running and healthy: files-api, git-api, rag-api, lock-api, crew-api, mcp, postgres, redis, ollama, traefik",
+      "lock_id": null,
+      "file_path": null
     }
   ],
 
-  "decisions": [],
+  "decisions": [
+    "Disabled debugpy for MCP service to avoid module not found error",
+    "Set POD_TOKEN to dev-token-test for local development",
+    "Used docker compose --profile dev for all operations"
+  ],
 
-  "lessons_learned": [],
+  "lessons_learned": [
+    {
+      "category": "infrastructure",
+      "lesson": "Docker multi-stage builds with large dependency sets take significant time",
+      "context": "User/group setup step (#35) took 579 seconds, total build ~30 minutes",
+      "applicable_to": ["docker", "ci_cd", "development_workflow"]
+    },
+    {
+      "category": "debugging",
+      "lesson": "debugpy must be installed in the specific venv being used",
+      "context": "MCP service failed because debugpy wasn't in .venv despite being installable globally",
+      "applicable_to": ["python", "debugging", "container_configuration"]
+    }
+  ],
 
   "issues_risks": [
     "POD_TOKEN may not be properly exported - set to dev-token-1761134119 for testing",
