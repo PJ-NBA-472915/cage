@@ -1,0 +1,190 @@
+{
+  "id": "2025-10-22-start-docker-services",
+  "title": "Start All Docker Services for Development",
+  "owner": "claude-code",
+  "status": "in-progress",
+  "created_at": "2025-10-22T00:00:00Z",
+  "updated_at": "2025-10-22T14:15:00Z",
+  "progress_percent": 80,
+  "tags": ["docker", "infrastructure", "operations", "high-priority"],
+  "summary": "Start all Cage platform Docker services using docker compose --profile dev up. Services are currently down and need to be running for development and testing work.",
+
+  "success_criteria": [
+    {
+      "text": "All 10 services are running: traefik, postgres, redis, ollama, files-api, git-api, rag-api, lock-api, crew-api, mcp",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Health checks pass for all API services (8010, 8011, 8012, 8013, 8014, 8765)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "PostgreSQL is accessible and includes pgvector extension",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Redis is accessible and responding to commands",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Ollama service has nomic-embed-text model available",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    }
+  ],
+
+  "acceptance_checks": [
+    {
+      "text": "docker compose --profile dev ps shows all services as 'running'",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "curl http://localhost:8010/health returns 200",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "curl http://localhost:8765/mcp/health returns 200",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "No error logs in docker compose logs output",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    }
+  ],
+
+  "subtasks": [],
+
+  "todo": [
+    {
+      "text": "Verify POD_TOKEN environment variable is set",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Run docker compose --profile dev up -d --build",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Check service status with docker compose --profile dev ps",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Test health endpoints for all services",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Review logs for any startup errors",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+
+  "changelog": [
+    {
+      "timestamp": "2025-10-22T00:00:00Z",
+      "text": "Task created - services currently not running",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T13:55:00Z",
+      "text": "Started docker compose --profile dev up -d --build",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T14:00:00Z",
+      "text": "Build in progress - step #35 took 579s (user/group setup), continuing with remaining services",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T14:05:00Z",
+      "text": "Images built successfully: files-api, git-api, rag-api, mcp, crew-api (lock-api from cache)",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T14:15:00Z",
+      "text": "Build still running after 20 minutes - waiting for container startup phase",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+
+  "decisions": [],
+
+  "lessons_learned": [],
+
+  "issues_risks": [
+    "POD_TOKEN may not be properly exported - set to dev-token-1761134119 for testing",
+    "Build taking exceptionally long (20+ minutes) - user/group setup step took 579 seconds",
+    "Volume mounting issues if permissions changed",
+    "Ollama model may need to be pulled first",
+    "Services may fail to start even after successful image build"
+  ],
+
+  "next_steps": [
+    "Check environment variables (POD_TOKEN, REPO_PATH)",
+    "Start services with docker compose",
+    "Verify all health checks",
+    "Review any error logs"
+  ],
+
+  "references": [
+    "CLAUDE.md",
+    "docker-compose.yml",
+    "memory-bank/reports/platform-status.md"
+  ],
+
+  "prompts": [],
+
+  "locks": [],
+
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+
+  "metadata": {
+    "priority": "high",
+    "blocking": ["all-testing", "all-development"],
+    "estimated_time": "5-10 minutes"
+  }
+}

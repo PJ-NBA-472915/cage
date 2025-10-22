@@ -1,0 +1,205 @@
+{
+  "id": "2025-10-22-run-comprehensive-validation-test",
+  "title": "Run Comprehensive 20+ Criteria Validation Test",
+  "owner": "claude-code",
+  "status": "planned",
+  "created_at": "2025-10-22T00:00:00Z",
+  "updated_at": "2025-10-22T00:00:00Z",
+  "progress_percent": 0,
+  "tags": ["testing", "validation", "performance", "medium-priority"],
+  "summary": "Execute comprehensive validation loop test with 20+ acceptance criteria to measure system performance at scale. Previous focused test (6 criteria) achieved 100% completion. This test validates the system can handle complex multi-faceted feature development tasks.",
+
+  "success_criteria": [
+    {
+      "text": "Test completes with all validation loop iterations tracked",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Completion rate measured and documented (target: >70%)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Average iterations per task calculated and reasonable (<5)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Criteria pass rate by category measured (backend vs frontend vs infrastructure)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "No placeholder code generation observed",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Performance metrics compared to baseline (40% completion rate)",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    }
+  ],
+
+  "acceptance_checks": [
+    {
+      "text": "Task file persistence fix is completed and working",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Committer phase is working and creating git commits",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "All Docker services are running",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Test executes complete note-taking app build via MCP",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Results documented in memory-bank/reports/",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    }
+  ],
+
+  "subtasks": [],
+
+  "todo": [
+    {
+      "text": "Ensure prerequisite tasks are completed (persistence fix, committer debug, services started)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Prepare test repository at /tmp/test-repo",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create agents (perf-planner, perf-implementer, perf-verifier, perf-committer)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Create comprehensive task with 20 acceptance criteria",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Execute crew run via MCP endpoint",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Monitor execution and collect metrics",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Analyze results and document findings",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    },
+    {
+      "text": "Compare to baseline (40%) and focused test (100%)",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+
+  "changelog": [
+    {
+      "timestamp": "2025-10-22T00:00:00Z",
+      "text": "Task created based on validation loop performance test recommendations",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+
+  "decisions": [
+    "Use same note-taking app scenario for consistency with baseline test",
+    "Focus on 20 criteria: 10 backend + 10 frontend for balanced coverage",
+    "Track iterations, time, and criteria pass rates as key metrics"
+  ],
+
+  "lessons_learned": [],
+
+  "issues_risks": [
+    "Test may take 15-30 minutes to complete with multiple iterations",
+    "RAG system performance may affect planning quality",
+    "Complex tasks may hit max iteration limit (10) without full completion"
+  ],
+
+  "next_steps": [
+    "Wait for prerequisite task completion",
+    "Design comprehensive 20-criteria test case",
+    "Execute test and collect detailed metrics",
+    "Document results and recommendations"
+  ],
+
+  "references": [
+    "memory-bank/reports/2025-10-20-validation-loop-performance-test.md",
+    "memory-bank/reports/2025-10-20-crew-autonomous-execution-analysis.md"
+  ],
+
+  "prompts": [],
+
+  "locks": [],
+
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+
+  "metadata": {
+    "priority": "medium",
+    "blocking": [],
+    "dependencies": [
+      "2025-10-22-fix-task-file-validation-persistence",
+      "2025-10-22-debug-committer-phase-execution",
+      "2025-10-22-start-docker-services"
+    ],
+    "estimated_time": "1-2 hours (including execution time)",
+    "test_scenario": "Complete note-taking application with FastAPI backend, HTML/JS frontend, persistent storage"
+  }
+}
