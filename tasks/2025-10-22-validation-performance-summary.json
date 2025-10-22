@@ -1,0 +1,266 @@
+{
+  "id": "2025-10-22-validation-performance-summary",
+  "title": "Validation Performance Test - Ready for Execution",
+  "owner": "claude-code",
+  "status": "blocked",
+  "created_at": "2025-10-22T14:35:00Z",
+  "updated_at": "2025-10-22T12:55:00Z",
+  "progress_percent": 75,
+  "tags": ["testing", "validation", "performance", "ready"],
+  "summary": "All prerequisites for validation performance testing are now complete. The platform is ready to test the validation persistence fix and measure autonomous execution performance against the baseline (40% completion rate).",
+
+  "success_criteria": [
+    {
+      "text": "Platform services all running and healthy (9 services confirmed)",
+      "checked": true,
+      "verified_at": "2025-10-22T14:25:00Z",
+      "evidence": "All services healthy: files-api, git-api, rag-api, lock-api, crew-api, mcp, postgres, redis, ollama",
+      "verified_by": "manual_verification"
+    },
+    {
+      "text": "Validation persistence fix implemented and deployed",
+      "checked": true,
+      "verified_at": "2025-10-22T14:30:00Z",
+      "evidence": "Commit a8582ec - TaskManager.update_task() now reconstructs TaskFile from merged dict",
+      "verified_by": "code_review"
+    },
+    {
+      "text": "Test repository created with sample task file",
+      "checked": true,
+      "verified_at": "2025-10-22T14:35:00Z",
+      "evidence": "/tmp/test-repo-simple with task 2025-10-22-simple-test.json",
+      "verified_by": "automated_test"
+    },
+    {
+      "text": "Verifier agent exists and is registered in agent factory",
+      "checked": true,
+      "verified_at": "2025-10-20T20:00:00Z",
+      "evidence": "src/cage/agents/verifier.py added in commit 89bb5b5",
+      "verified_by": "code_review"
+    },
+    {
+      "text": "Iterative validation loop implemented with max 10 iterations",
+      "checked": true,
+      "verified_at": "2025-10-20T20:10:00Z",
+      "evidence": "Commit 31d899e and be03a3f - validation loop with remediation",
+      "verified_by": "code_review"
+    },
+    {
+      "text": "Debug logging added to track validation updates",
+      "checked": true,
+      "verified_at": "2025-10-22T14:30:00Z",
+      "evidence": "crew_tool.py:770-781 logs status, progress, and criteria counts",
+      "verified_by": "code_review"
+    }
+  ],
+
+  "acceptance_checks": [
+    {
+      "text": "Simple 3-criteria test executes successfully",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Task file updated with checked=true for passed criteria",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Task file includes verified_at timestamps",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Task file includes evidence strings from verifier",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Progress percent calculated from actual validation results",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    },
+    {
+      "text": "Metadata.verification object populated with summary",
+      "checked": false,
+      "verified_at": null,
+      "evidence": null,
+      "verified_by": null
+    }
+  ],
+
+  "subtasks": [],
+
+  "todo": [
+    {
+      "text": "Access crew-api from within Docker network",
+      "status": "done",
+      "date_started": "2025-10-22T12:40:00Z",
+      "date_stopped": "2025-10-22T12:42:00Z"
+    },
+    {
+      "text": "Create test agents (planner, implementer, verifier, committer)",
+      "status": "done",
+      "date_started": "2025-10-22T12:42:00Z",
+      "date_stopped": "2025-10-22T12:43:00Z"
+    },
+    {
+      "text": "Create test crew with agent roles",
+      "status": "done",
+      "date_started": "2025-10-22T12:43:00Z",
+      "date_stopped": "2025-10-22T12:44:00Z"
+    },
+    {
+      "text": "Execute crew run with test task (3 criteria)",
+      "status": "blocked",
+      "date_started": "2025-10-22T12:44:00Z",
+      "date_stopped": "2025-10-22T12:45:00Z"
+    },
+    {
+      "text": "Resolve /work/repo permissions issue for task file creation",
+      "status": "not-started",
+      "date_started": null,
+      "date_stopped": null
+    }
+  ],
+
+  "changelog": [
+    {
+      "timestamp": "2025-10-22T14:35:00Z",
+      "text": "Task created - all prerequisites complete, ready for performance testing",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T12:40:00Z",
+      "text": "Successfully accessed crew-api from within Docker network using docker exec",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T12:43:00Z",
+      "text": "Created 4 test agents and crew successfully via crew-api HTTP endpoints",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T12:45:00Z",
+      "text": "Crew run failed due to permissions - /work/repo is mounted from cage repository, crew cannot write task files there",
+      "lock_id": null,
+      "file_path": null
+    },
+    {
+      "timestamp": "2025-10-22T12:55:00Z",
+      "text": "Marked as blocked - validation persistence testing requires proper test repository configuration with correct permissions",
+      "lock_id": null,
+      "file_path": null
+    }
+  ],
+
+  "decisions": [
+    "Use simple 3-criteria task first to validate basic persistence before comprehensive 20-criteria test",
+    "Test from within Docker network since services aren't exposed to localhost",
+    "Focus on validating the persistence fix works end-to-end before measuring performance"
+  ],
+
+  "lessons_learned": [
+    {
+      "category": "testing",
+      "lesson": "Crew system requires task files to be in a writable repository directory",
+      "context": "Crew run failed with Permission denied: /work/repo is mounted from host cage repository with restricted permissions",
+      "applicable_to": ["integration_testing", "crew_api", "docker_volumes"]
+    },
+    {
+      "category": "architecture",
+      "lesson": "Crew-api expects CrewCreate with roles dict (role_name -> agent_uuid), not simple agent_ids list",
+      "context": "Initial crew creation failed with 422 until payload was corrected to use roles mapping",
+      "applicable_to": ["crew_api", "api_design"]
+    },
+    {
+      "category": "architecture",
+      "lesson": "Crew run endpoint is /crews/{crew_id}/run, not /runs",
+      "context": "Initial attempt used incorrect endpoint structure, corrected to RESTful resource-based routing",
+      "applicable_to": ["crew_api", "rest_api_design"]
+    },
+    {
+      "category": "testing",
+      "lesson": "Docker network isolation requires exec into containers for internal API testing",
+      "context": "Services only accessible on cage-internal network, not localhost - used docker exec to run test script",
+      "applicable_to": ["docker", "integration_testing", "network_security"]
+    }
+  ],
+
+  "issues_risks": [
+    "Services only accessible within Docker network, requires exec into container or internal API calls",
+    "MCP endpoint not exposed on host, limits testing approaches",
+    "Full E2E test requires agent creation, crew setup, task execution - multi-step process",
+    "BLOCKING: /work/repo mounted from host with permissions preventing crew from creating task files",
+    "BLOCKING: Cannot test end-to-end validation persistence without writable test repository",
+    "Crew system architecture requires task files in repository - cannot use ad-hoc API task specs for full workflow"
+  ],
+
+  "next_steps": [
+    "Configure /work/repo volume mount with proper permissions for crew-api container",
+    "OR: Mount separate test repository directory with worker:cage ownership",
+    "OR: Use REPO_PATH environment variable to point crew-api to /tmp/test-repo-simple",
+    "Re-run crew execution test once repository permissions resolved",
+    "Monitor task file updates during crew execution to verify persistence fix",
+    "If successful, proceed to comprehensive 20-criteria test"
+  ],
+
+  "references": [
+    "memory-bank/reports/2025-10-20-validation-loop-performance-test.md",
+    "memory-bank/reports/2025-10-20-crew-autonomous-execution-analysis.md",
+    "tasks/2025-10-22-fix-task-file-validation-persistence.json",
+    "tasks/2025-10-22-start-docker-services.json",
+    "/tmp/test-repo-simple/tasks/2025-10-22-simple-test.json",
+    "/tmp/run_validation_test.py",
+    "/tmp/validation_test_output.log",
+    "src/models/crewai.py - CrewCreate, CrewRunRequest, TaskSpec models",
+    "src/crew_service/router.py - /crews/{crew_id}/run endpoint"
+  ],
+
+  "prompts": [],
+
+  "locks": [],
+
+  "migration": {
+    "migrated": false,
+    "source_path": null,
+    "method": null,
+    "migrated_at": null
+  },
+
+  "metadata": {
+    "priority": "high",
+    "test_environment": "/tmp/test-repo-simple",
+    "baseline_completion_rate": "40%",
+    "target_completion_rate": ">70%",
+    "prerequisites_completed": true,
+    "services_running": 9,
+    "commits_deployed": [
+      "a8582ec - fix: correct task file validation persistence",
+      "271cf5a - docs: complete start-docker-services task"
+    ],
+    "test_execution": {
+      "status": "blocked",
+      "agents_created": 4,
+      "crew_created": true,
+      "crew_id": "bfbd6bf2-943c-454c-9e6b-8b20f0dca9f1",
+      "run_attempted": true,
+      "run_id": "da2777c5-278f-466a-b996-f1549a7f619e",
+      "blocking_issue": "Permission denied: /work/repo/tasks/*.json - crew cannot write task files to mounted host directory",
+      "error_log": "PermissionError: [Errno 13] Permission denied: '/work/repo/tasks/2025-10-22-simple-add-function-test.json'"
+    }
+  }
+}
