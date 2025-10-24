@@ -25,9 +25,9 @@ services:
       - cage-internal
       - cage-external
     ports:
-      - "8081:80"
-      - "8443:443"
-      - "8082:8080"  # Traefik dashboard
+      - "9081:80"
+      - "9443:443"
+      - "9082:8080"  # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-letsencrypt:/letsencrypt
@@ -121,7 +121,7 @@ services:
       - ./tests:/app/tests
       - ./pyproject.toml:/app/pyproject.toml:ro
       # Mount the repository with restricted access
-      - ${REPO_PATH}:/work/repo
+      - /home/planet/test_repo:/work/repo
       # Mount logs directory for the service to write logs
       - ./logs/files-api:/app/logs
     depends_on:
@@ -162,7 +162,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml:ro
-      - ${REPO_PATH}:/work/repo
+      - /home/planet/test_repo:/work/repo
       # Mount logs directory for the service to write logs
       - ./logs/git-api:/app/logs
     depends_on:
@@ -211,7 +211,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml:ro
-      - ${REPO_PATH}:/work/repo
+      - /home/planet/test_repo:/work/repo
       # Mount logs directory for the service to write logs
       - ./logs/rag-api:/app/logs
     depends_on:
@@ -258,7 +258,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./pyproject.toml:/app/pyproject.toml:ro
-      - ${REPO_PATH}:/work/repo
+      - /home/planet/test_repo:/work/repo
       - go_cache:/go
       # Mount logs directory for the service to write logs
       - ./logs/lock-api:/app/logs
@@ -307,8 +307,8 @@ services:
       - GIT_API_BASE_URL=http://git-api:8000
       - RAG_API_BASE_URL=http://rag-api:8000
       - API_TIMEOUT_S=30
-      - DEBUGPY_ENABLED=${DEBUGPY_ENABLED:-0}
-      - DEBUGPY_WAIT_FOR_CLIENT=${DEBUGPY_WAIT_FOR_CLIENT:-0}
+      - DEBUGPY_ENABLED=0
+      - DEBUGPY_WAIT_FOR_CLIENT=0
     volumes:
       # Mount only necessary directories, not .venv or build artifacts
       - ./src:/app/src
@@ -360,7 +360,7 @@ services:
       - ./src:/app/src
       - ./tests:/app/tests
       # Do not mount pyproject.toml or uv.lock - they're in the image
-      - ${REPO_PATH}:/work/repo
+      - /home/planet/test_repo:/work/repo
       # Mount logs directory for the service to write logs
       - ./logs/crew-api:/app/logs
     depends_on:
